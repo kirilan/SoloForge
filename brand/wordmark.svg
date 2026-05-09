@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 112" role="img" aria-label="Solo Forge wordmark">
+  <rect width="112" height="112" rx="24" fill="#12322B"/>
+  <path fill="#F4F7F3" d="M34 37h42c6 0 11 5 11 11v1h-9c-4 0-8 2-10 5l-5 8H37c-7 0-12-5-12-12v-4c0-5 4-9 9-9Z"/>
+  <path fill="#F4F7F3" d="M43 62h27l5 16H38l5-16Z"/>
+  <path fill="#C66A32" d="M52 27h8v10h-8zM48 82h16l6 8H42l6-8Z"/>
+  <text x="144" y="70" fill="#12322B" font-family="Inter, Geist, Arial, sans-serif" font-size="48" font-weight="700" letter-spacing="0">Solo Forge</text>
+</svg>
