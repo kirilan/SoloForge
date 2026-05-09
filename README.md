@@ -8,7 +8,7 @@ The only intentional outbound network request is a user-initiated OpenRouter cal
 
 - Intermittent fasting timer with 16:8, 18:6, 20:4, and 36 hour modes.
 - Smart fasting reminders driven by timer state instead of fixed daily spam.
-- AI-assisted food photo analysis through OpenRouter vision models.
+- AI-assisted food photo analysis through an automatic OpenRouter model escalation chain.
 - Manual meal entry when the user does not want to use the camera.
 - Editable food entries, including proportional macro recalculation by total grams.
 - Local nutrition tracking with calorie and macro goals.
@@ -37,6 +37,8 @@ Solo Forge is designed around local ownership of fitness data.
 - CSV export is explicit and writes to a user-selected folder.
 
 The app declares `INTERNET` only for food image analysis through OpenRouter. That call happens only when the user starts an analysis.
+
+Food analysis starts with `google/gemini-3.1-flash-lite`, escalates to `openai/gpt-5.4-mini` when confidence is low or hidden/mixed ingredients are likely, and uses `google/gemini-3-pro-preview` only if uncertainty remains.
 
 ## Tech Stack
 

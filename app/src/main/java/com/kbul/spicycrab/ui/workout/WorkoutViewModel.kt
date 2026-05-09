@@ -17,13 +17,14 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 data class WorkoutUiState(
     val active: ActiveWorkoutState? = null,
     val nowMs: Long = System.currentTimeMillis(),
     val history: List<WorkoutSession> = emptyList(),
     val selectedMode: WorkoutMode = WorkoutMode.SIMPLE,
-    val intervalMinutes: Int = 2,
+    val intervalMinutes: Double = 2.0,
 )
 
 @HiltViewModel
@@ -39,7 +40,7 @@ class WorkoutViewModel @Inject constructor(
     }
 
     private val selectedMode = MutableStateFlow(WorkoutMode.SIMPLE)
-    private val intervalMinutes = MutableStateFlow(2)
+    private val intervalMinutes = MutableStateFlow(2.0)
 
     val uiState: StateFlow<WorkoutUiState> = combine(
         repository.observeActive(),
@@ -61,13 +62,13 @@ class WorkoutViewModel @Inject constructor(
     val editing: StateFlow<WorkoutSession?> = _editing.asStateFlow()
 
     fun onModeSelected(mode: WorkoutMode) { selectedMode.value = mode }
-    fun onIntervalMinutesChange(minutes: Int) { intervalMinutes.value = minutes.coerceIn(1, 60) }
+    fun onIntervalMinutesChange(minutes: Double) { intervalMinutes.value = minutes.coerceIn(0.01, 240.0) }
 
     fun start() {
         viewModelScope.launch {
             repository.start(
                 mode = selectedMode.value,
-                intervalSeconds = intervalMinutes.value * 60,
+                intervalSeconds = (intervalMinutes.value * 60.0).roundToInt().coerceAtLeast(1),
             )
         }
     }

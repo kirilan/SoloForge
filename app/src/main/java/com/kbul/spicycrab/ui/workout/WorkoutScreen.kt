@@ -27,6 +27,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -139,12 +142,16 @@ private fun ModeSelector(selected: WorkoutMode, onSelect: (WorkoutMode) -> Unit)
 }
 
 @Composable
-private fun IntervalPicker(minutes: Int, onChange: (Int) -> Unit) {
+private fun IntervalPicker(minutes: Double, onChange: (Double) -> Unit) {
+    var input by remember(minutes) { mutableStateOf(formatMinutes(minutes)) }
     OutlinedTextField(
-        value = minutes.toString(),
-        onValueChange = { txt -> txt.filter { it.isDigit() }.toIntOrNull()?.let(onChange) },
+        value = input,
+        onValueChange = { txt ->
+            input = txt.filter { it.isDigit() || it == '.' || it == ',' }
+            input.replace(',', '.').toDoubleOrNull()?.let(onChange)
+        },
         label = { Text("Interval (minutes)") },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth(),
     )
 }
@@ -200,7 +207,7 @@ private fun IntervalActiveCard(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("Interval · ${intervalSec / 60} min", style = MaterialTheme.typography.titleLarge)
+            Text("Interval · ${formatMinutes(intervalSec / 60.0)} min", style = MaterialTheme.typography.titleLarge)
             BigTimer(seconds = intervalElapsed)
             Text("current interval", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(4.dp))
@@ -357,7 +364,7 @@ private fun WorkoutHistoryRow(session: WorkoutSession, onClick: () -> Unit) {
             }
             if (mode == WorkoutMode.INTERVAL && session.intervalSeconds > 0) {
                 Text(
-                    "Interval: ${session.intervalSeconds / 60} min",
+                    "Interval: ${formatMinutes(session.intervalSeconds / 60.0)} min",
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
@@ -375,3 +382,6 @@ private fun formatHms(seconds: Long): String {
     val s = seconds % 60
     return "%02d:%02d:%02d".format(h, m, s)
 }
+
+private fun formatMinutes(minutes: Double): String =
+    "%.2f".format(minutes).trimEnd('0').trimEnd('.')

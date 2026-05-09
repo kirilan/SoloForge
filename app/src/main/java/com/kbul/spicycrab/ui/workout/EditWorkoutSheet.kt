@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
+import kotlin.math.roundToLong
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,16 +49,16 @@ fun EditWorkoutSheet(
         ) {
             Text("Edit workout", style = MaterialTheme.typography.headlineMedium)
 
-            NumField(
-                "Total seconds", draft.totalSeconds,
+            MinutesField(
+                "Total minutes", draft.totalSeconds,
                 onChange = { draft = draft.copy(totalSeconds = it) },
             )
-            NumField(
-                "Exercise seconds", draft.exerciseSeconds,
+            MinutesField(
+                "Exercise minutes", draft.exerciseSeconds,
                 onChange = { draft = draft.copy(exerciseSeconds = it) },
             )
-            NumField(
-                "Rest seconds", draft.restSeconds,
+            MinutesField(
+                "Rest minutes", draft.restSeconds,
                 onChange = { draft = draft.copy(restSeconds = it) },
             )
             OutlinedTextField(
@@ -96,12 +97,20 @@ fun EditWorkoutSheet(
 }
 
 @Composable
-private fun NumField(label: String, value: Long, onChange: (Long) -> Unit) {
+private fun MinutesField(label: String, seconds: Long, onChange: (Long) -> Unit) {
+    var input by remember(seconds) { mutableStateOf(formatMinutes(seconds / 60.0)) }
     OutlinedTextField(
-        value = value.toString(),
-        onValueChange = { txt -> onChange(txt.filter { it.isDigit() }.toLongOrNull() ?: 0L) },
+        value = input,
+        onValueChange = { txt ->
+            input = txt.filter { it.isDigit() || it == '.' || it == ',' }
+            val minutes = input.replace(',', '.').toDoubleOrNull() ?: 0.0
+            onChange((minutes * 60.0).roundToLong())
+        },
         label = { Text(label) },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth(),
     )
 }
+
+private fun formatMinutes(minutes: Double): String =
+    "%.2f".format(minutes).trimEnd('0').trimEnd('.')

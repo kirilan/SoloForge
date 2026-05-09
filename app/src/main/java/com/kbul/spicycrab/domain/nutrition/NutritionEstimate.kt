@@ -10,4 +10,6 @@ data class NutritionEstimate(
     val fiberG: Double,
     val confidence: String,
     val notes: String,
+    val modelUsed: String = "",
+    val detailPrompt: String = "",
 )

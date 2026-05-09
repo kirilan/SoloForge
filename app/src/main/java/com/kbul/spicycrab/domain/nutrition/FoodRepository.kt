@@ -17,6 +17,12 @@ import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
+object FoodAnalysisModels {
+    const val DEFAULT = "google/gemini-3.1-flash-lite"
+    const val ESCALATION = "openai/gpt-5.4-mini"
+    const val PREMIUM = "google/gemini-3-pro-preview"
+}
+
 @Singleton
 class FoodRepository @Inject constructor(
     private val dao: FoodEntryDao,
@@ -39,22 +45,28 @@ class FoodRepository @Inject constructor(
     suspend fun analyze(imageFile: File, comment: String): Result<NutritionEstimate> {
         val key = keyStore.getOpenRouterKey()
             ?: return Result.failure(IllegalStateException("Set your OpenRouter API key in Settings."))
-        val model = settings.current().selectedModel
         val base64 = runCatching { ImageUtils.fileToBase64Jpeg(imageFile) }
             .getOrElse { return Result.failure(it) }
 
-        return client.analyzeFood(key, model, base64, comment).map { dto ->
-            NutritionEstimate(
-                itemName = dto.itemName,
-                grams = dto.estimatedGrams,
-                kcal = dto.calories,
-                proteinG = dto.proteinG,
-                carbsG = dto.carbsG,
-                fatG = dto.fatG,
-                fiberG = dto.fiberG,
-                confidence = dto.confidence,
-                notes = dto.notes,
-            )
+        return runCatching {
+            val first = analyzeWithModel(key, FoodAnalysisModels.DEFAULT, base64, comment)
+            if (!first.needsEscalation()) return@runCatching first
+
+            val second = analyzeWithModel(key, FoodAnalysisModels.ESCALATION, base64, comment)
+            if (!second.needsEscalation()) {
+                return@runCatching second.copy(modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${second.modelUsed}")
+            }
+
+            val third = analyzeWithModel(key, FoodAnalysisModels.PREMIUM, base64, comment)
+                .copy(modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${FoodAnalysisModels.ESCALATION} -> ${FoodAnalysisModels.PREMIUM}")
+
+            if (third.confidence.equals("low", ignoreCase = true)) {
+                third.copy(
+                    detailPrompt = "Add details like portion size, cooking oil, sauces, and hidden ingredients, then re-analyze.",
+                )
+            } else {
+                third
+            }
         }
     }
 
@@ -82,7 +94,7 @@ class FoodRepository @Inject constructor(
             fatG = estimate.fatG,
             fiberG = estimate.fiberG,
             comment = comment,
-            modelUsed = s.selectedModel,
+            modelUsed = estimate.modelUsed.ifBlank { FoodAnalysisModels.DEFAULT },
             confidence = estimate.confidence,
             imagePath = savedImagePath,
         )
@@ -142,4 +154,42 @@ class FoodRepository @Inject constructor(
     )
 
     fun mostRecentEpoch(entries: List<FoodEntry>): Long? = entries.firstOrNull()?.timestampEpoch
+
+    private suspend fun analyzeWithModel(
+        key: String,
+        model: String,
+        base64: String,
+        comment: String,
+    ): NutritionEstimate =
+        client.analyzeFood(key, model, base64, comment).getOrThrow().let { dto ->
+            NutritionEstimate(
+                itemName = dto.itemName,
+                grams = dto.estimatedGrams,
+                kcal = dto.calories,
+                proteinG = dto.proteinG,
+                carbsG = dto.carbsG,
+                fatG = dto.fatG,
+                fiberG = dto.fiberG,
+                confidence = dto.confidence,
+                notes = dto.notes,
+                modelUsed = model,
+            )
+        }
+}
+
+private fun NutritionEstimate.needsEscalation(): Boolean {
+    if (confidence.equals("low", ignoreCase = true)) return true
+    val text = "$itemName $notes".lowercase()
+    return listOf(
+        "mixed meal",
+        "mixed",
+        "multiple",
+        "assorted",
+        "unclear",
+        "hidden",
+        "sauce",
+        "dressing",
+        "oil",
+        "portion",
+    ).any { it in text }
 }

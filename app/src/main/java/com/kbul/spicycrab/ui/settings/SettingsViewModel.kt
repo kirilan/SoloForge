@@ -54,8 +54,6 @@ class SettingsViewModel @Inject constructor(
         _hasKey.value = false
     }
 
-    fun setModel(model: String) = viewModelScope.launch { settings.setSelectedModel(model) }
-
     fun setExportFolder(uri: String?) = viewModelScope.launch { settings.setExportFolderUri(uri) }
 
     fun setSavePhotoLocally(value: Boolean) = viewModelScope.launch { settings.setSavePhotoLocally(value) }

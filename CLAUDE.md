@@ -8,7 +8,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
    - "Almost there" encouragement 1h before fast ends
    - "Eating window closing" 1h before window ends, scheduled when a completed fast ends
    - Cancellation is automatic when the user takes the opposite action
-2. **AI calorie counter** — user supplies their OpenRouter key, picks a vision model from a fixed approved list, snaps a photo with optional comment, gets structured macros back, edits if needed, saves locally + appends to CSV in a user-chosen folder (Google Drive / Dropbox synced folder works automatically through SAF).
+2. **AI calorie counter** — user supplies their OpenRouter key, snaps a photo with optional comment, gets structured macros back, edits if needed, saves locally + appends to CSV in a user-chosen folder (Google Drive / Dropbox synced folder works automatically through SAF). Model choice is automatic through the escalation chain in `FoodAnalysisModels`.
 3. **Weight tracking** — manual entries, line chart, edit/delete, CSV export, weekly weigh-in reminder.
 4. **Workout timer** — simple, interval, and exercise/rest timers with local workout logging and dashboard calorie bonus.
 5. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
@@ -41,7 +41,7 @@ app/src/main/java/com/kbul/spicycrab/
 │   └── settings/                   // SettingsScreen + ViewModel
 ├── data/
 │   ├── db/                         // Room AppDatabase, entities, DAOs
-│   ├── prefs/SettingsRepo.kt       // DataStore for goals, model, export URI, units
+│   ├── prefs/SettingsRepo.kt       // DataStore for goals, export URI, units
 │   ├── prefs/SecureKeyStore.kt     // EncryptedSharedPreferences for API key
 │   └── csv/CsvExporter.kt          // SAF-based append-on-write
 ├── domain/
@@ -79,18 +79,15 @@ app/src/main/java/com/kbul/spicycrab/
 - **No comments unless the *why* is non-obvious.** Prefer well-named functions to docstrings.
 - **No barebones fallbacks or "in case X fails" code paths** unless the failure is at a real boundary (network, file I/O, missing key).
 
-## Approved vision models (`ApprovedModels.ALL`)
+## Food analysis model chain
 
 ```
-google/gemini-2.5-flash       # default — cheap, fast, reliable JSON
-google/gemma-4-31b-it         # Google open-weights vision (also has :free tier on OR)
-anthropic/claude-haiku-4.5    # cheap Anthropic vision
-openai/gpt-4o-mini            # cheap OpenAI vision
+google/gemini-3.1-flash-lite  # default
+openai/gpt-5.4-mini           # used when the default result is low confidence or suggests mixed/hidden ingredients
+google/gemini-3-pro-preview   # used only if uncertainty remains
 ```
 
-All three are reliably vision-capable and cheap enough for routine use. If we want to add a premium tier, candidates: `google/gemini-2.5-pro`, `anthropic/claude-sonnet-4.6`, `openai/gpt-4o`.
-
-If a stored selection no longer exists in `ApprovedModels.ALL` (after a list change), `SettingsRepo.toAppSettings()` falls back to `DEFAULT` automatically.
+Users do not choose the model. If confidence is still low after the full chain, the UI prompts the user to add more details such as portion size, cooking oil, sauces, and hidden ingredients before re-analyzing.
 
 ## Build & run
 

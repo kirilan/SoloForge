@@ -141,6 +141,16 @@ private fun EstimateForm(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
+            if (est.detailPrompt.isNotBlank()) {
+                ElevatedCard(Modifier.fillMaxWidth()) {
+                    Text(
+                        est.detailPrompt,
+                        Modifier.padding(12.dp),
+                        color = MaterialTheme.colorScheme.error,
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                }
+            }
         }
     }
 }

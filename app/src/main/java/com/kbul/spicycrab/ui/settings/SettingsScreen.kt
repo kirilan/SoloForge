@@ -14,11 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -41,7 +37,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
-import com.kbul.spicycrab.data.prefs.ApprovedModels
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.domain.fasting.FastingMode
 
@@ -83,7 +78,11 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 
         SectionCard("AI / API") {
             ApiKeyField(hasKey, viewModel::setApiKey, viewModel::clearApiKey)
-            ModelDropdown(s.selectedModel, viewModel::setModel)
+            Text(
+                "Food photos use an automatic model chain: fast default analysis first, stronger review when confidence is low, and a premium check only when uncertainty remains.",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
 
         SectionCard("Daily nutrition goals") {
@@ -132,7 +131,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 
         SectionCard("About") {
             Text(
-                "All data stays on this device. Food images are sent only to the AI provider you select.",
+                "All data stays on this device. Food images are sent only to OpenRouter when you start meal analysis.",
                 style = MaterialTheme.typography.bodyMedium,
             )
         }
@@ -200,33 +199,6 @@ private fun ApiKeyField(hasKey: Boolean, onSet: (String) -> Unit, onClear: () ->
                 onClick = onClear,
                 modifier = Modifier.weight(1f).height(48.dp),
             ) { Text("Clear") }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun ModelDropdown(selected: String, onSelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
-        OutlinedTextField(
-            value = selected,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Vision model") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            modifier = Modifier.fillMaxWidth().menuAnchor(),
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            ApprovedModels.ALL.forEach { model ->
-                DropdownMenuItem(
-                    text = { Text(model) },
-                    onClick = { onSelected(model); expanded = false },
-                )
-            }
         }
     }
 }
@@ -332,4 +304,3 @@ private fun SwitchRow(label: String, value: Boolean, onChange: (Boolean) -> Unit
         Switch(checked = value, onCheckedChange = onChange)
     }
 }
-

@@ -25,7 +25,6 @@ data class NutritionGoals(
 )
 
 data class AppSettings(
-    val selectedModel: String,
     val exportFolderUri: String?,
     val savePhotoLocally: Boolean,
     val weightUnitKg: Boolean,
@@ -52,7 +51,6 @@ class SettingsRepo @Inject constructor(
 
     suspend fun current(): AppSettings = settings.first()
 
-    suspend fun setSelectedModel(model: String) = update { it[KEY_MODEL] = model }
     suspend fun setExportFolderUri(uri: String?) = update {
         if (uri == null) it.remove(KEY_EXPORT_URI) else it[KEY_EXPORT_URI] = uri
     }
@@ -84,8 +82,6 @@ class SettingsRepo @Inject constructor(
     }
 
     private fun Preferences.toAppSettings(): AppSettings = AppSettings(
-        selectedModel = (this[KEY_MODEL] ?: ApprovedModels.DEFAULT)
-            .takeIf { it in ApprovedModels.ALL } ?: ApprovedModels.DEFAULT,
         exportFolderUri = this[KEY_EXPORT_URI],
         savePhotoLocally = this[KEY_SAVE_PHOTO] ?: false,
         weightUnitKg = this[KEY_WEIGHT_KG] ?: true,
@@ -110,7 +106,6 @@ class SettingsRepo @Inject constructor(
     )
 
     private companion object {
-        val KEY_MODEL = stringPreferencesKey("selected_model")
         val KEY_EXPORT_URI = stringPreferencesKey("export_folder_uri")
         val KEY_SAVE_PHOTO = booleanPreferencesKey("save_photo_locally")
         val KEY_WEIGHT_KG = booleanPreferencesKey("weight_unit_kg")
@@ -131,14 +126,4 @@ class SettingsRepo @Inject constructor(
         val KEY_TAB_WEIGHT = booleanPreferencesKey("tab_weight_visible")
         val KEY_TAB_WORKOUT = booleanPreferencesKey("tab_workout_visible")
     }
-}
-
-object ApprovedModels {
-    val ALL = listOf(
-        "google/gemini-2.5-flash",
-        "google/gemma-4-31b-it",
-        "anthropic/claude-haiku-4.5",
-        "openai/gpt-4o-mini",
-    )
-    const val DEFAULT = "google/gemini-2.5-flash"
 }

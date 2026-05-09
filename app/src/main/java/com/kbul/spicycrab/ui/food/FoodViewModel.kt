@@ -163,6 +163,7 @@ class FoodViewModel @Inject constructor(
                             fiberG = est.fiberG,
                             confidence = est.confidence,
                             comment = updatedComment,
+                            modelUsed = est.modelUsed,
                         ),
                         isReanalyzing = false,
                         reanalyzeStamp = System.currentTimeMillis(),
