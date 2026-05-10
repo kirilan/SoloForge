@@ -1,0 +1,25 @@
+Solo Forge is a free and open source Android fitness app for fasting, nutrition, weight tracking, and workout timing.
+
+It is built around local data ownership:
+
+* No backend
+* No accounts
+* No analytics
+* No crash reporting
+* Android cloud backup disabled
+* Explicit CSV export to a folder you choose
+
+Features:
+
+* Intermittent fasting timer with 16:8, 18:6, 20:4, and 36 hour modes
+* State-driven fasting reminders instead of daily notification spam
+* Food photo analysis using your own OpenRouter API key
+* Manual meal entry and editable macro estimates
+* Local calorie and macro goals
+* Weight history with charting
+* Simple, interval, and exercise/rest workout timers
+* Dashboard for fasting, nutrition, weight, workout time, and streaks
+
+Solo Forge sends a network request only when you start food photo analysis. That request goes to OpenRouter using the API key you provide. All saved meals, weight entries, workouts, fasting history, settings, and exports remain local to your device.
+
+Solo Forge is licensed under GPL-3.0.

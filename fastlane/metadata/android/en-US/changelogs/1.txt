@@ -1,0 +1,3 @@
+Initial development release.
+
+Includes local fasting, food, weight, workout, dashboard, CSV export, GPL-3.0 licensing, and FOSS/privacy branding.

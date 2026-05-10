@@ -99,6 +99,10 @@ Users do not choose the model. If confidence is still low after the full chain, 
 
 Solo Forge is licensed under the **GNU General Public License v3.0**. The full license text is in `LICENSE`. Keep the GPL/local-first/no-analytics trust message visible in first-run onboarding and Settings/About, but avoid overcrowding core task screens.
 
+## F-Droid
+
+Starter F-Droid metadata lives in `.fdroid.yml` and `fastlane/metadata/android/en-US/`. The OpenRouter food-photo feature should be disclosed as a `NonFreeNet` anti-feature in F-Droid metadata because it uses a fixed third-party network service, even though it is user-initiated and requires the user's own API key.
+
 ## Privacy guarantees (don't break these)
 
 - **Only outbound host:** `openrouter.ai`. Only when a food photo is being analyzed. Verify with `adb shell` + a network monitor before any release.

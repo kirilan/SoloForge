@@ -1,0 +1,45 @@
+Categories:
+  - Sports & Health
+License: GPL-3.0-only
+AuthorName: kirilan
+SourceCode: https://github.com/kirilan/SoloForge
+IssueTracker: https://github.com/kirilan/SoloForge/issues
+Changelog: https://github.com/kirilan/SoloForge/releases
+
+AutoName: Solo Forge
+Summary: Local-first fasting, nutrition, weight, and workout tracker
+Description: |-
+  Solo Forge is a local-first fitness tracker for intermittent fasting,
+  nutrition, weight, and workouts.
+
+  Features:
+
+  * Fasting timer with state-driven reminders
+  * Food photo analysis using the user's own OpenRouter API key
+  * Manual food logging and editable macro estimates
+  * Weight tracking with history and charting
+  * Workout timers with local session history
+  * Explicit CSV export to a user-selected folder
+
+  Solo Forge has no backend, no accounts, no analytics, and no crash
+  reporting. Fitness data stays on the device unless the user explicitly
+  exports it. Food photos are sent only when the user starts analysis.
+
+RepoType: git
+Repo: https://github.com/kirilan/SoloForge.git
+
+Builds:
+  - versionName: 0.1.0
+    versionCode: 1
+    commit: HEAD
+    subdir: app
+    gradle:
+      - yes
+    antifeatures:
+      NonFreeNet:
+        en-US: Food photo analysis sends images to OpenRouter when the user explicitly starts analysis.
+
+AutoUpdateMode: None
+UpdateCheckMode: None
+CurrentVersion: 0.1.0
+CurrentVersionCode: 1

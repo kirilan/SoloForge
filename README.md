@@ -100,6 +100,19 @@ Run lint:
 .\gradlew.bat lintDebug
 ```
 
+## F-Droid
+
+This repo includes starter F-Droid metadata:
+
+```text
+.fdroid.yml
+fastlane/metadata/android/en-US/
+```
+
+The app is GPL-3.0 licensed and has no Firebase, Google Play Services, analytics, crash reporting, backend, or account system. The only intentional network dependency is user-initiated food photo analysis through OpenRouter with the user's own API key; F-Droid reviewers may classify that service dependency as an anti-feature.
+
+Before submitting to F-Droid, create a release tag that matches `versionName` / `versionCode`. For the source-root `.fdroid.yml`, `commit: HEAD` is useful for local F-Droid builds; for an `fdroiddata` merge request, replace it with the full release commit hash.
+
 ## Project Layout
 
 ```text
