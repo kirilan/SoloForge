@@ -1,6 +1,6 @@
 # Solo Forge
 
-Solo Forge is a local-first Android fitness app for fasting, nutrition, weight tracking, and workout timing. It is built to keep user data on the device, with no backend, account system, analytics, or cloud telemetry.
+Solo Forge is a free and open source, local-first Android fitness app for fasting, nutrition, weight tracking, and workout timing. It is GPL-3.0 licensed and built to keep user data on the device, with no backend, account system, analytics, or cloud telemetry.
 
 The only intentional outbound network request is a user-initiated OpenRouter call for food photo analysis, using an API key supplied by the user.
 

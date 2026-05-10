@@ -40,6 +40,7 @@ data class AppSettings(
     val showFoodTab: Boolean,
     val showWeightTab: Boolean,
     val showWorkoutTab: Boolean,
+    val onboardingComplete: Boolean,
 )
 
 @Singleton
@@ -63,6 +64,7 @@ class SettingsRepo @Inject constructor(
     suspend fun setShowFoodTab(value: Boolean) = update { it[KEY_TAB_FOOD] = value }
     suspend fun setShowWeightTab(value: Boolean) = update { it[KEY_TAB_WEIGHT] = value }
     suspend fun setShowWorkoutTab(value: Boolean) = update { it[KEY_TAB_WORKOUT] = value }
+    suspend fun setOnboardingComplete(value: Boolean) = update { it[KEY_ONBOARDING_COMPLETE] = value }
     suspend fun setWeighInEnabled(value: Boolean) = update { it[KEY_WEIGH_ENABLED] = value }
     suspend fun setWeighInTime(dayOfWeek: Int, hour: Int, minute: Int) = update {
         it[KEY_WEIGH_DAY] = dayOfWeek
@@ -103,6 +105,7 @@ class SettingsRepo @Inject constructor(
         showFoodTab = this[KEY_TAB_FOOD] ?: true,
         showWeightTab = this[KEY_TAB_WEIGHT] ?: true,
         showWorkoutTab = this[KEY_TAB_WORKOUT] ?: true,
+        onboardingComplete = this[KEY_ONBOARDING_COMPLETE] ?: false,
     )
 
     private companion object {
@@ -125,5 +128,6 @@ class SettingsRepo @Inject constructor(
         val KEY_TAB_FOOD = booleanPreferencesKey("tab_food_visible")
         val KEY_TAB_WEIGHT = booleanPreferencesKey("tab_weight_visible")
         val KEY_TAB_WORKOUT = booleanPreferencesKey("tab_workout_visible")
+        val KEY_ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
     }
 }

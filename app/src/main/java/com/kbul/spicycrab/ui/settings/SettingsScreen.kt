@@ -37,6 +37,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
+import com.kbul.spicycrab.BuildConfig
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.domain.fasting.FastingMode
 
@@ -131,10 +132,27 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 
         SectionCard("About") {
             Text(
-                "All data stays on this device. Food images are sent only to OpenRouter when you start meal analysis.",
+                "Solo Forge is free and open source software licensed under GPL-3.0.",
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                "No backend. No accounts. No analytics. Food images are sent only to OpenRouter when you start meal analysis.",
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                "Version ${BuildConfig.VERSION_NAME}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
+
+        Text(
+            "Solo Forge is GPL-3.0 free software.",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+        )
     }
         SnackbarHost(
             hostState = snackbarHostState,

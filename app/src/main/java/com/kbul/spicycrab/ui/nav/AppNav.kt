@@ -1,6 +1,7 @@
 package com.kbul.spicycrab.ui.nav
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AccessTime
 import androidx.compose.material.icons.outlined.FitnessCenter
@@ -28,6 +29,7 @@ import androidx.navigation.compose.rememberNavController
 import com.kbul.spicycrab.ui.fasting.FastingScreen
 import com.kbul.spicycrab.ui.food.FoodScreen
 import com.kbul.spicycrab.ui.home.HomeScreen
+import com.kbul.spicycrab.ui.onboarding.OpenSourceIntroScreen
 import com.kbul.spicycrab.ui.settings.SettingsScreen
 import com.kbul.spicycrab.ui.weight.WeightScreen
 import com.kbul.spicycrab.ui.workout.WorkoutScreen
@@ -44,9 +46,20 @@ enum class TopLevelDest(val route: String, val label: String, val icon: ImageVec
 @Composable
 fun AppNav(viewModel: AppNavViewModel = hiltViewModel()) {
     val visibility by viewModel.visibility.collectAsStateWithLifecycle()
+    val onboardingComplete by viewModel.onboardingComplete.collectAsStateWithLifecycle()
     val navController = rememberNavController()
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
+
+    if (onboardingComplete != true) {
+        Surface {
+            OpenSourceIntroScreen(
+                loading = onboardingComplete == null,
+                onContinue = viewModel::completeOnboarding,
+            )
+        }
+        return
+    }
 
     val visibleTabs = TopLevelDest.entries.filter {
         when (it) {

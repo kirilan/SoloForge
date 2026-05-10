@@ -16,6 +16,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 3. **Weight tracking** — manual entries, line chart, edit/delete, CSV export, weekly weigh-in reminder.
 4. **Workout timer** — simple, interval, and exercise/rest timers with local workout logging and dashboard calorie bonus.
 5. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
+6. **FOSS/privacy branding** — first-run intro and Settings/About emphasize GPL-3.0, no backend, no accounts, no analytics, and local-first data ownership without adding persistent dashboard clutter.
 
 The full plan lives in `~/.Codex/plans/i-want-to-make-spicy-crab.md` (outside the repo).
 
@@ -100,7 +101,7 @@ Users do not choose the model. If confidence is still low after the full chain, 
 
 ## License
 
-Solo Forge is licensed under the **GNU General Public License v3.0**. The full license text is in `LICENSE`.
+Solo Forge is licensed under the **GNU General Public License v3.0**. The full license text is in `LICENSE`. Keep the GPL/local-first/no-analytics trust message visible in first-run onboarding and Settings/About, but avoid overcrowding core task screens.
 
 ## Privacy guarantees (don't break these)
 
