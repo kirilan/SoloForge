@@ -38,7 +38,7 @@ Solo Forge is designed around local ownership of fitness data.
 
 The app declares `INTERNET` only for food image analysis through OpenRouter. That call happens only when the user starts an analysis.
 
-Food analysis starts with `google/gemini-3.1-flash-lite`, escalates to `openai/gpt-5.4-mini` when confidence is low or hidden/mixed ingredients are likely, and uses `google/gemini-3-pro-preview` only if uncertainty remains.
+Food analysis starts with `google/gemini-3.1-flash-lite`, escalates to `openai/gpt-5.4-mini` when confidence is low or hidden/mixed ingredients are likely, and uses `google/gemini-3.1-pro-preview` only if uncertainty remains.
 
 ## Tech Stack
 

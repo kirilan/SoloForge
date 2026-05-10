@@ -20,7 +20,7 @@ import javax.inject.Singleton
 object FoodAnalysisModels {
     const val DEFAULT = "google/gemini-3.1-flash-lite"
     const val ESCALATION = "openai/gpt-5.4-mini"
-    const val PREMIUM = "google/gemini-3-pro-preview"
+    const val PREMIUM = "google/gemini-3.1-pro-preview"
 }
 
 @Singleton
@@ -57,7 +57,13 @@ class FoodRepository @Inject constructor(
                 return@runCatching second.copy(modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${second.modelUsed}")
             }
 
-            val third = analyzeWithModel(key, FoodAnalysisModels.PREMIUM, base64, comment)
+            val third = runCatching { analyzeWithModel(key, FoodAnalysisModels.PREMIUM, base64, comment) }
+                .getOrElse {
+                    return@runCatching second.copy(
+                        modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${FoodAnalysisModels.ESCALATION}",
+                        detailPrompt = "Add details like portion size, cooking oil, sauces, and hidden ingredients, then re-analyze.",
+                    )
+                }
                 .copy(modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${FoodAnalysisModels.ESCALATION} -> ${FoodAnalysisModels.PREMIUM}")
 
             if (third.confidence.equals("low", ignoreCase = true)) {

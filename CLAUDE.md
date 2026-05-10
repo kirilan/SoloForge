@@ -84,7 +84,7 @@ app/src/main/java/com/kbul/spicycrab/
 ```
 google/gemini-3.1-flash-lite  # default
 openai/gpt-5.4-mini           # used when the default result is low confidence or suggests mixed/hidden ingredients
-google/gemini-3-pro-preview   # used only if uncertainty remains
+google/gemini-3.1-pro-preview # used only if uncertainty remains
 ```
 
 Users do not choose the model. If confidence is still low after the full chain, the UI prompts the user to add more details such as portion size, cooking oil, sauces, and hidden ingredients before re-analyzing.
