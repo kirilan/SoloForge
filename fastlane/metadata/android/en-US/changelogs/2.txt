@@ -1,0 +1,3 @@
+F-Droid submission preparation.
+
+Removes Gradle toolchain resolver plugin rejected by F-Droid source scanning.
