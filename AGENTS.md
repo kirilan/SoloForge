@@ -18,7 +18,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 5. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
 6. **FOSS/privacy branding** — first-run intro and Settings/About emphasize GPL-3.0, no backend, no accounts, no analytics, and local-first data ownership without adding persistent dashboard clutter.
 
-The full plan lives in `~/.Codex/plans/i-want-to-make-spicy-crab.md` (outside the repo).
+The full plan lives in `~/.claude/plans/i-want-to-make-spicy-crab.md` (outside the repo).
 
 ## Tech stack
 
@@ -116,6 +116,6 @@ Starter F-Droid metadata lives in `.fdroid.yml` and `fastlane/metadata/android/e
 
 ## Useful pointers
 
-- Plan file (full design + verification matrix): `C:\Users\kiril\.Codex\plans\i-want-to-make-spicy-crab.md`
+- Plan file (full design + verification matrix): `C:\Users\kiril\.claude\plans\i-want-to-make-spicy-crab.md`
 - The active fast persists across process death — verify by force-stopping the app mid-fast.
 - To shorten reminder delays for testing, edit the constants in `ReminderScheduler.kt` (use minutes instead of hours), then revert.
