@@ -24,6 +24,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
+private const val APP_ATTRIBUTION_URL = "https://github.com/kirilan/SoloForge"
+private const val APP_ATTRIBUTION_TITLE = "Solo Forge"
 
 @Singleton
 class OpenRouterClient @Inject constructor() {
@@ -79,8 +81,9 @@ class OpenRouterClient @Inject constructor() {
         val resp: HttpResponse = client.post(ENDPOINT) {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $apiKey")
-                append("HTTP-Referer", "app://com.kbul.spicycrab")
-                append("X-Title", "Solo Forge")
+                append("HTTP-Referer", APP_ATTRIBUTION_URL)
+                append("X-OpenRouter-Title", APP_ATTRIBUTION_TITLE)
+                append("X-Title", APP_ATTRIBUTION_TITLE)
             }
             contentType(ContentType.Application.Json)
             setBody(request)
