@@ -153,6 +153,10 @@ BRAND-BRIEF.md
 brand/
 ```
 
+## License
+
+Solo Forge is licensed under the GNU General Public License v3.0. See [LICENSE](LICENSE) for the full license text.
+
 ## Status
 
 This is an early development build. Core local functionality is in place, but release hardening, deeper UI polish, import/export flows, and broader device testing are still pending.

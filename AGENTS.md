@@ -98,6 +98,10 @@ Users do not choose the model. If confidence is still low after the full chain, 
 - **From Android Studio**: open `C:\Users\kiril\mobile`, sync Gradle, run `app` on an emulator (Pixel 7 / API 34+).
 - **From CLI**: `./gradlew.bat assembleDebug` from the project root. The wrapper is committed.
 
+## License
+
+Solo Forge is licensed under the **GNU General Public License v3.0**. The full license text is in `LICENSE`.
+
 ## Privacy guarantees (don't break these)
 
 - **Only outbound host:** `openrouter.ai`. Only when a food photo is being analyzed. Verify with `adb shell` + a network monitor before any release.
