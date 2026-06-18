@@ -1,0 +1,1 @@
+Saved meal presets: turn any logged or manual meal into a one-tap "Quick add" button on the Food screen. Great for prepped meals you eat repeatedly, with no photo or AI call. Long-press a preset to remove it.
