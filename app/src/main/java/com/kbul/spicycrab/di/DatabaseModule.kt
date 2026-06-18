@@ -6,6 +6,7 @@ import com.kbul.spicycrab.data.db.ALL_MIGRATIONS
 import com.kbul.spicycrab.data.db.AppDatabase
 import com.kbul.spicycrab.data.db.dao.FastSessionDao
 import com.kbul.spicycrab.data.db.dao.FoodEntryDao
+import com.kbul.spicycrab.data.db.dao.MealPresetDao
 import com.kbul.spicycrab.data.db.dao.WeightEntryDao
 import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
 import dagger.Module
@@ -37,4 +38,7 @@ object DatabaseModule {
 
     @Provides
     fun provideWorkoutSessionDao(db: AppDatabase): WorkoutSessionDao = db.workoutSessionDao()
+
+    @Provides
+    fun provideMealPresetDao(db: AppDatabase): MealPresetDao = db.mealPresetDao()
 }

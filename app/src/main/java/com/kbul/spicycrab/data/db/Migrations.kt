@@ -10,6 +10,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *   v3: food_entries gains lastModifiedEpoch
  *   v4: + workout_sessions
  *   v5: weight_entries gains lastModifiedEpoch
+ *   v6: + meal_presets
  *
  * Early development used `fallbackToDestructiveMigration()`, so v1–v3 schema
  * JSONs were never exported. The migrations below exist as defensive paths
@@ -143,4 +144,25 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
     }
 }
 
-val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5)
+val MIGRATION_5_6 = object : Migration(5, 6) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL(
+            """
+            CREATE TABLE IF NOT EXISTS meal_presets (
+                id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                grams REAL NOT NULL,
+                kcal REAL NOT NULL,
+                proteinG REAL NOT NULL,
+                carbsG REAL NOT NULL,
+                fatG REAL NOT NULL,
+                fiberG REAL NOT NULL,
+                comment TEXT NOT NULL,
+                createdEpoch INTEGER NOT NULL
+            )
+            """.trimIndent()
+        )
+    }
+}
+
+val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6)

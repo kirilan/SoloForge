@@ -3,6 +3,7 @@ package com.kbul.spicycrab.ui.food
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.data.db.entities.MealPreset
 import com.kbul.spicycrab.domain.nutrition.FoodRepository
 import com.kbul.spicycrab.domain.nutrition.NutritionEstimate
 import kotlinx.coroutines.flow.asStateFlow
@@ -55,6 +56,9 @@ class FoodViewModel @Inject constructor(
     val manualOpen: StateFlow<Boolean> = _manualOpen.asStateFlow()
 
     val entries: StateFlow<List<FoodEntry>> = repository.observeAll()
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
+
+    val presets: StateFlow<List<MealPreset>> = repository.observePresets()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), emptyList())
 
     fun goToCapture() {
@@ -133,6 +137,19 @@ class FoodViewModel @Inject constructor(
             repository.delete(entry)
             _editing.value = null
         }
+    }
+
+    fun logPreset(preset: MealPreset) {
+        viewModelScope.launch { repository.logPreset(preset) }
+    }
+
+    fun deletePreset(preset: MealPreset) {
+        viewModelScope.launch { repository.deletePreset(preset) }
+    }
+
+    fun saveAsPreset(source: FoodEntry) {
+        if (source.itemName.isBlank()) return
+        viewModelScope.launch { repository.saveAsPreset(source, source.itemName) }
     }
 
     fun openManual() { _manualOpen.value = true }

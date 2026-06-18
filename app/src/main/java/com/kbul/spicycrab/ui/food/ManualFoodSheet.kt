@@ -31,6 +31,7 @@ import com.kbul.spicycrab.data.db.entities.FoodEntry
 @Composable
 fun ManualFoodSheet(
     onSave: (FoodEntry) -> Unit,
+    onSaveAsPreset: (FoodEntry) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -90,6 +91,12 @@ fun ManualFoodSheet(
                     modifier = Modifier.weight(1f).height(56.dp),
                 ) { Text("Save meal") }
             }
+            var presetSaved by remember(draft.itemName) { mutableStateOf(false) }
+            OutlinedButton(
+                onClick = { onSaveAsPreset(draft); presetSaved = true },
+                enabled = canSave && !presetSaved,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) { Text(if (presetSaved) "Saved to quick add ✓" else "Save as preset") }
         }
     }
 }

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.data.db.entities.MealPreset
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -36,15 +37,19 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
     val mode by viewModel.mode.collectAsStateWithLifecycle()
     val analyze by viewModel.analyze.collectAsStateWithLifecycle()
     val entries by viewModel.entries.collectAsStateWithLifecycle()
+    val presets by viewModel.presets.collectAsStateWithLifecycle()
     val editing by viewModel.editing.collectAsStateWithLifecycle()
     val manualOpen by viewModel.manualOpen.collectAsStateWithLifecycle()
 
     when (val m = mode) {
         FoodUiMode.List -> FoodListContent(
             entries = entries,
+            presets = presets,
             onAddClick = { viewModel.goToCapture() },
             onManualClick = { viewModel.openManual() },
             onRowClick = viewModel::openEdit,
+            onLogPreset = viewModel::logPreset,
+            onDeletePreset = viewModel::deletePreset,
         )
         FoodUiMode.Capture -> CaptureScreen(
             onCaptured = viewModel::onCaptured,
@@ -67,6 +72,7 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
             onSave = viewModel::saveEdit,
             onDelete = viewModel::deleteEntry,
             onReanalyze = viewModel::reanalyzeEdit,
+            onSaveAsPreset = viewModel::saveAsPreset,
             onDismiss = viewModel::dismissEdit,
         )
     }
@@ -74,6 +80,7 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
     if (manualOpen) {
         ManualFoodSheet(
             onSave = viewModel::saveManual,
+            onSaveAsPreset = viewModel::saveAsPreset,
             onDismiss = viewModel::dismissManual,
         )
     }
@@ -82,9 +89,12 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
 @Composable
 private fun FoodListContent(
     entries: List<FoodEntry>,
+    presets: List<MealPreset>,
     onAddClick: () -> Unit,
     onManualClick: () -> Unit,
     onRowClick: (FoodEntry) -> Unit,
+    onLogPreset: (MealPreset) -> Unit,
+    onDeletePreset: (MealPreset) -> Unit,
 ) {
     Scaffold(
         floatingActionButton = {
@@ -106,24 +116,32 @@ private fun FoodListContent(
             }
         }
     ) { padding ->
-        if (entries.isEmpty()) {
-            Box(
-                Modifier.fillMaxSize().padding(padding).padding(24.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    "No meals logged yet. Analyze a photo or add a manual meal.",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
+        Column(Modifier.fillMaxSize().padding(padding)) {
+            QuickAddRow(
+                presets = presets,
+                onLog = onLogPreset,
+                onDelete = onDeletePreset,
+                modifier = Modifier.padding(top = 12.dp, bottom = 4.dp),
+            )
+            if (entries.isEmpty()) {
+                Box(
+                    Modifier.fillMaxSize().padding(24.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        "No meals logged yet. Analyze a photo or add a manual meal.",
+                        style = MaterialTheme.typography.bodyLarge,
+                    )
+                }
+                return@Column
             }
-            return@Scaffold
-        }
-        LazyColumn(
-            modifier = Modifier.fillMaxSize().padding(padding).padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp),
-        ) {
-            items(entries, key = { it.id }) { entry -> FoodRow(entry, onClick = { onRowClick(entry) }) }
+            LazyColumn(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                contentPadding = androidx.compose.foundation.layout.PaddingValues(vertical = 12.dp),
+            ) {
+                items(entries, key = { it.id }) { entry -> FoodRow(entry, onClick = { onRowClick(entry) }) }
+            }
         }
     }
 }

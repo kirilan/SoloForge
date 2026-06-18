@@ -4,7 +4,9 @@ import android.content.Context
 import android.net.Uri
 import com.kbul.spicycrab.data.csv.CsvExporter
 import com.kbul.spicycrab.data.db.dao.FoodEntryDao
+import com.kbul.spicycrab.data.db.dao.MealPresetDao
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.data.db.entities.MealPreset
 import com.kbul.spicycrab.data.prefs.SecureKeyStore
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.network.OpenRouterClient
@@ -26,6 +28,7 @@ object FoodAnalysisModels {
 @Singleton
 class FoodRepository @Inject constructor(
     private val dao: FoodEntryDao,
+    private val presetDao: MealPresetDao,
     private val client: OpenRouterClient,
     private val keyStore: SecureKeyStore,
     private val settings: SettingsRepo,
@@ -115,15 +118,59 @@ class FoodRepository @Inject constructor(
 
     suspend fun addManual(draft: FoodEntry): FoodEntry {
         val now = System.currentTimeMillis()
-        val entry = draft.copy(
-            timestampEpoch = now,
-            lastModifiedEpoch = now,
-            modelUsed = "manual",
-            confidence = "user",
-            imagePath = null,
+        return insertAndExport(
+            draft.copy(
+                timestampEpoch = now,
+                lastModifiedEpoch = now,
+                modelUsed = "manual",
+                confidence = "user",
+                imagePath = null,
+            )
         )
-        val id = dao.insert(entry)
-        val saved = entry.copy(id = id)
+    }
+
+    fun observePresets(): Flow<List<MealPreset>> = presetDao.observeAll()
+
+    suspend fun saveAsPreset(source: FoodEntry, name: String): MealPreset {
+        val preset = MealPreset(
+            name = name.ifBlank { source.itemName }.trim(),
+            grams = source.grams,
+            kcal = source.kcal,
+            proteinG = source.proteinG,
+            carbsG = source.carbsG,
+            fatG = source.fatG,
+            fiberG = source.fiberG,
+            comment = source.comment,
+            createdEpoch = System.currentTimeMillis(),
+        )
+        return preset.copy(id = presetDao.insert(preset))
+    }
+
+    suspend fun deletePreset(preset: MealPreset) = presetDao.delete(preset)
+
+    suspend fun logPreset(preset: MealPreset): FoodEntry {
+        val now = System.currentTimeMillis()
+        return insertAndExport(
+            FoodEntry(
+                timestampEpoch = now,
+                lastModifiedEpoch = now,
+                itemName = preset.name,
+                grams = preset.grams,
+                kcal = preset.kcal,
+                proteinG = preset.proteinG,
+                carbsG = preset.carbsG,
+                fatG = preset.fatG,
+                fiberG = preset.fiberG,
+                comment = preset.comment,
+                modelUsed = "preset",
+                confidence = "user",
+                imagePath = null,
+            )
+        )
+    }
+
+    private suspend fun insertAndExport(entry: FoodEntry): FoodEntry {
+        val saved = entry.copy(id = dao.insert(entry))
         settings.current().exportFolderUri?.let { uriStr ->
             csvExporter.appendFoodEntry(Uri.parse(uriStr), saved)
         }

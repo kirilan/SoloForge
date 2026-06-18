@@ -39,6 +39,7 @@ fun EditFoodSheet(
     onSave: (FoodEntry) -> Unit,
     onDelete: (FoodEntry) -> Unit,
     onReanalyze: (String) -> Unit,
+    onSaveAsPreset: (FoodEntry) -> Unit,
     onDismiss: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -101,6 +102,13 @@ fun EditFoodSheet(
                     modifier = Modifier.weight(1f).height(56.dp),
                 ) { Text("Save") }
             }
+            var presetSaved by remember(draft.itemName) { mutableStateOf(false) }
+            OutlinedButton(
+                onClick = { onSaveAsPreset(draft); presetSaved = true },
+                enabled = draft.itemName.isNotBlank() && !presetSaved,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) { Text(if (presetSaved) "Saved to quick add ✓" else "Save as preset") }
+
             TextButton(
                 onClick = { onDelete(entry) },
                 modifier = Modifier.fillMaxWidth(),
