@@ -1,4 +1,4 @@
-Solo Forge is a free and open source Android fitness app for fasting, nutrition, weight tracking, and workout timing.
+Solo Forge is a free and open source Android fitness app: an intermittent fasting timer, calorie and macro counter, weight tracker, and workout timer in one. No ads, no tracking, fully offline.
 
 It is built around local data ownership:
 
