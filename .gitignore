@@ -11,3 +11,6 @@
 .kotlin
 /.claude/settings.local.json
 /tmp/
+keystore.properties
+*.jks
+*.keystore
