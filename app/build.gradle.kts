@@ -126,9 +126,6 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
 
-    implementation(libs.vico.compose)
-    implementation(libs.vico.compose.m3)
-
     implementation(libs.coil.compose)
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.exifinterface)
