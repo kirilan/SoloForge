@@ -58,6 +58,8 @@ class SettingsViewModel @Inject constructor(
 
     fun setSavePhotoLocally(value: Boolean) = viewModelScope.launch { settings.setSavePhotoLocally(value) }
 
+    fun setAiFeaturesEnabled(value: Boolean) = viewModelScope.launch { settings.setAiFeaturesEnabled(value) }
+
     fun setWeightUnitKg(value: Boolean) = viewModelScope.launch { settings.setWeightUnitKg(value) }
 
     fun setGoals(goals: NutritionGoals) = viewModelScope.launch { settings.setGoals(goals) }

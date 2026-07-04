@@ -23,7 +23,4 @@ interface FoodEntryDao {
 
     @Query("SELECT * FROM food_entries ORDER BY timestampEpoch DESC")
     fun observeAll(): Flow<List<FoodEntry>>
-
-    @Query("SELECT * FROM food_entries WHERE timestampEpoch >= :startOfDay AND timestampEpoch < :endOfDay ORDER BY timestampEpoch DESC")
-    fun observeForDay(startOfDay: Long, endOfDay: Long): Flow<List<FoodEntry>>
 }

@@ -42,6 +42,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kbul.spicycrab.data.db.entities.WeightEntry
+import com.kbul.spicycrab.ui.common.DateTimeField
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -199,21 +200,24 @@ private fun WeightRow(
 private fun LogWeightSheet(
     initialEntry: WeightEntry?,
     useKg: Boolean,
-    onSave: (Double, String) -> Unit,
+    onSave: (Double, String, Long) -> Unit,
     onDismiss: () -> Unit,
     toDisplay: (Double) -> Double,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var weightText by remember { mutableStateOf("") }
     var note by remember { mutableStateOf("") }
+    var timestamp by remember { mutableStateOf(System.currentTimeMillis()) }
 
     LaunchedEffect(initialEntry) {
         if (initialEntry != null) {
             weightText = "%.1f".format(toDisplay(initialEntry.weightKg))
             note = initialEntry.note
+            timestamp = initialEntry.timestampEpoch
         } else {
             weightText = ""
             note = ""
+            timestamp = System.currentTimeMillis()
         }
     }
 
@@ -243,10 +247,14 @@ private fun LogWeightSheet(
                 label = { Text("Note (optional)") },
                 modifier = Modifier.fillMaxWidth(),
             )
+            DateTimeField(
+                epochMillis = timestamp,
+                onChange = { timestamp = it },
+            )
             Button(
                 onClick = {
                     val value = weightText.replace(',', '.').toDoubleOrNull() ?: return@Button
-                    onSave(value, note.trim())
+                    onSave(value, note.trim(), timestamp)
                 },
                 enabled = weightText.replace(',', '.').toDoubleOrNull() != null,
                 modifier = Modifier.fillMaxWidth().height(56.dp),

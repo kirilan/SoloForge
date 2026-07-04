@@ -64,15 +64,15 @@ class WeightViewModel @Inject constructor(
         sheetFlow.value = null
     }
 
-    fun saveWeight(displayValue: Double, note: String) {
+    fun saveWeight(displayValue: Double, note: String, timestampEpoch: Long) {
         viewModelScope.launch {
             val kg = repository.fromDisplayUnit(displayValue, state.value.useKg)
             val editing = state.value.editingId
             if (editing != null) {
                 val target = state.value.entries.firstOrNull { it.id == editing } ?: return@launch
-                repository.update(target.copy(weightKg = kg, note = note))
+                repository.update(target.copy(weightKg = kg, note = note, timestampEpoch = timestampEpoch))
             } else {
-                repository.add(kg, note)
+                repository.add(kg, note, timestampEpoch)
             }
             dismissSheet()
         }

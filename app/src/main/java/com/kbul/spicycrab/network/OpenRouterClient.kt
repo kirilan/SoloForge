@@ -44,7 +44,7 @@ class OpenRouterClient @Inject constructor() {
     suspend fun analyzeFood(
         apiKey: String,
         model: String,
-        imageBase64Jpeg: String,
+        imageBase64Jpeg: String?,
         userComment: String,
     ): Result<NutritionEstimateDto> = runCatching {
         val systemMsg = ChatMessage(
@@ -53,23 +53,18 @@ class OpenRouterClient @Inject constructor() {
         )
 
         val userParts = buildJsonArray {
-            if (userComment.isNotBlank()) {
+            add(buildJsonObject {
+                put("type", "text")
+                put("text", userComment.ifBlank { "Please estimate calories and macros for this food." })
+            })
+            if (imageBase64Jpeg != null) {
                 add(buildJsonObject {
-                    put("type", "text")
-                    put("text", userComment)
-                })
-            } else {
-                add(buildJsonObject {
-                    put("type", "text")
-                    put("text", "Please estimate calories and macros for this food.")
+                    put("type", "image_url")
+                    put("image_url", buildJsonObject {
+                        put("url", "data:image/jpeg;base64,$imageBase64Jpeg")
+                    })
                 })
             }
-            add(buildJsonObject {
-                put("type", "image_url")
-                put("image_url", buildJsonObject {
-                    put("url", "data:image/jpeg;base64,$imageBase64Jpeg")
-                })
-            })
         }
 
         val request = ChatRequest(

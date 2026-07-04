@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material.icons.outlined.Keyboard
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.Icon
@@ -40,12 +41,15 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
     val presets by viewModel.presets.collectAsStateWithLifecycle()
     val editing by viewModel.editing.collectAsStateWithLifecycle()
     val manualOpen by viewModel.manualOpen.collectAsStateWithLifecycle()
+    val aiEnabled by viewModel.aiEnabled.collectAsStateWithLifecycle()
 
     when (val m = mode) {
         FoodUiMode.List -> FoodListContent(
             entries = entries,
             presets = presets,
+            aiEnabled = aiEnabled,
             onAddClick = { viewModel.goToCapture() },
+            onDescribeClick = { viewModel.startTextEntry() },
             onManualClick = { viewModel.openManual() },
             onRowClick = viewModel::openEdit,
             onLogPreset = viewModel::logPreset,
@@ -59,7 +63,7 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
             imageFile = m.imageFile,
             state = analyze,
             onCommentChange = viewModel::onCommentChange,
-            onAnalyze = viewModel::analyzeImage,
+            onAnalyze = viewModel::analyze,
             onSave = viewModel::saveEntry,
             onCancel = viewModel::cancelAnalyze,
             onEstimateUpdate = { updated -> viewModel.updateEstimate { updated } },
@@ -69,6 +73,7 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
     editing?.let { editingState ->
         EditFoodSheet(
             state = editingState,
+            aiEnabled = aiEnabled,
             onSave = viewModel::saveEdit,
             onDelete = viewModel::deleteEntry,
             onReanalyze = viewModel::reanalyzeEdit,
@@ -90,7 +95,9 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
 private fun FoodListContent(
     entries: List<FoodEntry>,
     presets: List<MealPreset>,
+    aiEnabled: Boolean,
     onAddClick: () -> Unit,
+    onDescribeClick: () -> Unit,
     onManualClick: () -> Unit,
     onRowClick: (FoodEntry) -> Unit,
     onLogPreset: (MealPreset) -> Unit,
@@ -108,11 +115,19 @@ private fun FoodListContent(
                 ) {
                     Icon(Icons.Outlined.Edit, contentDescription = "Add manual meal")
                 }
-                ExtendedFloatingActionButton(
-                    onClick = onAddClick,
-                    icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                    text = { Text("Analyze photo") },
-                )
+                if (aiEnabled) {
+                    SmallFloatingActionButton(
+                        onClick = onDescribeClick,
+                        containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    ) {
+                        Icon(Icons.Outlined.Keyboard, contentDescription = "Describe food in text")
+                    }
+                    ExtendedFloatingActionButton(
+                        onClick = onAddClick,
+                        icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                        text = { Text("Analyze photo") },
+                    )
+                }
             }
         }
     ) { padding ->
@@ -129,7 +144,8 @@ private fun FoodListContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        "No meals logged yet. Analyze a photo or add a manual meal.",
+                        if (aiEnabled) "No meals logged yet. Analyze a photo or add a manual meal."
+                        else "No meals logged yet. Add a manual meal.",
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }

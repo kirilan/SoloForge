@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.ui.common.DateTimeField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -68,6 +69,11 @@ fun ManualFoodSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
 
+            DateTimeField(
+                epochMillis = draft.timestampEpoch,
+                onChange = { draft = draft.copy(timestampEpoch = it) },
+            )
+
             NumField("Total weight (g)", draft.grams) { draft = draft.copy(grams = it) }
             ScaleByGramsButton(
                 currentGrams = draft.grams,
@@ -102,7 +108,7 @@ fun ManualFoodSheet(
 }
 
 private fun emptyDraft(): FoodEntry = FoodEntry(
-    timestampEpoch = 0L,
+    timestampEpoch = System.currentTimeMillis(),
     lastModifiedEpoch = 0L,
     itemName = "",
     grams = 0.0,

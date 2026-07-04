@@ -31,11 +31,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.ui.common.DateTimeField
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditFoodSheet(
     state: EditingState,
+    aiEnabled: Boolean,
     onSave: (FoodEntry) -> Unit,
     onDelete: (FoodEntry) -> Unit,
     onReanalyze: (String) -> Unit,
@@ -72,12 +74,19 @@ fun EditFoodSheet(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            ReanalyzeRow(
-                hasImage = entry.imagePath != null,
-                isReanalyzing = state.isReanalyzing,
-                error = state.reanalyzeError,
-                onReanalyze = { onReanalyze(draft.comment) },
+            DateTimeField(
+                epochMillis = draft.timestampEpoch,
+                onChange = { draft = draft.copy(timestampEpoch = it) },
             )
+
+            if (aiEnabled) {
+                ReanalyzeRow(
+                    canReanalyze = entry.imagePath != null || draft.comment.isNotBlank(),
+                    isReanalyzing = state.isReanalyzing,
+                    error = state.reanalyzeError,
+                    onReanalyze = { onReanalyze(draft.comment) },
+                )
+            }
 
             NumField("Grams", draft.grams) { draft = draft.copy(grams = it) }
             ScaleByGramsButton(
@@ -119,14 +128,14 @@ fun EditFoodSheet(
 
 @Composable
 private fun ReanalyzeRow(
-    hasImage: Boolean,
+    canReanalyze: Boolean,
     isReanalyzing: Boolean,
     error: String?,
     onReanalyze: () -> Unit,
 ) {
-    if (!hasImage) {
+    if (!canReanalyze) {
         Text(
-            "Re-analysis is unavailable: this entry was saved without a local photo. Enable “Save photo locally” in Settings before logging future meals.",
+            "Add a comment describing the meal to re-analyze without a photo.",
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

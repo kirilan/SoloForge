@@ -4,14 +4,15 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kbul.spicycrab.data.db.entities.FoodEntry
 import com.kbul.spicycrab.data.db.entities.MealPreset
+import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.nutrition.FoodRepository
 import com.kbul.spicycrab.domain.nutrition.NutritionEstimate
-import kotlinx.coroutines.flow.asStateFlow
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.io.File
@@ -20,7 +21,7 @@ import javax.inject.Inject
 sealed interface FoodUiMode {
     data object List : FoodUiMode
     data object Capture : FoodUiMode
-    data class Analyze(val imageFile: File) : FoodUiMode
+    data class Analyze(val imageFile: File?) : FoodUiMode
 }
 
 data class AnalyzeState(
@@ -41,7 +42,11 @@ data class EditingState(
 @HiltViewModel
 class FoodViewModel @Inject constructor(
     private val repository: FoodRepository,
+    settings: SettingsRepo,
 ) : ViewModel() {
+
+    val aiEnabled: StateFlow<Boolean> = settings.settings.map { it.aiFeaturesEnabled }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
 
     private val _mode = MutableStateFlow<FoodUiMode>(FoodUiMode.List)
     val mode: StateFlow<FoodUiMode> = _mode.asStateFlow()
@@ -65,6 +70,11 @@ class FoodViewModel @Inject constructor(
         _mode.value = FoodUiMode.Capture
     }
 
+    fun startTextEntry() {
+        _analyze.value = AnalyzeState()
+        _mode.value = FoodUiMode.Analyze(imageFile = null)
+    }
+
     fun onCaptured(file: File) {
         _analyze.value = AnalyzeState()
         _mode.value = FoodUiMode.Analyze(file)
@@ -78,12 +88,15 @@ class FoodViewModel @Inject constructor(
         _analyze.value = _analyze.value.copy(comment = value)
     }
 
-    fun analyzeImage() {
+    fun analyze() {
         val current = _mode.value
         if (current !is FoodUiMode.Analyze) return
+        val file = current.imageFile
+        val comment = _analyze.value.comment
+        if (file == null && comment.isBlank()) return
         _analyze.value = _analyze.value.copy(isLoading = true, error = null)
         viewModelScope.launch {
-            val result = repository.analyze(current.imageFile, _analyze.value.comment)
+            val result = if (file != null) repository.analyze(file, comment) else repository.analyzeText(comment)
             _analyze.value = result.fold(
                 onSuccess = { _analyze.value.copy(isLoading = false, estimate = it) },
                 onFailure = { _analyze.value.copy(isLoading = false, error = it.message ?: "Analysis failed") },
@@ -163,10 +176,15 @@ class FoodViewModel @Inject constructor(
 
     fun reanalyzeEdit(updatedComment: String) {
         val cur = _editing.value ?: return
-        val path = cur.entry.imagePath ?: return
+        val path = cur.entry.imagePath
+        if (path == null && updatedComment.isBlank()) return
         _editing.value = cur.copy(isReanalyzing = true, reanalyzeError = null)
         viewModelScope.launch {
-            val result = repository.analyze(File(path), updatedComment)
+            val result = if (path != null) {
+                repository.analyze(File(path), updatedComment)
+            } else {
+                repository.analyzeText(updatedComment)
+            }
             _editing.value = result.fold(
                 onSuccess = { est ->
                     EditingState(

@@ -1,0 +1,1 @@
+Type a food description like "100 g watermelon" to get calories and macros without a photo. New setting to turn off all AI features and hide their buttons. Edit the date and time on food and weight entries (great for logging just past midnight). Dark splash screen on dark-themed devices.

@@ -18,9 +18,9 @@ class WeightRepository @Inject constructor(
 
     fun observeAll(): Flow<List<WeightEntry>> = dao.observeAll()
 
-    suspend fun add(weightKg: Double, note: String): WeightEntry {
+    suspend fun add(weightKg: Double, note: String, timestampEpoch: Long = System.currentTimeMillis()): WeightEntry {
         val now = System.currentTimeMillis()
-        val entry = WeightEntry(timestampEpoch = now, lastModifiedEpoch = now, weightKg = weightKg, note = note)
+        val entry = WeightEntry(timestampEpoch = timestampEpoch, lastModifiedEpoch = now, weightKg = weightKg, note = note)
         val id = dao.insert(entry)
         val saved = entry.copy(id = id)
 

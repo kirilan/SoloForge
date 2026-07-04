@@ -30,7 +30,7 @@ import java.io.File
 
 @Composable
 fun AnalyzeScreen(
-    imageFile: File,
+    imageFile: File?,
     state: AnalyzeState,
     onCommentChange: (String) -> Unit,
     onAnalyze: () -> Unit,
@@ -38,35 +38,42 @@ fun AnalyzeScreen(
     onCancel: () -> Unit,
     onEstimateUpdate: (NutritionEstimate) -> Unit,
 ) {
+    val textOnly = imageFile == null
     Column(
         Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text("Review meal", style = MaterialTheme.typography.headlineMedium)
-        AsyncImage(
-            model = imageFile,
-            contentDescription = "Captured meal",
-            modifier = Modifier.fillMaxWidth().height(220.dp),
-        )
+        Text(if (textOnly) "Describe meal" else "Review meal", style = MaterialTheme.typography.headlineMedium)
+        if (imageFile != null) {
+            AsyncImage(
+                model = imageFile,
+                contentDescription = "Captured meal",
+                modifier = Modifier.fillMaxWidth().height(220.dp),
+            )
+        }
         OutlinedTextField(
             value = state.comment,
             onValueChange = onCommentChange,
-            label = { Text("Comment (optional)") },
-            placeholder = { Text("e.g. grilled chicken, ~200g, side of rice") },
+            label = { Text(if (textOnly) "Description" else "Comment (optional)") },
+            placeholder = {
+                Text(if (textOnly) "e.g. 100 g watermelon" else "e.g. grilled chicken, ~200g, side of rice")
+            },
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
         )
         if (state.estimate == null && !state.isLoading) {
             Button(
                 onClick = onAnalyze,
+                enabled = !textOnly || state.comment.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(56.dp),
             ) { Text("Analyze") }
         }
         if (state.estimate != null && !state.isLoading) {
             OutlinedButton(
                 onClick = onAnalyze,
+                enabled = !textOnly || state.comment.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text("Re-analyze with current comment") }
+            ) { Text(if (textOnly) "Re-analyze with current description" else "Re-analyze with current comment") }
         }
         if (state.isLoading) {
             Row(

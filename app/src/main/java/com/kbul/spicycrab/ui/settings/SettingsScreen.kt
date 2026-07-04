@@ -78,12 +78,21 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         }
 
         SectionCard("AI / API") {
-            ApiKeyField(hasKey, viewModel::setApiKey, viewModel::clearApiKey)
-            Text(
-                "Food photos use an automatic model chain: fast default analysis first, stronger review when confidence is low, and a premium check only when uncertainty remains.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            SwitchRow("AI food analysis", s.aiFeaturesEnabled, viewModel::setAiFeaturesEnabled)
+            if (s.aiFeaturesEnabled) {
+                ApiKeyField(hasKey, viewModel::setApiKey, viewModel::clearApiKey)
+                Text(
+                    "Food photos use an automatic model chain: fast default analysis first, stronger review when confidence is low, and a premium check only when uncertainty remains.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                Text(
+                    "AI analysis is off. The analyze buttons are hidden and the app makes no network calls.",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
 
         SectionCard("Daily nutrition goals") {

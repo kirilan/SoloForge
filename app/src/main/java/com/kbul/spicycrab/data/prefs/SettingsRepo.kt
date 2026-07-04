@@ -27,6 +27,7 @@ data class NutritionGoals(
 data class AppSettings(
     val exportFolderUri: String?,
     val savePhotoLocally: Boolean,
+    val aiFeaturesEnabled: Boolean,
     val weightUnitKg: Boolean,
     val goals: NutritionGoals,
     val weighInEnabled: Boolean,
@@ -56,6 +57,7 @@ class SettingsRepo @Inject constructor(
         if (uri == null) it.remove(KEY_EXPORT_URI) else it[KEY_EXPORT_URI] = uri
     }
     suspend fun setSavePhotoLocally(value: Boolean) = update { it[KEY_SAVE_PHOTO] = value }
+    suspend fun setAiFeaturesEnabled(value: Boolean) = update { it[KEY_AI_ENABLED] = value }
     suspend fun setWeightUnitKg(value: Boolean) = update { it[KEY_WEIGHT_KG] = value }
     suspend fun setDefaultFastingMode(name: String) = update { it[KEY_DEFAULT_MODE] = name }
     suspend fun setAlmostThereEnabled(value: Boolean) = update { it[KEY_REMIND_ALMOST] = value }
@@ -86,6 +88,7 @@ class SettingsRepo @Inject constructor(
     private fun Preferences.toAppSettings(): AppSettings = AppSettings(
         exportFolderUri = this[KEY_EXPORT_URI],
         savePhotoLocally = this[KEY_SAVE_PHOTO] ?: false,
+        aiFeaturesEnabled = this[KEY_AI_ENABLED] ?: true,
         weightUnitKg = this[KEY_WEIGHT_KG] ?: true,
         goals = NutritionGoals(
             kcal = this[KEY_GOAL_KCAL] ?: 2000,
@@ -111,6 +114,7 @@ class SettingsRepo @Inject constructor(
     private companion object {
         val KEY_EXPORT_URI = stringPreferencesKey("export_folder_uri")
         val KEY_SAVE_PHOTO = booleanPreferencesKey("save_photo_locally")
+        val KEY_AI_ENABLED = booleanPreferencesKey("ai_features_enabled")
         val KEY_WEIGHT_KG = booleanPreferencesKey("weight_unit_kg")
         val KEY_GOAL_KCAL = intPreferencesKey("goal_kcal")
         val KEY_GOAL_PROTEIN = intPreferencesKey("goal_protein")

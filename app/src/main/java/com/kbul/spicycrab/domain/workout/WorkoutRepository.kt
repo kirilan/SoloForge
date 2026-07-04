@@ -11,8 +11,6 @@ import com.kbul.spicycrab.notifications.WorkoutNotificationService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -49,13 +47,6 @@ class WorkoutRepository @Inject constructor(
                 ).also { stateHolder.set(it) }
             }
         }
-
-    fun observeForDay(zone: ZoneId = ZoneId.systemDefault()): Flow<List<WorkoutSession>> {
-        val today = LocalDate.now(zone)
-        val start = today.atStartOfDay(zone).toInstant().toEpochMilli()
-        val end = today.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
-        return dao.observeForDay(start, end)
-    }
 
     suspend fun start(mode: WorkoutMode, intervalSeconds: Int): WorkoutSession {
         val now = System.currentTimeMillis()

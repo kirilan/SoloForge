@@ -13,9 +13,6 @@ import com.kbul.spicycrab.network.OpenRouterClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import java.io.File
-import java.time.Instant
-import java.time.LocalDate
-import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -38,18 +35,18 @@ class FoodRepository @Inject constructor(
 
     fun observeAll(): Flow<List<FoodEntry>> = dao.observeAll()
 
-    fun observeToday(zone: ZoneId = ZoneId.systemDefault()): Flow<List<FoodEntry>> {
-        val today = LocalDate.now(zone)
-        val start = today.atStartOfDay(zone).toInstant().toEpochMilli()
-        val end = today.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
-        return dao.observeForDay(start, end)
-    }
-
     suspend fun analyze(imageFile: File, comment: String): Result<NutritionEstimate> {
-        val key = keyStore.getOpenRouterKey()
-            ?: return Result.failure(IllegalStateException("Set your OpenRouter API key in Settings."))
         val base64 = runCatching { ImageUtils.fileToBase64Jpeg(imageFile) }
             .getOrElse { return Result.failure(it) }
+        return analyzeWithChain(base64, comment)
+    }
+
+    suspend fun analyzeText(description: String): Result<NutritionEstimate> =
+        analyzeWithChain(null, description)
+
+    private suspend fun analyzeWithChain(base64: String?, comment: String): Result<NutritionEstimate> {
+        val key = keyStore.getOpenRouterKey()
+            ?: return Result.failure(IllegalStateException("Set your OpenRouter API key in Settings."))
 
         return runCatching {
             val first = analyzeWithModel(key, FoodAnalysisModels.DEFAULT, base64, comment)
@@ -120,7 +117,7 @@ class FoodRepository @Inject constructor(
         val now = System.currentTimeMillis()
         return insertAndExport(
             draft.copy(
-                timestampEpoch = now,
+                timestampEpoch = draft.timestampEpoch.takeIf { it > 0 } ?: now,
                 lastModifiedEpoch = now,
                 modelUsed = "manual",
                 confidence = "user",
@@ -211,7 +208,7 @@ class FoodRepository @Inject constructor(
     private suspend fun analyzeWithModel(
         key: String,
         model: String,
-        base64: String,
+        base64: String?,
         comment: String,
     ): NutritionEstimate =
         client.analyzeFood(key, model, base64, comment).getOrThrow().let { dto ->
