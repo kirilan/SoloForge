@@ -1,0 +1,1 @@
+Write a daily journal note right on the Home calendar — tap any day to add or edit it. Back up everything (entries, journal, settings) to a single JSON file and restore it on a new install, either merging with existing data or replacing it. Setting a backup folder now keeps a continuously updated backup file there; this replaces the old CSV export.

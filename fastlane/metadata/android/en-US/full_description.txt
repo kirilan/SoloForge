@@ -7,7 +7,7 @@ It is built around local data ownership:
 * No analytics
 * No crash reporting
 * Android cloud backup disabled
-* Explicit CSV export to a folder you choose
+* Full backup and restore to a single file, with optional auto-backup to a folder you choose
 
 Features:
 
@@ -19,6 +19,7 @@ Features:
 * Weight history with charting
 * Simple, interval, and exercise/rest workout timers
 * Dashboard for fasting, nutrition, weight, workout time, and streaks
+* Daily journal notes on the progress calendar
 
 Solo Forge sends a network request only when you start food photo analysis. That request goes to OpenRouter using the API key you provide. All saved meals, weight entries, workouts, fasting history, settings, and exports remain local to your device.
 

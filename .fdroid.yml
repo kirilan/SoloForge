@@ -19,7 +19,8 @@ Description: |-
   * Manual food logging and editable macro estimates
   * Weight tracking with history and charting
   * Workout timers with local session history
-  * Explicit CSV export to a user-selected folder
+  * Daily journal notes on the progress calendar
+  * Full backup and restore to a single file
 
   Solo Forge has no backend, no accounts, no analytics, and no crash
   reporting. Fitness data stays on the device unless the user explicitly
