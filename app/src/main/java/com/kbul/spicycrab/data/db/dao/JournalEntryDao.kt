@@ -18,4 +18,7 @@ interface JournalEntryDao {
 
     @Query("SELECT * FROM journal_entries ORDER BY dateEpochDay DESC")
     fun observeAll(): Flow<List<JournalEntry>>
+
+    @Query("DELETE FROM journal_entries")
+    suspend fun deleteAll()
 }

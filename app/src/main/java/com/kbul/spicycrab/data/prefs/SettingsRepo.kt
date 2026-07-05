@@ -11,11 +11,13 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.serialization.Serializable
 import javax.inject.Inject
 import javax.inject.Singleton
 
 private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 
+@Serializable
 data class NutritionGoals(
     val kcal: Int,
     val proteinG: Int,
@@ -24,6 +26,7 @@ data class NutritionGoals(
     val fiberG: Int,
 )
 
+@Serializable
 data class AppSettings(
     val exportFolderUri: String?,
     val savePhotoLocally: Boolean,
@@ -79,6 +82,30 @@ class SettingsRepo @Inject constructor(
         it[KEY_GOAL_CARBS] = goals.carbsG
         it[KEY_GOAL_FAT] = goals.fatG
         it[KEY_GOAL_FIBER] = goals.fiberG
+    }
+
+    // exportFolderUri stays local: SAF tree permissions don't transfer between installs.
+    suspend fun applyBackup(s: AppSettings) = update {
+        it[KEY_SAVE_PHOTO] = s.savePhotoLocally
+        it[KEY_AI_ENABLED] = s.aiFeaturesEnabled
+        it[KEY_WEIGHT_KG] = s.weightUnitKg
+        it[KEY_GOAL_KCAL] = s.goals.kcal
+        it[KEY_GOAL_PROTEIN] = s.goals.proteinG
+        it[KEY_GOAL_CARBS] = s.goals.carbsG
+        it[KEY_GOAL_FAT] = s.goals.fatG
+        it[KEY_GOAL_FIBER] = s.goals.fiberG
+        it[KEY_WEIGH_ENABLED] = s.weighInEnabled
+        it[KEY_WEIGH_DAY] = s.weighInDayOfWeek
+        it[KEY_WEIGH_HOUR] = s.weighInHour
+        it[KEY_WEIGH_MIN] = s.weighInMinute
+        it[KEY_DEFAULT_MODE] = s.defaultFastingModeName
+        it[KEY_REMIND_ALMOST] = s.almostThereEnabled
+        it[KEY_REMIND_WINDOW] = s.eatingWindowClosingEnabled
+        it[KEY_TAB_FAST] = s.showFastingTab
+        it[KEY_TAB_FOOD] = s.showFoodTab
+        it[KEY_TAB_WEIGHT] = s.showWeightTab
+        it[KEY_TAB_WORKOUT] = s.showWorkoutTab
+        it[KEY_ONBOARDING_COMPLETE] = s.onboardingComplete
     }
 
     private suspend fun update(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {

@@ -19,4 +19,7 @@ interface MealPresetDao {
 
     @Query("SELECT * FROM meal_presets ORDER BY createdEpoch DESC")
     fun observeAll(): Flow<List<MealPreset>>
+
+    @Query("DELETE FROM meal_presets")
+    suspend fun deleteAll()
 }

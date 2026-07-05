@@ -1,8 +1,6 @@
 package com.kbul.spicycrab.domain.nutrition
 
 import android.content.Context
-import android.net.Uri
-import com.kbul.spicycrab.data.csv.CsvExporter
 import com.kbul.spicycrab.data.db.dao.FoodEntryDao
 import com.kbul.spicycrab.data.db.dao.MealPresetDao
 import com.kbul.spicycrab.data.db.entities.FoodEntry
@@ -29,7 +27,6 @@ class FoodRepository @Inject constructor(
     private val client: OpenRouterClient,
     private val keyStore: SecureKeyStore,
     private val settings: SettingsRepo,
-    private val csvExporter: CsvExporter,
     @ApplicationContext private val context: Context,
 ) {
 
@@ -104,18 +101,12 @@ class FoodRepository @Inject constructor(
             confidence = estimate.confidence,
             imagePath = savedImagePath,
         )
-        val id = dao.insert(entry)
-        val saved = entry.copy(id = id)
-
-        s.exportFolderUri?.let { uriStr ->
-            csvExporter.appendFoodEntry(Uri.parse(uriStr), saved)
-        }
-        return saved
+        return entry.copy(id = dao.insert(entry))
     }
 
     suspend fun addManual(draft: FoodEntry): FoodEntry {
         val now = System.currentTimeMillis()
-        return insertAndExport(
+        return insertEntry(
             draft.copy(
                 timestampEpoch = draft.timestampEpoch.takeIf { it > 0 } ?: now,
                 lastModifiedEpoch = now,
@@ -147,7 +138,7 @@ class FoodRepository @Inject constructor(
 
     suspend fun logPreset(preset: MealPreset): FoodEntry {
         val now = System.currentTimeMillis()
-        return insertAndExport(
+        return insertEntry(
             FoodEntry(
                 timestampEpoch = now,
                 lastModifiedEpoch = now,
@@ -166,30 +157,16 @@ class FoodRepository @Inject constructor(
         )
     }
 
-    private suspend fun insertAndExport(entry: FoodEntry): FoodEntry {
-        val saved = entry.copy(id = dao.insert(entry))
-        settings.current().exportFolderUri?.let { uriStr ->
-            csvExporter.appendFoodEntry(Uri.parse(uriStr), saved)
-        }
-        return saved
-    }
+    private suspend fun insertEntry(entry: FoodEntry): FoodEntry =
+        entry.copy(id = dao.insert(entry))
 
     suspend fun update(updated: FoodEntry): FoodEntry {
         val bumped = updated.copy(lastModifiedEpoch = System.currentTimeMillis())
         dao.update(bumped)
-
-        settings.current().exportFolderUri?.let { uriStr ->
-            csvExporter.appendFoodEntry(Uri.parse(uriStr), bumped)
-        }
         return bumped
     }
 
-    suspend fun delete(entry: FoodEntry) {
-        dao.delete(entry)
-        settings.current().exportFolderUri?.let { uriStr ->
-            csvExporter.appendFoodDelete(Uri.parse(uriStr), entry.copy(lastModifiedEpoch = System.currentTimeMillis()))
-        }
-    }
+    suspend fun delete(entry: FoodEntry) = dao.delete(entry)
 
     fun todayTotals(entries: List<FoodEntry>): NutritionEstimate = NutritionEstimate(
         itemName = "today",

@@ -35,4 +35,7 @@ interface FastSessionDao {
 
     @Query("SELECT * FROM fast_sessions WHERE completed = 1 ORDER BY endEpoch DESC")
     suspend fun allCompleted(): List<FastSession>
+
+    @Query("DELETE FROM fast_sessions")
+    suspend fun deleteAll()
 }

@@ -102,15 +102,9 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         SectionCard("Data") {
             ExportFolderRow(s.exportFolderUri, viewModel::setExportFolder)
             SwitchRow("Save photo locally with each entry", s.savePhotoLocally, viewModel::setSavePhotoLocally)
-            Button(
-                onClick = viewModel::exportAll,
-                enabled = s.exportFolderUri != null,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text("Export all data") }
-            Text(
-                "Rewrites food_log.csv and weight_log.csv from the database (single row per entry).",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            BackupButtons(
+                onExport = viewModel::exportBackup,
+                onImport = viewModel::importBackup,
             )
         }
 
@@ -264,7 +258,8 @@ private fun ExportFolderRow(currentUri: String?, onSet: (String?) -> Unit) {
     }
 
     Text(
-        currentUri?.let { "Export folder set." } ?: "No export folder selected.",
+        currentUri?.let { "Auto-backup folder set. SoloForge-backup.json is rewritten there on every change." }
+            ?: "No auto-backup folder selected. Pick a synced folder (e.g. Google Drive) for continuous off-device backup.",
         style = MaterialTheme.typography.bodyMedium,
     )
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -278,6 +273,61 @@ private fun ExportFolderRow(currentUri: String?, onSet: (String?) -> Unit) {
                 modifier = Modifier.weight(1f).height(48.dp),
             ) { Text("Clear") }
         }
+    }
+}
+
+@Composable
+private fun BackupButtons(
+    onExport: (android.net.Uri) -> Unit,
+    onImport: (android.net.Uri, Boolean) -> Unit,
+) {
+    var pendingImportUri by remember { mutableStateOf<android.net.Uri?>(null) }
+    val exportLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/json")
+    ) { uri -> uri?.let(onExport) }
+    val importLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri -> pendingImportUri = uri }
+
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+        Button(
+            onClick = { exportLauncher.launch("SoloForge-backup-${java.time.LocalDate.now()}.json") },
+            modifier = Modifier.weight(1f).height(48.dp),
+        ) { Text("Export backup") }
+        OutlinedButton(
+            onClick = { importLauncher.launch(arrayOf("application/json", "application/octet-stream")) },
+            modifier = Modifier.weight(1f).height(48.dp),
+        ) { Text("Import backup") }
+    }
+    Text(
+        "The backup holds all entries and settings, but not your API key.",
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+
+    pendingImportUri?.let { uri ->
+        androidx.compose.material3.AlertDialog(
+            onDismissRequest = { pendingImportUri = null },
+            title = { Text("Import backup") },
+            text = {
+                Text(
+                    "Merge keeps everything on this device and adds entries from the backup. " +
+                        "Replace erases all current data and settings first.",
+                )
+            },
+            confirmButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    onImport(uri, true)
+                    pendingImportUri = null
+                }) { Text("Merge") }
+            },
+            dismissButton = {
+                androidx.compose.material3.TextButton(onClick = {
+                    onImport(uri, false)
+                    pendingImportUri = null
+                }) { Text("Replace everything", color = MaterialTheme.colorScheme.error) }
+            },
+        )
     }
 }
 

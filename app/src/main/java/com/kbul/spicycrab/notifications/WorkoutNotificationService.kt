@@ -9,7 +9,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.content.pm.ServiceInfo
-import android.net.Uri
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Build
@@ -21,9 +20,7 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.kbul.spicycrab.MainActivity
 import com.kbul.spicycrab.R
-import com.kbul.spicycrab.data.csv.CsvExporter
 import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
-import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.workout.ActiveWorkoutState
 import com.kbul.spicycrab.domain.workout.WorkoutMode
 import com.kbul.spicycrab.domain.workout.WorkoutPhase
@@ -44,8 +41,6 @@ class WorkoutNotificationService : Service() {
 
     @Inject lateinit var stateHolder: WorkoutStateHolder
     @Inject lateinit var dao: WorkoutSessionDao
-    @Inject lateinit var settings: SettingsRepo
-    @Inject lateinit var csvExporter: CsvExporter
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private var tickerJob: Job? = null
@@ -174,9 +169,6 @@ class WorkoutNotificationService : Service() {
                         lastModifiedEpoch = now,
                     )
                     dao.update(finalized)
-                    settings.current().exportFolderUri?.let { uriStr ->
-                        csvExporter.appendWorkoutEntry(Uri.parse(uriStr), finalized)
-                    }
                 }
                 stateHolder.set(null)
                 tickerJob?.cancel(); tickerJob = null

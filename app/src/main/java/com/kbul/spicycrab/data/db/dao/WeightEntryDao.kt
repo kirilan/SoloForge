@@ -26,4 +26,7 @@ interface WeightEntryDao {
 
     @Query("SELECT * FROM weight_entries ORDER BY timestampEpoch DESC LIMIT 1")
     suspend fun mostRecent(): WeightEntry?
+
+    @Query("DELETE FROM weight_entries")
+    suspend fun deleteAll()
 }

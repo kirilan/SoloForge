@@ -12,8 +12,8 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
    - "Almost there" encouragement 1h before fast ends
    - "Eating window closing" 1h before window ends, scheduled when a completed fast ends
    - Cancellation is automatic when the user takes the opposite action
-2. **AI calorie counter** — user supplies their OpenRouter key, snaps a photo with optional comment, gets structured macros back, edits if needed, saves locally + appends to CSV in a user-chosen folder (Google Drive / Dropbox synced folder works automatically through SAF). Model choice is automatic through the escalation chain in `FoodAnalysisModels`.
-3. **Weight tracking** — manual entries, line chart, edit/delete, CSV export, weekly weigh-in reminder.
+2. **AI calorie counter** — user supplies their OpenRouter key, snaps a photo with optional comment, gets structured macros back, edits if needed, saves locally. Model choice is automatic through the escalation chain in `FoodAnalysisModels`.
+3. **Weight tracking** — manual entries, line chart, edit/delete, weekly weigh-in reminder.
 4. **Workout timer** — simple, interval, and exercise/rest timers with local workout logging and dashboard calorie bonus.
 5. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
 6. **FOSS/privacy branding** — first-run intro and Settings/About emphasize GPL-3.0, no backend, no accounts, no analytics, and local-first data ownership without adding persistent dashboard clutter.
@@ -48,7 +48,7 @@ app/src/main/java/com/kbul/spicycrab/
 │   ├── db/                         // Room AppDatabase, entities, DAOs
 │   ├── prefs/SettingsRepo.kt       // DataStore for goals, export URI, units
 │   ├── prefs/SecureKeyStore.kt     // EncryptedSharedPreferences for API key
-│   └── csv/CsvExporter.kt          // SAF-based append-on-write
+│   └── backup/BackupManager.kt     // Versioned JSON backup: export/import (merge or replace) + auto-backup
 ├── domain/
 │   ├── fasting/                    // FastingMode, FastingRepository, StreakCalculator
 │   └── nutrition/                  // FoodRepository, NutritionEstimate, ImageUtils
@@ -78,7 +78,7 @@ app/src/main/java/com/kbul/spicycrab/
 - **DI**: every repository / DAO / network client is `@Singleton` and constructor-injected via Hilt.
 - **Source of truth for the active fast = the row in Room** (start timestamp). UI ticks every 1s and computes elapsed; killing the app never breaks the timer.
 - **Reminders** are *state-driven*, not time-of-day-driven. Schedule when a fast starts/ends; cancel on the opposite event.
-- **CSV export** on every save/update/delete tombstone when an export folder is set — user picks once via `ACTION_OPEN_DOCUMENT_TREE` and we persist URI permission.
+- **Backup** is one versioned JSON file holding all Room tables + settings, never the API key. Settings offers manual export and import (merge or replace); with an auto-backup folder set, `BackupManager` rewrites `SoloForge-backup.json` there on every data change. CSV export was removed in 0.3.0.
 - **Android system backup is disabled** (`allowBackup=false`). Device migration should use explicit export/import flows, not silent Android cloud backup.
 - **API key** is the only secret; it's in EncryptedSharedPreferences and excluded from auto-backup (`backup_rules.xml` / `data_extraction_rules.xml`).
 - **No comments unless the *why* is non-obvious.** Prefer well-named functions to docstrings.

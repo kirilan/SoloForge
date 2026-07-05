@@ -1,12 +1,9 @@
 package com.kbul.spicycrab.domain.workout
 
 import android.content.Context
-import android.net.Uri
 import androidx.core.content.ContextCompat
-import com.kbul.spicycrab.data.csv.CsvExporter
 import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
-import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.notifications.WorkoutNotificationService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -18,8 +15,6 @@ import javax.inject.Singleton
 class WorkoutRepository @Inject constructor(
     private val dao: WorkoutSessionDao,
     private val stateHolder: WorkoutStateHolder,
-    private val csvExporter: CsvExporter,
-    private val settings: SettingsRepo,
     @ApplicationContext private val context: Context,
 ) {
 
@@ -87,17 +82,8 @@ class WorkoutRepository @Inject constructor(
     }
 
     suspend fun update(updated: WorkoutSession) {
-        val bumped = updated.copy(lastModifiedEpoch = System.currentTimeMillis())
-        dao.update(bumped)
-        settings.current().exportFolderUri?.let { uriStr ->
-            csvExporter.appendWorkoutEntry(Uri.parse(uriStr), bumped)
-        }
+        dao.update(updated.copy(lastModifiedEpoch = System.currentTimeMillis()))
     }
 
-    suspend fun delete(session: WorkoutSession) {
-        dao.delete(session)
-        settings.current().exportFolderUri?.let { uriStr ->
-            csvExporter.appendWorkoutDelete(Uri.parse(uriStr), session.copy(lastModifiedEpoch = System.currentTimeMillis()))
-        }
-    }
+    suspend fun delete(session: WorkoutSession) = dao.delete(session)
 }

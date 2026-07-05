@@ -23,4 +23,7 @@ interface FoodEntryDao {
 
     @Query("SELECT * FROM food_entries ORDER BY timestampEpoch DESC")
     fun observeAll(): Flow<List<FoodEntry>>
+
+    @Query("DELETE FROM food_entries")
+    suspend fun deleteAll()
 }

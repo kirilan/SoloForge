@@ -3,10 +3,7 @@ package com.kbul.spicycrab.ui.settings
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.net.Uri
-import com.kbul.spicycrab.data.csv.CsvExporter
-import com.kbul.spicycrab.data.db.dao.FoodEntryDao
-import com.kbul.spicycrab.data.db.dao.WeightEntryDao
-import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
+import com.kbul.spicycrab.data.backup.BackupManager
 import com.kbul.spicycrab.data.prefs.AppSettings
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.data.prefs.SecureKeyStore
@@ -29,10 +26,7 @@ class SettingsViewModel @Inject constructor(
     private val settings: SettingsRepo,
     private val keyStore: SecureKeyStore,
     private val reminderScheduler: ReminderScheduler,
-    private val csvExporter: CsvExporter,
-    private val foodEntryDao: FoodEntryDao,
-    private val weightEntryDao: WeightEntryDao,
-    private val workoutSessionDao: WorkoutSessionDao,
+    private val backupManager: BackupManager,
 ) : ViewModel() {
 
     private val _exportMessage = MutableStateFlow<String?>(null)
@@ -106,21 +100,23 @@ class SettingsViewModel @Inject constructor(
     fun setShowWeightTab(value: Boolean) = viewModelScope.launch { settings.setShowWeightTab(value) }
     fun setShowWorkoutTab(value: Boolean) = viewModelScope.launch { settings.setShowWorkoutTab(value) }
 
-    fun exportAll() {
+    fun exportBackup(uri: Uri) {
         viewModelScope.launch {
-            val s = settings.current()
-            val uriStr = s.exportFolderUri
-            if (uriStr == null) {
-                _exportMessage.value = "Set an export folder first."
-                return@launch
-            }
-            val foods = foodEntryDao.observeAll().first()
-            val weights = weightEntryDao.observeAll().first()
-            val workouts = workoutSessionDao.observeAll().first()
-            val result = csvExporter.rewriteAll(Uri.parse(uriStr), foods, weights, workouts)
-            _exportMessage.value = result.fold(
-                onSuccess = { "Exported ${foods.size} meals, ${weights.size} weight entries, ${workouts.size} workouts." },
+            _exportMessage.value = backupManager.exportTo(uri).fold(
+                onSuccess = { "Backup exported." },
                 onFailure = { "Export failed: ${it.message}" },
+            )
+        }
+    }
+
+    fun importBackup(uri: Uri, merge: Boolean) {
+        viewModelScope.launch {
+            _exportMessage.value = backupManager.importFrom(uri, merge).fold(
+                onSuccess = { summary ->
+                    if (summary.replaced) "Backup restored (${summary.added} entries)."
+                    else "Merged ${summary.added} new ${if (summary.added == 1) "entry" else "entries"}."
+                },
+                onFailure = { "Import failed: ${it.message}" },
             )
         }
     }
