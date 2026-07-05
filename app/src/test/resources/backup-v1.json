@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "exportedAtEpoch": 1783258118042,
+  "settings": {
+    "exportFolderUri": null,
+    "savePhotoLocally": true,
+    "aiFeaturesEnabled": false,
+    "weightUnitKg": false,
+    "goals": { "kcal": 1800, "proteinG": 140, "carbsG": 180, "fatG": 60, "fiberG": 25 },
+    "weighInEnabled": true,
+    "weighInDayOfWeek": 6,
+    "weighInHour": 7,
+    "weighInMinute": 30,
+    "defaultFastingModeName": "EIGHTEEN_SIX",
+    "almostThereEnabled": false,
+    "eatingWindowClosingEnabled": true,
+    "showFastingTab": true,
+    "showFoodTab": true,
+    "showWeightTab": false,
+    "showWorkoutTab": true,
+    "onboardingComplete": true
+  },
+  "fasts": [
+    {
+      "id": 3,
+      "modeName": "SIXTEEN_EIGHT",
+      "targetSeconds": 57600,
+      "eatingWindowSeconds": 28800,
+      "startEpoch": 1783150000000,
+      "endEpoch": 1783207600000,
+      "completed": true
+    },
+    {
+      "id": 4,
+      "modeName": "EIGHTEEN_SIX",
+      "targetSeconds": 64800,
+      "eatingWindowSeconds": 21600,
+      "startEpoch": 1783250000000,
+      "endEpoch": null,
+      "completed": false
+    }
+  ],
+  "foods": [
+    {
+      "id": 12,
+      "timestampEpoch": 1783211000000,
+      "lastModifiedEpoch": 1783211500000,
+      "itemName": "Chicken & rice",
+      "grams": 420.0,
+      "kcal": 540.5,
+      "proteinG": 45.0,
+      "carbsG": 62.0,
+      "fatG": 11.5,
+      "fiberG": 4.0,
+      "comment": "post-workout, extra sauce",
+      "modelUsed": "manual",
+      "confidence": "user",
+      "imagePath": "/data/user/0/com.kbul.spicycrab/files/food_1783211000000.jpg"
+    }
+  ],
+  "weights": [
+    {
+      "id": 7,
+      "timestampEpoch": 1783190000000,
+      "lastModifiedEpoch": 1783190000000,
+      "weightKg": 82.4,
+      "note": "morning, after fast"
+    }
+  ],
+  "workouts": [
+    {
+      "id": 5,
+      "modeName": "EXERCISE_REST",
+      "startEpoch": 1783215000000,
+      "endEpoch": 1783217700000,
+      "totalSeconds": 2700,
+      "intervalSeconds": 0,
+      "exerciseSeconds": 2100,
+      "restSeconds": 600,
+      "notes": "push day",
+      "lastModifiedEpoch": 1783217700000
+    }
+  ],
+  "presets": [
+    {
+      "id": 2,
+      "name": "Overnight oats",
+      "grams": 350.0,
+      "kcal": 412.0,
+      "proteinG": 18.0,
+      "carbsG": 58.0,
+      "fatG": 12.0,
+      "fiberG": 9.5,
+      "comment": "with berries",
+      "createdEpoch": 1783000000000
+    }
+  ],
+  "journal": [
+    {
+      "dateEpochDay": 20639,
+      "text": "Felt strong today, kept the fast easy.\nEvening walk helped.",
+      "lastModifiedEpoch": 1783250000000
+    }
+  ]
+}

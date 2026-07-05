@@ -40,6 +40,8 @@ import kotlinx.serialization.json.Json
 import javax.inject.Inject
 import javax.inject.Singleton
 
+internal val BackupJson = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+
 @Serializable
 data class BackupFile(
     val schemaVersion: Int = SCHEMA_VERSION,
@@ -72,7 +74,7 @@ class BackupManager @Inject constructor(
     private val settingsRepo: SettingsRepo,
     private val reminderScheduler: ReminderScheduler,
 ) {
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = BackupJson
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @OptIn(FlowPreview::class)

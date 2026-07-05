@@ -204,7 +204,7 @@ class FoodRepository @Inject constructor(
         }
 }
 
-private fun NutritionEstimate.needsEscalation(): Boolean {
+internal fun NutritionEstimate.needsEscalation(): Boolean {
     if (confidence.equals("low", ignoreCase = true)) return true
     val text = "$itemName $notes".lowercase()
     return listOf(

@@ -1,6 +1,7 @@
 package com.kbul.spicycrab.network
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.engine.okhttp.OkHttp
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
@@ -28,11 +29,13 @@ private const val APP_ATTRIBUTION_URL = "https://github.com/kirilan/SoloForge"
 private const val APP_ATTRIBUTION_TITLE = "Solo Forge"
 
 @Singleton
-class OpenRouterClient @Inject constructor() {
+class OpenRouterClient internal constructor(engine: HttpClientEngine) {
+
+    @Inject constructor() : this(OkHttp.create())
 
     private val json = Json { ignoreUnknownKeys = true; isLenient = true }
 
-    private val client = HttpClient(OkHttp) {
+    private val client = HttpClient(engine) {
         install(ContentNegotiation) { json(this@OpenRouterClient.json) }
         install(HttpTimeout) {
             requestTimeoutMillis = 60_000

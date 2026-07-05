@@ -227,7 +227,7 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-private fun buildCalendarDays(
+internal fun buildCalendarDays(
     month: YearMonth,
     selectedToday: LocalDate,
     now: Long,
@@ -266,7 +266,7 @@ private fun buildCalendarDays(
     }
 }
 
-private fun FastSession.overlapsDay(startOfDay: Long, endOfDay: Long, now: Long): Boolean {
+internal fun FastSession.overlapsDay(startOfDay: Long, endOfDay: Long, now: Long): Boolean {
     val fastEnd = endEpoch ?: now
     return startEpoch < endOfDay && fastEnd >= startOfDay
 }
