@@ -2,8 +2,10 @@ package com.kbul.spicycrab.ui.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kbul.spicycrab.data.db.dao.JournalEntryDao
 import com.kbul.spicycrab.data.db.entities.FastSession
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.data.db.entities.JournalEntry
 import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
 import com.kbul.spicycrab.data.prefs.NutritionGoals
@@ -41,6 +43,7 @@ data class CalendarDaySummary(
     val fasts: List<FastSession>,
     val workouts: List<WorkoutSession>,
     val weights: List<WeightEntry>,
+    val journal: JournalEntry?,
 ) {
     val workoutSeconds: Long = workouts.sumOf { it.totalSeconds }
     val hasData: Boolean = meals.isNotEmpty() || fasts.isNotEmpty() || workouts.isNotEmpty() || weights.isNotEmpty()
@@ -76,6 +79,7 @@ class HomeViewModel @Inject constructor(
     private val foodRepository: FoodRepository,
     private val weightRepository: WeightRepository,
     private val workoutRepository: WorkoutRepository,
+    private val journalDao: JournalEntryDao,
     private val settings: SettingsRepo,
 ) : ViewModel() {
 
@@ -110,6 +114,7 @@ class HomeViewModel @Inject constructor(
             selectedMode,
             selectedMonth,
             selectedDate,
+            journalDao.observeAll(),
         )
     ) { values ->
         val now = values[0] as Long
@@ -121,6 +126,7 @@ class HomeViewModel @Inject constructor(
         val mode = values[6] as FastingMode
         val month = values[7] as YearMonth
         val selectedDayDate = values[8] as LocalDate
+        @Suppress("UNCHECKED_CAST") val journals = values[9] as List<JournalEntry>
 
         val zone = ZoneId.systemDefault()
         val todayDate = Instant.ofEpochMilli(now).atZone(zone).toLocalDate()
@@ -139,6 +145,7 @@ class HomeViewModel @Inject constructor(
             fasts = fasts,
             workouts = workouts,
             weights = weights,
+            journals = journals,
             baseCalorieGoal = s.goals.kcal,
         )
 
@@ -207,6 +214,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun toDisplayWeight(kg: Double): Double = weightRepository.toDisplayUnit(kg, state.value.useKg)
+
+    fun saveJournal(date: LocalDate, text: String) {
+        viewModelScope.launch {
+            val trimmed = text.trim()
+            if (trimmed.isEmpty()) {
+                journalDao.deleteByDate(date.toEpochDay())
+            } else {
+                journalDao.upsert(JournalEntry(date.toEpochDay(), trimmed, System.currentTimeMillis()))
+            }
+        }
+    }
 }
 
 private fun buildCalendarDays(
@@ -218,6 +236,7 @@ private fun buildCalendarDays(
     fasts: List<FastSession>,
     workouts: List<WorkoutSession>,
     weights: List<WeightEntry>,
+    journals: List<JournalEntry>,
     baseCalorieGoal: Int,
 ): List<CalendarDaySummary> {
     val first = month.atDay(1)
@@ -242,6 +261,7 @@ private fun buildCalendarDays(
             fasts = fasts.filter { it.overlapsDay(start, end, now) },
             workouts = dayWorkouts,
             weights = weights.filter { it.timestampEpoch >= start && it.timestampEpoch < end },
+            journal = journals.firstOrNull { it.dateEpochDay == date.toEpochDay() },
         )
     }
 }

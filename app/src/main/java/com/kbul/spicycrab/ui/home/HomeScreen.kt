@@ -28,10 +28,13 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -80,6 +83,7 @@ fun HomeScreen(
             onNextMonth = viewModel::nextCalendarMonth,
             onDaySelected = viewModel::selectCalendarDay,
             toDisplayWeight = viewModel::toDisplayWeight,
+            onSaveJournal = viewModel::saveJournal,
         )
 
         if (state.showFasting) {
@@ -130,6 +134,7 @@ private fun ProgressCalendarTile(
     onNextMonth: () -> Unit,
     onDaySelected: (LocalDate) -> Unit,
     toDisplayWeight: (Double) -> Double,
+    onSaveJournal: (LocalDate, String) -> Unit,
 ) {
     var expanded by rememberSaveable { mutableStateOf(false) }
 
@@ -197,6 +202,7 @@ private fun ProgressCalendarTile(
                 day = state.selectedDay,
                 useKg = state.useKg,
                 toDisplayWeight = toDisplayWeight,
+                onSaveJournal = onSaveJournal,
             )
         }
     }
@@ -339,6 +345,7 @@ private fun SelectedDayDetails(
     day: CalendarDaySummary?,
     useKg: Boolean,
     toDisplayWeight: (Double) -> Double,
+    onSaveJournal: (LocalDate, String) -> Unit,
 ) {
     if (day == null) return
 
@@ -361,6 +368,7 @@ private fun SelectedDayDetails(
 
         if (!day.hasData) {
             Text("No events logged for this day.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            JournalSection(day = day, onSave = { onSaveJournal(day.date, it) })
             return
         }
 
@@ -394,6 +402,43 @@ private fun SelectedDayDetails(
                 value = "${"%.1f".format(toDisplayWeight(weight.weightKg))} $unit",
                 color = MaterialTheme.colorScheme.error,
             )
+        }
+
+        JournalSection(day = day, onSave = { onSaveJournal(day.date, it) })
+    }
+}
+
+@Composable
+private fun JournalSection(day: CalendarDaySummary, onSave: (String) -> Unit) {
+    val savedText = day.journal?.text.orEmpty()
+    var editing by remember(day.date) { mutableStateOf(false) }
+    var draft by remember(day.date, savedText) { mutableStateOf(savedText) }
+
+    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        if (editing) {
+            OutlinedTextField(
+                value = draft,
+                onValueChange = { draft = it },
+                modifier = Modifier.fillMaxWidth(),
+                label = { Text("Journal") },
+                minLines = 3,
+            )
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Button(onClick = {
+                    onSave(draft)
+                    editing = false
+                }) { Text("Save") }
+                TextButton(onClick = {
+                    draft = savedText
+                    editing = false
+                }) { Text("Cancel") }
+            }
+        } else if (savedText.isNotEmpty()) {
+            Text("Journal", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(savedText, style = MaterialTheme.typography.bodyMedium)
+            TextButton(onClick = { editing = true }) { Text("Edit note") }
+        } else {
+            TextButton(onClick = { editing = true }) { Text("Add journal note") }
         }
     }
 }
