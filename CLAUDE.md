@@ -115,6 +115,15 @@ Three distribution channels with different signing keys (builds are not cross-in
    reads `keystore.properties` at repo root, gitignored). Never upload a new AAB while a Play review
    is pending.
 
+### Website
+
+The project site is **https://soloforge.dimitroff.work** — a two-page static site (landing + privacy
+policy) in a separate repo, `kirilan/soloforge-site` (local checkout: `C:\Users\kiril\soloforge-site`),
+auto-deployed by Cloudflare Pages on push to `main`. The landing page mirrors the fastlane store
+listing (copy, screenshots, badges), so when a release changes features, screenshots, or the store
+description, update the site too. The privacy page is the Google Play privacy-policy URL — keep it
+in sync with the privacy guarantees below. Website edits happen in that repo, never in this one.
+
 ### F-Droid metadata
 
 F-Droid listing content is pulled from `fastlane/metadata/android/en-US/`. The OpenRouter food feature is disclosed as `NonFreeNet` per-build in the repo's `.fdroid.yml`, but the official fdroiddata recipe deliberately has **no** `AntiFeatures:` — the F-Droid reviewer removed it during inclusion review (fdroiddata MR !38080, "Remove the AF") because the feature is off by default, opt-in, and needs the user's own key. Do not re-add it to fdroiddata.

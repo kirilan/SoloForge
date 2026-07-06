@@ -1,8 +1,30 @@
-# Solo Forge
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/icon.png" width="120" alt="Solo Forge icon">
+</p>
+
+<h1 align="center">Solo Forge</h1>
+
+<p align="center">Local-first intermittent fasting, calorie, weight &amp; workout tracker</p>
+
+<p align="center">
+  <a href="https://f-droid.org/packages/com.kbul.spicycrab/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="75" alt="Get it on F-Droid"></a>
+</p>
 
 Solo Forge is a free and open source, local-first Android fitness app for fasting, nutrition, weight tracking, and workout timing. It is GPL-3.0 licensed and built to keep user data on the device, with no backend, account system, analytics, or cloud telemetry.
 
 The only intentional outbound network request is a user-initiated OpenRouter call for food photo analysis, using an API key supplied by the user.
+
+**Website:** [soloforge.dimitroff.work](https://soloforge.dimitroff.work) — landing page and privacy policy. Maintained in the separate [soloforge-site](https://github.com/kirilan/soloforge-site) repo (Cloudflare Pages, deploys on push); update it when a release changes features, screenshots, or the store description.
+
+## Screenshots
+
+<p align="center">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/1_home.png" width="19%" alt="Home dashboard">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/2_fast.png" width="19%" alt="Fasting timer">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/3_food.png" width="19%" alt="Food tracking">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/4_workout.png" width="19%" alt="Workout timers">
+  <img src="fastlane/metadata/android/en-US/images/phoneScreenshots/5_settings.png" width="19%" alt="Settings">
+</p>
 
 ## Current Features
 
