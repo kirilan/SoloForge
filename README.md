@@ -12,7 +12,7 @@
 
 Solo Forge is a free and open source, local-first Android fitness app for fasting, nutrition, weight tracking, and workout timing. It is GPL-3.0 licensed and built to keep user data on the device, with no backend, account system, analytics, or cloud telemetry.
 
-The only intentional outbound network request is a user-initiated OpenRouter call for food photo analysis, using an API key supplied by the user.
+The only intentional outbound network request is a user-initiated OpenRouter call for food analysis (photo or text description), using an API key supplied by the user. AI features can be switched off entirely in Settings.
 
 **Website:** [soloforge.dimitroff.work](https://soloforge.dimitroff.work) — landing page and privacy policy. Maintained in the separate [soloforge-site](https://github.com/kirilan/soloforge-site) repo (Cloudflare Pages, deploys on push); update it when a release changes features, screenshots, or the store description.
 
@@ -30,12 +30,12 @@ The only intentional outbound network request is a user-initiated OpenRouter cal
 
 - Intermittent fasting timer with 16:8, 18:6, 20:4, and 36 hour modes.
 - Smart fasting reminders driven by timer state instead of fixed daily spam.
-- AI-assisted food photo analysis through an automatic OpenRouter model escalation chain.
-- Manual meal entry when the user does not want to use the camera.
+- AI-assisted food analysis (photo or text description) through an automatic OpenRouter model escalation chain, with an off switch in Settings.
+- Manual meal entry and one-tap meal presets when the user does not want to use AI.
 - Editable food entries, including proportional macro recalculation by total grams.
 - Local nutrition tracking with calorie and macro goals.
-- Append-only CSV export through Android's Storage Access Framework.
-- Weight tracking with edit/delete support, history, and charting.
+- Versioned JSON backup: export, import (merge or replace), and an optional auto-backup folder that rewrites the backup file on every data change.
+- Weight tracking with edit/delete support, history, charting, and a weekly weigh-in reminder.
 - Workout timers:
   - simple session timer with pause/resume
   - interval timer with periodic audio cues
@@ -54,11 +54,11 @@ Solo Forge is designed around local ownership of fitness data.
 - No crash reporting SDKs.
 - No Firebase.
 - No broad media, contacts, or logs permissions.
-- Android cloud backup is disabled by default.
-- The OpenRouter API key is stored in encrypted local preferences.
-- CSV export is explicit and writes to a user-selected folder.
+- Android system cloud backup is disabled (`allowBackup=false`); device migration uses the explicit export/import flow.
+- The OpenRouter API key is stored in encrypted local preferences and is never included in backups.
+- Backup is explicit: a versioned JSON file exported on demand, or auto-written to a user-selected folder (which the user can sync to Drive/Dropbox themselves).
 
-The app declares `INTERNET` only for food image analysis through OpenRouter. That call happens only when the user starts an analysis.
+The app declares `INTERNET` only for food analysis through OpenRouter. That call happens only when the user starts an analysis; with AI features off, the app makes zero network calls.
 
 Food analysis starts with `google/gemini-3.1-flash-lite`, escalates to `openai/gpt-5.4-mini` when confidence is low or hidden/mixed ingredients are likely, and uses `google/gemini-3.1-pro-preview` only if uncertainty remains.
 
@@ -77,7 +77,7 @@ Food analysis starts with `google/gemini-3.1-flash-lite`, escalates to `openai/g
 - CameraX for food capture
 - Ktor and kotlinx.serialization for OpenRouter
 - Coil for image loading
-- Vico for charts
+- Hand-rolled Compose charts (no chart library)
 
 ## Requirements
 
@@ -110,6 +110,12 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## Tests
 
+Run the unit tests (backup format, calendar math, food escalation, OpenRouter parsing):
+
+```powershell
+.\gradlew.bat testDebugUnitTest
+```
+
 Run the connected Room migration tests with an emulator or device attached:
 
 ```powershell
@@ -124,16 +130,14 @@ Run lint:
 
 ## F-Droid
 
-This repo includes starter F-Droid metadata:
+Solo Forge is published on F-Droid as [`com.kbul.spicycrab`](https://f-droid.org/packages/com.kbul.spicycrab/). Listing content comes from:
 
 ```text
 .fdroid.yml
 fastlane/metadata/android/en-US/
 ```
 
-The app is GPL-3.0 licensed and has no Firebase, Google Play Services, analytics, crash reporting, backend, or account system. The only intentional network dependency is user-initiated food photo analysis through OpenRouter with the user's own API key; F-Droid reviewers may classify that service dependency as an anti-feature.
-
-Before submitting to F-Droid, create a release tag that matches `versionName` / `versionCode`. For the source-root `.fdroid.yml`, `commit: HEAD` is useful for local F-Droid builds; for an `fdroiddata` merge request, replace it with the full release commit hash.
+The fdroiddata recipe uses `UpdateCheckMode: Tags` with `AutoUpdateMode: Version`, so pushing a `vX.Y.Z` release tag is what triggers an F-Droid release (published in roughly 2–7 days). The official recipe deliberately has no `AntiFeatures:` — the F-Droid reviewer removed the `NonFreeNet` flag during inclusion review (fdroiddata MR !38080) because the OpenRouter feature is off by default, opt-in, and requires the user's own key. Do not re-add it.
 
 ## Project Layout
 
@@ -142,7 +146,7 @@ app/src/main/java/com/kbul/spicycrab/
 ├── MainActivity.kt
 ├── SpicyCrabApp.kt
 ├── data/
-│   ├── csv/
+│   ├── backup/
 │   ├── db/
 │   └── prefs/
 ├── di/
@@ -154,10 +158,12 @@ app/src/main/java/com/kbul/spicycrab/
 ├── network/
 ├── notifications/
 └── ui/
+    ├── common/
     ├── fasting/
     ├── food/
     ├── home/
     ├── nav/
+    ├── onboarding/
     ├── settings/
     ├── theme/
     ├── weight/
@@ -194,4 +200,4 @@ Solo Forge is licensed under the GNU General Public License v3.0. See [LICENSE](
 
 ## Status
 
-This is an early development build. Core local functionality is in place, but release hardening, deeper UI polish, import/export flows, and broader device testing are still pending.
+Solo Forge is released and published on F-Droid, with debug-signed APKs on GitHub releases. Core features — fasting, food tracking, weight, workouts, dashboard, and JSON backup export/import — are in place; development continues on UI polish and broader device testing.
