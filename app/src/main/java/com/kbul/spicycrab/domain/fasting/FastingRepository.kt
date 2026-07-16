@@ -78,6 +78,19 @@ class FastingRepository @Inject constructor(
                 completed = completed,
             )
         )
+
+        if (end == null) {
+            ContextCompat.startForegroundService(
+                context,
+                FastingNotificationService.startIntent(
+                    context, updated.startEpoch, mode.fastSeconds, mode.displayName,
+                ),
+            )
+            reminderScheduler.cancelAlmostThere()
+            if (settings.current().almostThereEnabled) {
+                reminderScheduler.scheduleAlmostThere(updated.startEpoch, mode)
+            }
+        }
     }
 
     suspend fun deleteSession(session: FastSession) {

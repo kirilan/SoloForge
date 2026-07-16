@@ -1,0 +1,1 @@
+Fixed: editing an active fast's start time now updates the ongoing notification immediately and reschedules the "almost there" reminder to match the new end time.
