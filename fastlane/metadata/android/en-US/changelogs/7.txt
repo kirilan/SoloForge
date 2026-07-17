@@ -1,1 +1,1 @@
-Fixed: editing an active fast's start time now updates the ongoing notification immediately and reschedules the "almost there" reminder to match the new end time.
+Fixed: editing an active fast's start time now updates the ongoing notification immediately and reschedules the "almost there" reminder. New: the app is now available in German, Spanish, French, Brazilian Portuguese, Russian, and Turkish — pick a language per app in Android settings (Android 13+) or follow the system language.
