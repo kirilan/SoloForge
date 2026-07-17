@@ -1,0 +1,26 @@
+Solo Forge, özgür ve açık kaynaklı bir Android fitness uygulamasıdır: aralıklı oruç sayacı, kalori ve makro sayacı, kilo takibi ve antrenman sayacı bir arada. Reklamsız, izlemesiz, tamamen çevrimdışı.
+
+Verilerin yerel sahipliği etrafında tasarlanmıştır:
+
+* Sunucu yok
+* Hesap yok
+* Analitik yok
+* Çökme raporu yok
+* Android bulut yedeklemesi kapalı
+* Tek dosyaya tam yedekleme ve geri yükleme, isteğe bağlı olarak seçtiğiniz klasöre otomatik yedekleme
+
+Özellikler:
+
+* 16:8, 18:6, 20:4 ve 36 saat modlu aralıklı oruç sayacı
+* Günlük bildirim yağmuru yerine duruma bağlı oruç hatırlatıcıları
+* Kendi OpenRouter API anahtarınızla yemek fotoğrafı analizi
+* Elle öğün girişi ve düzenlenebilir makro tahminleri
+* Yerel kalori ve makro hedefleri
+* Grafikli kilo geçmişi
+* Basit, aralıklı ve egzersiz/dinlenme antrenman sayaçları
+* Oruç, beslenme, kilo, antrenman süresi ve seriler için gösterge paneli
+* İlerleme takviminde günlük notlar
+
+Solo Forge yalnızca yemek fotoğrafı analizini başlattığınızda ağ isteği gönderir. Bu istek, sizin sağladığınız API anahtarıyla OpenRouter'a gider. Kayıtlı tüm öğünler, kilo kayıtları, antrenmanlar, oruç geçmişi, ayarlar ve dışa aktarmalar cihazınızda kalır.
+
+Solo Forge, GPL-3.0 lisansı altındadır.

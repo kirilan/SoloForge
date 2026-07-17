@@ -20,11 +20,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.domain.nutrition.NutritionEstimate
 import java.io.File
 
@@ -43,20 +45,20 @@ fun AnalyzeScreen(
         Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        Text(if (textOnly) "Describe meal" else "Review meal", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(if (textOnly) R.string.analyze_describe_title else R.string.analyze_review_title), style = MaterialTheme.typography.headlineMedium)
         if (imageFile != null) {
             AsyncImage(
                 model = imageFile,
-                contentDescription = "Captured meal",
+                contentDescription = stringResource(R.string.analyze_captured_cd),
                 modifier = Modifier.fillMaxWidth().height(220.dp),
             )
         }
         OutlinedTextField(
             value = state.comment,
             onValueChange = onCommentChange,
-            label = { Text(if (textOnly) "Description" else "Comment (optional)") },
+            label = { Text(stringResource(if (textOnly) R.string.analyze_description else R.string.analyze_comment_optional)) },
             placeholder = {
-                Text(if (textOnly) "e.g. 100 g watermelon" else "e.g. grilled chicken, ~200g, side of rice")
+                Text(stringResource(if (textOnly) R.string.analyze_placeholder_text else R.string.analyze_placeholder_photo))
             },
             modifier = Modifier.fillMaxWidth(),
             minLines = 2,
@@ -66,14 +68,14 @@ fun AnalyzeScreen(
                 onClick = onAnalyze,
                 enabled = !textOnly || state.comment.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-            ) { Text("Analyze") }
+            ) { Text(stringResource(R.string.analyze_button)) }
         }
         if (state.estimate != null && !state.isLoading) {
             OutlinedButton(
                 onClick = onAnalyze,
                 enabled = !textOnly || state.comment.isNotBlank(),
                 modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text(if (textOnly) "Re-analyze with current description" else "Re-analyze with current comment") }
+            ) { Text(stringResource(if (textOnly) R.string.analyze_reanalyze_description else R.string.analyze_reanalyze_comment)) }
         }
         if (state.isLoading) {
             Row(
@@ -83,7 +85,7 @@ fun AnalyzeScreen(
             ) {
                 CircularProgressIndicator()
                 Spacer(Modifier.height(0.dp))
-                Text("  Analyzing…", style = MaterialTheme.typography.bodyLarge)
+                Text("  " + stringResource(R.string.analyze_analyzing), style = MaterialTheme.typography.bodyLarge)
             }
         }
         state.error?.let {
@@ -100,18 +102,18 @@ fun AnalyzeScreen(
                 OutlinedButton(
                     onClick = onCancel,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Discard") }
+                ) { Text(stringResource(R.string.analyze_discard)) }
                 Button(
                     onClick = onSave,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.common_save)) }
             }
         }
         if (state.estimate == null && !state.isLoading) {
             OutlinedButton(
                 onClick = onCancel,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text("Discard") }
+            ) { Text(stringResource(R.string.analyze_discard)) }
         }
     }
 }
@@ -127,23 +129,23 @@ private fun EstimateForm(
             OutlinedTextField(
                 value = est.itemName,
                 onValueChange = { onUpdate(est.copy(itemName = it)) },
-                label = { Text("Item") },
+                label = { Text(stringResource(R.string.label_item)) },
                 modifier = Modifier.fillMaxWidth(),
             )
-            NumberField("Grams", est.grams) { onUpdate(est.copy(grams = it)) }
+            NumberField(stringResource(R.string.label_grams), est.grams) { onUpdate(est.copy(grams = it)) }
             ScaleByGramsButton(
                 currentGrams = est.grams,
                 onApply = { newGrams -> onUpdate(scaleEstimate(est, newGrams)) },
                 modifier = Modifier.fillMaxWidth(),
             )
-            NumberField("Calories", est.kcal) { onUpdate(est.copy(kcal = it)) }
-            NumberField("Protein (g)", est.proteinG) { onUpdate(est.copy(proteinG = it)) }
-            NumberField("Carbs (g)", est.carbsG) { onUpdate(est.copy(carbsG = it)) }
-            NumberField("Fat (g)", est.fatG) { onUpdate(est.copy(fatG = it)) }
-            NumberField("Fiber (g)", est.fiberG) { onUpdate(est.copy(fiberG = it)) }
+            NumberField(stringResource(R.string.label_calories), est.kcal) { onUpdate(est.copy(kcal = it)) }
+            NumberField(stringResource(R.string.label_protein_g), est.proteinG) { onUpdate(est.copy(proteinG = it)) }
+            NumberField(stringResource(R.string.label_carbs_g), est.carbsG) { onUpdate(est.copy(carbsG = it)) }
+            NumberField(stringResource(R.string.label_fat_g), est.fatG) { onUpdate(est.copy(fatG = it)) }
+            NumberField(stringResource(R.string.label_fiber_g), est.fiberG) { onUpdate(est.copy(fiberG = it)) }
             if (est.notes.isNotBlank()) {
                 Text(
-                    "Notes: ${est.notes}",
+                    stringResource(R.string.analyze_notes, est.notes),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -164,12 +166,12 @@ private fun EstimateForm(
 
 @Composable
 private fun ConfidenceBadge(confidence: String) {
-    val (label, color) = when (confidence.lowercase()) {
-        "high" -> "High confidence" to MaterialTheme.colorScheme.primary
-        "low" -> "Low confidence — please review" to MaterialTheme.colorScheme.error
-        else -> "Medium confidence" to MaterialTheme.colorScheme.tertiary
+    val (labelRes, color) = when (confidence.lowercase()) {
+        "high" -> R.string.confidence_high to MaterialTheme.colorScheme.primary
+        "low" -> R.string.confidence_low to MaterialTheme.colorScheme.error
+        else -> R.string.confidence_medium to MaterialTheme.colorScheme.tertiary
     }
-    Text(label, color = color, fontWeight = FontWeight.SemiBold)
+    Text(stringResource(labelRes), color = color, fontWeight = FontWeight.SemiBold)
 }
 
 private fun scaleEstimate(est: NutritionEstimate, newGrams: Double): NutritionEstimate {

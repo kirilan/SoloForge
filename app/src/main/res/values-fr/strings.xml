@@ -1,0 +1,280 @@
+<resources>
+    <!-- Common -->
+    <string name="common_save">Enregistrer</string>
+    <string name="common_cancel">Annuler</string>
+    <string name="common_ok">OK</string>
+    <string name="common_next">Suivant</string>
+    <string name="common_edit">Modifier</string>
+    <string name="common_delete">Supprimer</string>
+    <string name="common_clear">Retirer</string>
+    <string name="common_close">Fermer</string>
+    <string name="common_history">Historique</string>
+    <string name="common_mode">Mode</string>
+    <string name="common_edited">%1$s · modifié</string>
+    <string name="common_quoted">« %1$s »</string>
+    <string name="label_item">Aliment</string>
+    <string name="label_comment">Commentaire</string>
+    <string name="label_grams">Grammes</string>
+    <string name="label_calories">Calories</string>
+    <string name="label_calories_kcal">Calories (kcal)</string>
+    <string name="label_protein_g">Protéines (g)</string>
+    <string name="label_carbs_g">Glucides (g)</string>
+    <string name="label_fat_g">Lipides (g)</string>
+    <string name="label_fiber_g">Fibres (g)</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Accueil</string>
+    <string name="nav_fast">Jeûne</string>
+    <string name="nav_food">Repas</string>
+    <string name="nav_weight">Poids</string>
+    <string name="nav_workout">Sport</string>
+    <string name="nav_settings">Réglages</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">Gratuit. Open source. Local d\'abord.</string>
+    <string name="onboarding_trust1_title">Logiciel libre (GPL-3.0)</string>
+    <string name="onboarding_trust1_body">L\'application peut être étudiée, partagée et modifiée.</string>
+    <string name="onboarding_trust2_title">Vos données restent les vôtres</string>
+    <string name="onboarding_trust2_body">Pas de compte, pas de serveur, et la sauvegarde cloud d\'Android est désactivée.</string>
+    <string name="onboarding_trust3_title">Ni statistiques ni télémétrie</string>
+    <string name="onboarding_trust3_body">Le seul appel réseau est votre analyse de photos de repas via OpenRouter.</string>
+    <string name="onboarding_loading">Chargement</string>
+    <string name="onboarding_continue">Continuer</string>
+
+    <!-- Fasting -->
+    <string name="fasting_title">Jeûne</string>
+    <string name="fasting_ready">Prêt quand vous l\'êtes</string>
+    <string name="fasting_remaining">Restant</string>
+    <string name="fasting_goal_reached">Objectif atteint</string>
+    <string name="fasting_done">Terminé</string>
+    <string name="fasting_mode_elapsed">Mode %1$s · %2$s écoulé</string>
+    <string name="fasting_edit_start">Modifier le début</string>
+    <string name="fasting_end">Terminer le jeûne</string>
+    <string name="fasting_cancel_delete">Annuler (supprimer ce jeûne)</string>
+    <string name="fasting_pick_mode">Choisissez un mode</string>
+    <string name="fasting_start">Commencer le jeûne</string>
+    <string name="fasting_start_mode">Commencer un jeûne %1$s</string>
+    <string name="fasting_completed">Terminé</string>
+    <string name="fasting_incomplete">Incomplet</string>
+    <string name="fast_edit_title">Modifier le jeûne</string>
+    <string name="fast_edit_start_label">Début (aaaa-MM-jj HH:mm)</string>
+    <string name="fast_edit_end_label">Fin (vide = toujours actif)</string>
+    <string name="fast_edit_error_start_format">Format de l\'heure de début invalide.</string>
+    <string name="fast_edit_error_end_before_start">La fin doit être après le début.</string>
+    <string name="fast_edit_delete">Supprimer le jeûne</string>
+
+    <!-- Home -->
+    <string name="home_today">Aujourd\'hui</string>
+    <string name="home_progress_calendar">Calendrier de progression</string>
+    <string name="home_kcal_of">%1$d / %2$d kcal</string>
+    <string name="home_kcal_bonus_suffix">" (+%1$d grâce au sport)"</string>
+    <string name="home_no_events">Aucune donnée pour ce jour.</string>
+    <string name="home_journal">Journal</string>
+    <string name="home_edit_note">Modifier la note</string>
+    <string name="home_add_journal_note">Ajouter une note au journal</string>
+    <string name="home_event_meal">Repas</string>
+    <string name="home_status_completed">terminé</string>
+    <string name="home_status_active">actif</string>
+    <string name="home_streak">Série de %1$d jours</string>
+    <string name="home_eating_window">Fenêtre d\'alimentation</string>
+    <string name="home_until_window_closes">%1$s avant la fermeture de la fenêtre</string>
+    <string name="home_todays_nutrition">Nutrition du jour</string>
+    <string name="home_kcal_from_training">+%1$d kcal grâce au sport</string>
+    <plurals name="home_meals_tracked">
+        <item quantity="one">%d repas enregistré aujourd\'hui</item>
+        <item quantity="many">%d repas enregistrés aujourd\'hui</item>
+        <item quantity="other">%d repas enregistrés aujourd\'hui</item>
+    </plurals>
+    <string name="home_no_weight">Aucun poids enregistré pour l\'instant.</string>
+    <string name="home_since_last">%1$s %2$s depuis la dernière fois</string>
+    <string name="home_no_workout_today">Aucune séance enregistrée aujourd\'hui.</string>
+    <string name="home_logged_today">enregistré aujourd\'hui</string>
+
+    <!-- Weight -->
+    <string name="weight_log">Saisir le poids</string>
+    <string name="weight_edit_title">Modifier le poids</string>
+    <string name="weight_label">Poids (%1$s)</string>
+    <string name="weight_note_optional">Note (facultatif)</string>
+    <string name="weight_no_entries">Aucune entrée. Touchez « Saisir le poids » pour en ajouter une.</string>
+    <string name="weight_since_last_entry">%1$s %2$s depuis la dernière entrée</string>
+    <string name="weight_range_7d">7 j</string>
+    <string name="weight_range_30d">30 j</string>
+    <string name="weight_range_all">Tout</string>
+    <string name="chart_log_first">Saisissez un poids pour voir votre tendance.</string>
+    <string name="chart_log_one_more">Ajoutez encore une entrée pour tracer la tendance.</string>
+
+    <!-- Food -->
+    <string name="food_add_manual_cd">Ajouter un repas manuellement</string>
+    <string name="food_describe_cd">Décrire le repas par écrit</string>
+    <string name="food_analyze_photo">Analyser une photo</string>
+    <string name="food_empty_ai">Aucun repas enregistré. Analysez une photo ou ajoutez un repas manuellement.</string>
+    <string name="food_empty_manual">Aucun repas enregistré. Ajoutez un repas manuellement.</string>
+    <string name="food_macros_line">%1$d kcal · P%2$d / G%3$d / L%4$d</string>
+    <string name="food_edit_title">Modifier le repas</string>
+    <string name="food_reanalyze_hint">Ajoutez un commentaire décrivant le repas pour réanalyser sans photo.</string>
+    <string name="food_delete_entry">Supprimer l\'entrée</string>
+    <string name="quick_add">Ajout rapide</string>
+    <string name="preset_save">Enregistrer comme favori</string>
+    <string name="preset_saved">Ajouté à l\'ajout rapide ✓</string>
+    <string name="preset_delete_title">Supprimer le favori ?</string>
+    <string name="preset_delete_text">Retirer « %1$s » de l\'ajout rapide. Les repas déjà enregistrés ne sont pas affectés.</string>
+    <string name="manual_title">Ajouter un repas manuellement</string>
+    <string name="manual_desc">Saisissez vous-même les valeurs nutritionnelles au lieu d\'analyser une photo.</string>
+    <string name="manual_name_label">Nom du repas *</string>
+    <string name="manual_notes_optional">Notes (facultatif)</string>
+    <string name="manual_total_weight">Poids total (g)</string>
+    <string name="manual_kcal_required">Calories (kcal) *</string>
+    <string name="manual_save">Enregistrer le repas</string>
+
+    <!-- Capture / Analyze -->
+    <string name="capture_permission_required">L\'autorisation de la caméra est requise.</string>
+    <string name="capture_tap">Touchez pour capturer</string>
+    <string name="analyze_describe_title">Décrire le repas</string>
+    <string name="analyze_review_title">Vérifier le repas</string>
+    <string name="analyze_captured_cd">Repas photographié</string>
+    <string name="analyze_description">Description</string>
+    <string name="analyze_comment_optional">Commentaire (facultatif)</string>
+    <string name="analyze_placeholder_text">ex. 100 g de pastèque</string>
+    <string name="analyze_placeholder_photo">ex. poulet grillé, ~200 g, riz en accompagnement</string>
+    <string name="analyze_button">Analyser</string>
+    <string name="analyze_reanalyze_description">Réanalyser avec la description actuelle</string>
+    <string name="analyze_reanalyze_comment">Réanalyser avec le commentaire actuel</string>
+    <string name="analyze_analyzing">Analyse en cours…</string>
+    <string name="analyze_reanalyzing">Nouvelle analyse…</string>
+    <string name="analyze_discard">Abandonner</string>
+    <string name="analyze_notes">Remarques : %1$s</string>
+    <string name="confidence_high">Confiance élevée</string>
+    <string name="confidence_medium">Confiance moyenne</string>
+    <string name="confidence_low">Confiance faible — à vérifier</string>
+    <string name="scale_adjust">Ajuster le poids total</string>
+    <string name="scale_title">Recalculer les macros pour le nouveau poids total</string>
+    <string name="scale_new_grams">Nouveau total en grammes</string>
+    <string name="scale_apply">Appliquer</string>
+    <string name="error_analysis_failed">Échec de l\'analyse</string>
+    <string name="error_save_failed">Échec de l\'enregistrement</string>
+    <string name="error_reanalysis_failed">Échec de la nouvelle analyse</string>
+    <string name="error_no_api_key">Définissez votre clé d\'API OpenRouter dans les réglages.</string>
+    <string name="analysis_detail_prompt">Ajoutez des détails comme la taille de la portion, l\'huile de cuisson, les sauces et les ingrédients cachés, puis réanalysez.</string>
+
+    <!-- Workout -->
+    <string name="workout_mode_simple">Simple</string>
+    <string name="workout_mode_interval">Intervalles</string>
+    <string name="workout_mode_exercise_rest">Exercice et repos</string>
+    <string name="workout_start">Commencer la séance</string>
+    <string name="workout_end">Terminer la séance</string>
+    <string name="workout_desc_simple">Chronomètre votre séance. Pause et reprise à tout moment.</string>
+    <string name="workout_desc_interval">Émet un bip à chaque intervalle. Le grand compteur repart à zéro à chaque intervalle.</string>
+    <string name="workout_desc_exercise_rest">Alternez entre exercice et repos. Le grand compteur repart à zéro à chaque bascule. Démarre en pause.</string>
+    <string name="workout_interval_minutes">Intervalle (minutes)</string>
+    <string name="workout_paused">En pause</string>
+    <string name="workout_running">En cours</string>
+    <string name="workout_working">Exercice</string>
+    <string name="workout_resting">Repos</string>
+    <string name="workout_resume">Reprendre</string>
+    <string name="workout_pause">Pause</string>
+    <string name="workout_interval_title">Intervalles · %1$s min</string>
+    <string name="workout_current_interval">intervalle en cours</string>
+    <string name="workout_total">Total : %1$s</string>
+    <plurals name="workout_intervals_completed">
+        <item quantity="one">%d intervalle terminé</item>
+        <item quantity="many">%d intervalles terminés</item>
+        <item quantity="other">%d intervalles terminés</item>
+    </plurals>
+    <string name="workout_phase_working">EXERCICE</string>
+    <string name="workout_phase_resting">REPOS</string>
+    <string name="workout_phase_paused">EN PAUSE</string>
+    <string name="workout_current_phase">phase en cours</string>
+    <string name="workout_exercise">Exercice</string>
+    <string name="workout_rest">Repos</string>
+    <string name="workout_stat_total">Total</string>
+    <string name="workout_switch_to_rest">Passer au repos</string>
+    <string name="workout_switch_to_exercise">Passer à l\'exercice</string>
+    <string name="workout_begin_exercise">Commencer l\'exercice</string>
+    <string name="workout_ex_rest_line">Exercice %1$s · Repos %2$s</string>
+    <string name="workout_interval_line">Intervalle : %1$s min</string>
+    <string name="workout_edit_title">Modifier la séance</string>
+    <string name="workout_total_minutes">Minutes totales</string>
+    <string name="workout_exercise_minutes">Minutes d\'exercice</string>
+    <string name="workout_rest_minutes">Minutes de repos</string>
+    <string name="label_notes">Notes</string>
+    <string name="workout_error_nonnegative">Les valeurs ne peuvent pas être négatives.</string>
+    <string name="workout_delete">Supprimer la séance</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Réglages</string>
+    <string name="settings_default_mode">Mode de jeûne par défaut</string>
+    <string name="settings_almost_there">Encouragement « Presque fini »</string>
+    <string name="settings_eating_window_reminder">Rappel de fermeture de la fenêtre d\'alimentation</string>
+    <string name="settings_section_ai">IA / API</string>
+    <string name="settings_ai_food_analysis">Analyse des repas par IA</string>
+    <string name="settings_ai_chain_desc">Les photos de repas passent par une chaîne de modèles automatique : d\'abord une analyse rapide, puis une vérification plus poussée si la confiance est faible, et un contrôle premium seulement si l\'incertitude persiste.</string>
+    <string name="settings_ai_off_desc">L\'analyse par IA est désactivée. Les boutons d\'analyse sont masqués et l\'application n\'effectue aucun appel réseau.</string>
+    <string name="settings_key_set">Une clé OpenRouter est définie.</string>
+    <string name="settings_key_none">Aucune clé d\'API définie.</string>
+    <string name="settings_api_key_label">Clé d\'API OpenRouter</string>
+    <string name="settings_replace">Remplacer</string>
+    <string name="settings_section_goals">Objectifs nutritionnels quotidiens</string>
+    <string name="settings_section_data">Données</string>
+    <string name="settings_export_folder_set">Dossier de sauvegarde automatique défini. SoloForge-backup.json y est réécrit à chaque modification.</string>
+    <string name="settings_export_folder_none">Aucun dossier de sauvegarde automatique. Choisissez un dossier synchronisé (ex. Google Drive) pour une sauvegarde continue hors de l\'appareil.</string>
+    <string name="settings_pick_folder">Choisir un dossier</string>
+    <string name="settings_save_photo">Enregistrer la photo localement avec chaque entrée</string>
+    <string name="settings_export_backup">Exporter la sauvegarde</string>
+    <string name="settings_import_backup">Importer une sauvegarde</string>
+    <string name="settings_backup_note">La sauvegarde contient toutes les entrées et tous les réglages, mais pas votre clé d\'API.</string>
+    <string name="settings_import_explain">« Fusionner » conserve tout sur cet appareil et ajoute les entrées de la sauvegarde. « Remplacer » efface d\'abord toutes les données et tous les réglages actuels.</string>
+    <string name="settings_merge">Fusionner</string>
+    <string name="settings_replace_everything">Tout remplacer</string>
+    <string name="settings_use_kg">Utiliser les kilogrammes</string>
+    <string name="settings_weigh_in_reminder">Rappel de pesée hebdomadaire</string>
+    <string name="settings_day">Jour</string>
+    <string name="settings_hour">Heure</string>
+    <string name="settings_minute">Minute</string>
+    <string name="settings_section_tabs">Onglets</string>
+    <string name="settings_tabs_desc">Masquez les onglets inutilisés. Accueil et Réglages restent toujours visibles.</string>
+    <string name="settings_show_fasting_tab">Afficher l\'onglet Jeûne</string>
+    <string name="settings_show_food_tab">Afficher l\'onglet Repas</string>
+    <string name="settings_show_weight_tab">Afficher l\'onglet Poids</string>
+    <string name="settings_show_workout_tab">Afficher l\'onglet Sport</string>
+    <string name="settings_section_about">À propos</string>
+    <string name="settings_about_line1">Solo Forge est un logiciel libre et open source sous licence GPL-3.0.</string>
+    <string name="settings_about_line2">Pas de serveur. Pas de compte. Pas de statistiques. Les photos de repas ne sont envoyées à OpenRouter que lorsque vous lancez une analyse.</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_gpl_footer">Solo Forge est un logiciel libre sous GPL-3.0.</string>
+    <string name="settings_msg_backup_exported">Sauvegarde exportée.</string>
+    <string name="settings_msg_export_failed">Échec de l\'export : %1$s</string>
+    <string name="settings_msg_backup_restored">Sauvegarde restaurée (%1$d entrées).</string>
+    <plurals name="settings_msg_merged">
+        <item quantity="one">%d nouvelle entrée fusionnée.</item>
+        <item quantity="many">%d nouvelles entrées fusionnées.</item>
+        <item quantity="other">%d nouvelles entrées fusionnées.</item>
+    </plurals>
+    <string name="settings_msg_import_failed">Échec de l\'import : %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_active_fast">Minuteur de jeûne actif</string>
+    <string name="channel_active_fast_desc">Notification persistante pendant un jeûne en cours</string>
+    <string name="channel_active_workout">Minuteur de séance actif</string>
+    <string name="channel_active_workout_desc">Notification persistante pendant une séance en cours</string>
+    <string name="channel_fasting_reminders">Rappels de jeûne</string>
+    <string name="channel_fasting_reminders_desc">Alertes de fermeture de la fenêtre d\'alimentation et encouragements « Presque fini »</string>
+    <string name="channel_weight_reminders">Rappels de poids</string>
+    <string name="channel_weight_reminders_desc">Rappel de pesée hebdomadaire</string>
+    <string name="notif_fasting_title">Jeûne · %1$s</string>
+    <string name="notif_fasting_text">%1$s écoulé · %2$s restant</string>
+    <string name="notif_workout_title">Séance · %1$s</string>
+    <string name="notif_workout_title_plain">Séance</string>
+    <string name="notif_workout_active">Active</string>
+    <string name="reminder_almost_there_title">Presque fini</string>
+    <string name="reminder_window_title">La fenêtre d\'alimentation se ferme</string>
+    <string name="reminder_window_message">Votre fenêtre d\'alimentation se ferme dans 1 heure. Prévoyez votre dernier repas.</string>
+    <string name="weigh_in_title">C\'est l\'heure de votre pesée hebdomadaire</string>
+    <string name="weigh_in_text">Montez sur la balance et saisissez votre poids.</string>
+    <string-array name="fasting_encouragements">
+        <item>Plus qu\'une heure — vous y êtes presque.</item>
+        <item>60 minutes restantes. Finissez en force.</item>
+        <item>Dernière ligne droite ! Hydratez-vous et tenez bon.</item>
+        <item>Presque fini. Votre futur vous remerciera.</item>
+        <item>Encore une heure. Ne brisez pas la chaîne.</item>
+    </string-array>
+</resources>

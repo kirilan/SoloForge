@@ -38,6 +38,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import com.kbul.spicycrab.R
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
@@ -71,7 +73,7 @@ fun CaptureScreen(
 
     if (!hasPermission) {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Text("Camera permission is required.", style = MaterialTheme.typography.bodyLarge)
+            Text(stringResource(R.string.capture_permission_required), style = MaterialTheme.typography.bodyLarge)
         }
         return
     }
@@ -116,7 +118,7 @@ private fun CameraContent(onCaptured: (File) -> Unit, onCancel: () -> Unit) {
         IconButton(
             onClick = onCancel,
             modifier = Modifier.align(Alignment.TopStart).padding(12.dp),
-        ) { Icon(Icons.Filled.Close, contentDescription = "Close", tint = Color.White) }
+        ) { Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.common_close), tint = Color.White) }
 
         Column(
             modifier = Modifier.align(Alignment.BottomCenter).fillMaxWidth().padding(20.dp),
@@ -128,7 +130,7 @@ private fun CameraContent(onCaptured: (File) -> Unit, onCancel: () -> Unit) {
                 modifier = Modifier.size(72.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             ) {}
-            Text("Tap to capture", color = Color.White)
+            Text(stringResource(R.string.capture_tap), color = Color.White)
             Box(Modifier.height(8.dp))
         }
     }

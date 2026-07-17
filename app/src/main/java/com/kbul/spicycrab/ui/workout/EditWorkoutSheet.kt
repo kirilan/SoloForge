@@ -25,8 +25,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
 import kotlin.math.roundToLong
 
@@ -47,24 +49,24 @@ fun EditWorkoutSheet(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Edit workout", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.workout_edit_title), style = MaterialTheme.typography.headlineMedium)
 
             MinutesField(
-                "Total minutes", draft.totalSeconds,
+                stringResource(R.string.workout_total_minutes), draft.totalSeconds,
                 onChange = { draft = draft.copy(totalSeconds = it) },
             )
             MinutesField(
-                "Exercise minutes", draft.exerciseSeconds,
+                stringResource(R.string.workout_exercise_minutes), draft.exerciseSeconds,
                 onChange = { draft = draft.copy(exerciseSeconds = it) },
             )
             MinutesField(
-                "Rest minutes", draft.restSeconds,
+                stringResource(R.string.workout_rest_minutes), draft.restSeconds,
                 onChange = { draft = draft.copy(restSeconds = it) },
             )
             OutlinedTextField(
                 value = draft.notes,
                 onValueChange = { draft = draft.copy(notes = it) },
-                label = { Text("Notes") },
+                label = { Text(stringResource(R.string.label_notes)) },
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -78,20 +80,21 @@ fun EditWorkoutSheet(
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.common_cancel)) }
+                val errNonNegative = stringResource(R.string.workout_error_nonnegative)
                 Button(
                     onClick = {
                         if (draft.totalSeconds < 0 || draft.exerciseSeconds < 0 || draft.restSeconds < 0) {
-                            error = "Values must be non-negative."
+                            error = errNonNegative
                         } else onSave(draft)
                     },
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.common_save)) }
             }
             TextButton(
                 onClick = { onDelete(session) },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Delete workout", color = MaterialTheme.colorScheme.error) }
+            ) { Text(stringResource(R.string.workout_delete), color = MaterialTheme.colorScheme.error) }
         }
     }
 }

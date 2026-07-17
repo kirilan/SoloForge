@@ -85,7 +85,7 @@ class FastingNotificationService : Service() {
         val now = System.currentTimeMillis()
         val elapsedSec = ((now - startEpoch) / 1000L).coerceAtLeast(0L)
         val remainingSec = (targetSeconds - elapsedSec).coerceAtLeast(0L)
-        val text = "${formatHms(elapsedSec)} elapsed · ${formatHms(remainingSec)} left"
+        val text = getString(R.string.notif_fasting_text, formatHms(elapsedSec), formatHms(remainingSec))
 
         val openIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -97,7 +97,7 @@ class FastingNotificationService : Service() {
 
         return NotificationCompat.Builder(this, NotificationChannels.ACTIVE_FAST)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Fasting · $modeName")
+            .setContentTitle(getString(R.string.notif_fasting_title, modeName))
             .setContentText(text)
             .setOngoing(true)
             .setOnlyAlertOnce(true)

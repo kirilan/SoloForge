@@ -22,7 +22,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.kbul.spicycrab.R
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -37,20 +39,20 @@ fun OpenSourceIntroScreen(
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            "Solo Forge",
+            stringResource(R.string.app_name),
             style = MaterialTheme.typography.displayMedium,
             color = MaterialTheme.colorScheme.primary,
         )
         Text(
-            "Free. Open source. Local-first.",
+            stringResource(R.string.onboarding_tagline),
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.onSurface,
         )
         Spacer(Modifier.height(24.dp))
         Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            TrustPoint(Icons.Outlined.Code, "GPL-3.0 free software", "The app is licensed to be studied, shared, and modified.")
-            TrustPoint(Icons.Outlined.Lock, "Your data stays yours", "No account, no backend, and Android cloud backup is disabled.")
-            TrustPoint(Icons.Outlined.CloudOff, "No analytics or telemetry", "The only network call is your OpenRouter food-photo analysis.")
+            TrustPoint(Icons.Outlined.Code, stringResource(R.string.onboarding_trust1_title), stringResource(R.string.onboarding_trust1_body))
+            TrustPoint(Icons.Outlined.Lock, stringResource(R.string.onboarding_trust2_title), stringResource(R.string.onboarding_trust2_body))
+            TrustPoint(Icons.Outlined.CloudOff, stringResource(R.string.onboarding_trust3_title), stringResource(R.string.onboarding_trust3_body))
         }
         Spacer(Modifier.height(28.dp))
         Button(
@@ -60,7 +62,7 @@ fun OpenSourceIntroScreen(
                 .fillMaxWidth()
                 .height(52.dp),
         ) {
-            Text(if (loading) "Loading" else "Continue")
+            Text(stringResource(if (loading) R.string.onboarding_loading else R.string.onboarding_continue))
         }
     }
 }

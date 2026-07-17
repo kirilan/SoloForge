@@ -19,7 +19,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -66,10 +68,10 @@ fun DateTimeField(
                         }
                         showDate = false
                     },
-                ) { Text("Next") }
+                ) { Text(stringResource(R.string.common_next)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDate = false }) { Text("Cancel") }
+                TextButton(onClick = { showDate = false }) { Text(stringResource(R.string.common_cancel)) }
             },
         ) { DatePicker(dateState) }
     }
@@ -93,10 +95,10 @@ fun DateTimeField(
                         onChange(result)
                         showTime = false
                     },
-                ) { Text("OK") }
+                ) { Text(stringResource(R.string.common_ok)) }
             },
             dismissButton = {
-                TextButton(onClick = { showTime = false }) { Text("Cancel") }
+                TextButton(onClick = { showTime = false }) { Text(stringResource(R.string.common_cancel)) }
             },
         )
     }

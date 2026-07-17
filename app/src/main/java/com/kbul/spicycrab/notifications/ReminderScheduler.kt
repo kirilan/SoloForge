@@ -12,6 +12,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.domain.fasting.FastingMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
@@ -31,9 +32,9 @@ class ReminderScheduler @Inject constructor(
         val delay = fireAt - System.currentTimeMillis()
         if (delay <= 0) return
 
-        val message = ENCOURAGEMENTS.random()
+        val message = context.resources.getStringArray(R.array.fasting_encouragements).random()
         val data = Data.Builder()
-            .putString(FastingReminderWorker.KEY_TITLE, "Almost there")
+            .putString(FastingReminderWorker.KEY_TITLE, context.getString(R.string.reminder_almost_there_title))
             .putString(FastingReminderWorker.KEY_MESSAGE, message)
             .putInt(FastingReminderWorker.KEY_NOTIFICATION_ID, NOTIF_ID_ALMOST_THERE)
             .build()
@@ -58,10 +59,10 @@ class ReminderScheduler @Inject constructor(
         if (delay <= 0) return
 
         val data = Data.Builder()
-            .putString(FastingReminderWorker.KEY_TITLE, "Eating window closing")
+            .putString(FastingReminderWorker.KEY_TITLE, context.getString(R.string.reminder_window_title))
             .putString(
                 FastingReminderWorker.KEY_MESSAGE,
-                "Your eating window closes in 1 hour. Plan your last meal."
+                context.getString(R.string.reminder_window_message)
             )
             .putInt(FastingReminderWorker.KEY_NOTIFICATION_ID, NOTIF_ID_WINDOW_CLOSING)
             .build()
@@ -108,13 +109,5 @@ class ReminderScheduler @Inject constructor(
         private const val TAG_WINDOW_CLOSING = "tag_window_closing"
         private const val NOTIF_ID_ALMOST_THERE = 2001
         private const val NOTIF_ID_WINDOW_CLOSING = 2002
-
-        private val ENCOURAGEMENTS = listOf(
-            "One hour to go — you've got this.",
-            "60 minutes left. Strong finish.",
-            "Final stretch! Stay hydrated and keep going.",
-            "Almost there. Your future self will thank you.",
-            "One more hour. Don't break the chain.",
-        )
     }
 }

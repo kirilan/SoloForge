@@ -13,7 +13,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
+import com.kbul.spicycrab.R
 
 @Composable
 fun ScaleByGramsButton(
@@ -31,17 +33,17 @@ fun ScaleByGramsButton(
         },
         enabled = currentGrams > 0,
         modifier = modifier,
-    ) { Text("Adjust total weight") }
+    ) { Text(stringResource(R.string.scale_adjust)) }
 
     if (dialogOpen) {
         AlertDialog(
             onDismissRequest = { dialogOpen = false },
-            title = { Text("Scale macros to new total weight") },
+            title = { Text(stringResource(R.string.scale_title)) },
             text = {
                 OutlinedTextField(
                     value = input,
                     onValueChange = { input = it.filter { ch -> ch.isDigit() || ch == '.' || ch == ',' } },
-                    label = { Text("New total grams") },
+                    label = { Text(stringResource(R.string.scale_new_grams)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -54,10 +56,10 @@ fun ScaleByGramsButton(
                         onApply(newGrams)
                         dialogOpen = false
                     },
-                ) { Text("Apply") }
+                ) { Text(stringResource(R.string.scale_apply)) }
             },
             dismissButton = {
-                TextButton(onClick = { dialogOpen = false }) { Text("Cancel") }
+                TextButton(onClick = { dialogOpen = false }) { Text(stringResource(R.string.common_cancel)) }
             },
         )
     }

@@ -20,8 +20,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.MealPreset
 
 @Composable
@@ -34,7 +36,7 @@ fun QuickAddRow(
     if (presets.isEmpty()) return
     Column(modifier, verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(
-            "Quick add",
+            stringResource(R.string.quick_add),
             style = MaterialTheme.typography.labelLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(horizontal = 16.dp),
@@ -66,7 +68,7 @@ private fun PresetChip(preset: MealPreset, onLog: () -> Unit, onDelete: () -> Un
                 overflow = TextOverflow.Ellipsis,
             )
             Text(
-                "${preset.kcal.toInt()} kcal · P${preset.proteinG.toInt()} / C${preset.carbsG.toInt()} / F${preset.fatG.toInt()}",
+                stringResource(R.string.food_macros_line, preset.kcal.toInt(), preset.proteinG.toInt(), preset.carbsG.toInt(), preset.fatG.toInt()),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -76,14 +78,14 @@ private fun PresetChip(preset: MealPreset, onLog: () -> Unit, onDelete: () -> Un
     if (confirmDelete) {
         AlertDialog(
             onDismissRequest = { confirmDelete = false },
-            title = { Text("Delete preset?") },
-            text = { Text("Remove “${preset.name}” from quick add. Meals you already logged are not affected.") },
+            title = { Text(stringResource(R.string.preset_delete_title)) },
+            text = { Text(stringResource(R.string.preset_delete_text, preset.name)) },
             confirmButton = {
                 TextButton(onClick = { onDelete(); confirmDelete = false }) {
-                    Text("Delete", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.common_delete), color = MaterialTheme.colorScheme.error)
                 }
             },
-            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { confirmDelete = false }) { Text(stringResource(R.string.common_cancel)) } },
         )
     }
 }

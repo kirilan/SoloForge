@@ -38,8 +38,8 @@ class WeighInWorker(
 
         val notif = NotificationCompat.Builder(applicationContext, NotificationChannels.WEIGHT_REMINDERS)
             .setSmallIcon(R.drawable.ic_notification)
-            .setContentTitle("Time for your weekly weigh-in")
-            .setContentText("Step on the scale and log your weight.")
+            .setContentTitle(applicationContext.getString(R.string.weigh_in_title))
+            .setContentText(applicationContext.getString(R.string.weigh_in_text))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
             .setContentIntent(pi)

@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kbul.spicycrab.data.db.entities.FoodEntry
@@ -113,19 +115,19 @@ private fun FoodListContent(
                     onClick = onManualClick,
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                 ) {
-                    Icon(Icons.Outlined.Edit, contentDescription = "Add manual meal")
+                    Icon(Icons.Outlined.Edit, contentDescription = stringResource(R.string.food_add_manual_cd))
                 }
                 if (aiEnabled) {
                     SmallFloatingActionButton(
                         onClick = onDescribeClick,
                         containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     ) {
-                        Icon(Icons.Outlined.Keyboard, contentDescription = "Describe food in text")
+                        Icon(Icons.Outlined.Keyboard, contentDescription = stringResource(R.string.food_describe_cd))
                     }
                     ExtendedFloatingActionButton(
                         onClick = onAddClick,
                         icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                        text = { Text("Analyze photo") },
+                        text = { Text(stringResource(R.string.food_analyze_photo)) },
                     )
                 }
             }
@@ -144,8 +146,7 @@ private fun FoodListContent(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        if (aiEnabled) "No meals logged yet. Analyze a photo or add a manual meal."
-                        else "No meals logged yet. Add a manual meal.",
+                        stringResource(if (aiEnabled) R.string.food_empty_ai else R.string.food_empty_manual),
                         style = MaterialTheme.typography.bodyLarge,
                     )
                 }
@@ -172,17 +173,17 @@ private fun FoodRow(entry: FoodEntry, onClick: () -> Unit) {
         Column(Modifier.padding(14.dp)) {
             Text(entry.itemName, style = MaterialTheme.typography.titleMedium)
             Text(
-                "${entry.kcal.toInt()} kcal · P${entry.proteinG.toInt()} / C${entry.carbsG.toInt()} / F${entry.fatG.toInt()}",
+                stringResource(R.string.food_macros_line, entry.kcal.toInt(), entry.proteinG.toInt(), entry.carbsG.toInt(), entry.fatG.toInt()),
                 style = MaterialTheme.typography.bodyMedium,
             )
             val edited = entry.lastModifiedEpoch > entry.timestampEpoch
             Text(
-                if (edited) "$ts · edited" else ts,
+                if (edited) stringResource(R.string.common_edited, ts) else ts,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (entry.comment.isNotBlank()) {
-                Text("“${entry.comment}”", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.common_quoted, entry.comment), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

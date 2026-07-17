@@ -23,8 +23,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FoodEntry
 import com.kbul.spicycrab.ui.common.DateTimeField
 
@@ -48,9 +50,9 @@ fun ManualFoodSheet(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Add manual meal", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.manual_title), style = MaterialTheme.typography.headlineMedium)
             Text(
-                "Enter nutrition details yourself instead of analyzing a photo.",
+                stringResource(R.string.manual_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -58,14 +60,14 @@ fun ManualFoodSheet(
             OutlinedTextField(
                 value = draft.itemName,
                 onValueChange = { draft = draft.copy(itemName = it) },
-                label = { Text("Meal name *") },
+                label = { Text(stringResource(R.string.manual_name_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = draft.comment,
                 onValueChange = { draft = draft.copy(comment = it) },
-                label = { Text("Notes (optional)") },
+                label = { Text(stringResource(R.string.manual_notes_optional)) },
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -74,35 +76,35 @@ fun ManualFoodSheet(
                 onChange = { draft = draft.copy(timestampEpoch = it) },
             )
 
-            NumField("Total weight (g)", draft.grams) { draft = draft.copy(grams = it) }
+            NumField(stringResource(R.string.manual_total_weight), draft.grams) { draft = draft.copy(grams = it) }
             ScaleByGramsButton(
                 currentGrams = draft.grams,
                 onApply = { newGrams -> draft = scaleEntry(draft, newGrams) },
                 modifier = Modifier.fillMaxWidth(),
             )
-            NumField("Calories (kcal) *", draft.kcal) { draft = draft.copy(kcal = it) }
-            NumField("Protein (g)", draft.proteinG) { draft = draft.copy(proteinG = it) }
-            NumField("Carbs (g)", draft.carbsG) { draft = draft.copy(carbsG = it) }
-            NumField("Fat (g)", draft.fatG) { draft = draft.copy(fatG = it) }
-            NumField("Fiber (g)", draft.fiberG) { draft = draft.copy(fiberG = it) }
+            NumField(stringResource(R.string.manual_kcal_required), draft.kcal) { draft = draft.copy(kcal = it) }
+            NumField(stringResource(R.string.label_protein_g), draft.proteinG) { draft = draft.copy(proteinG = it) }
+            NumField(stringResource(R.string.label_carbs_g), draft.carbsG) { draft = draft.copy(carbsG = it) }
+            NumField(stringResource(R.string.label_fat_g), draft.fatG) { draft = draft.copy(fatG = it) }
+            NumField(stringResource(R.string.label_fiber_g), draft.fiberG) { draft = draft.copy(fiberG = it) }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.common_cancel)) }
                 Button(
                     onClick = { onSave(draft) },
                     enabled = canSave,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Save meal") }
+                ) { Text(stringResource(R.string.manual_save)) }
             }
             var presetSaved by remember(draft.itemName) { mutableStateOf(false) }
             OutlinedButton(
                 onClick = { onSaveAsPreset(draft); presetSaved = true },
                 enabled = canSave && !presetSaved,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text(if (presetSaved) "Saved to quick add ✓" else "Save as preset") }
+            ) { Text(stringResource(if (presetSaved) R.string.preset_saved else R.string.preset_save)) }
         }
     }
 }

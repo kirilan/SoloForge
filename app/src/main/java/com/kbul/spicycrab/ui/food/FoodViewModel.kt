@@ -1,8 +1,11 @@
 package com.kbul.spicycrab.ui.food
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.kbul.spicycrab.data.db.entities.MealPreset
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.nutrition.FoodRepository
@@ -43,6 +46,7 @@ data class EditingState(
 class FoodViewModel @Inject constructor(
     private val repository: FoodRepository,
     settings: SettingsRepo,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     val aiEnabled: StateFlow<Boolean> = settings.settings.map { it.aiFeaturesEnabled }
@@ -99,7 +103,7 @@ class FoodViewModel @Inject constructor(
             val result = if (file != null) repository.analyze(file, comment) else repository.analyzeText(comment)
             _analyze.value = result.fold(
                 onSuccess = { _analyze.value.copy(isLoading = false, estimate = it) },
-                onFailure = { _analyze.value.copy(isLoading = false, error = it.message ?: "Analysis failed") },
+                onFailure = { _analyze.value.copy(isLoading = false, error = it.message ?: context.getString(R.string.error_analysis_failed)) },
             )
         }
     }
@@ -120,7 +124,7 @@ class FoodViewModel @Inject constructor(
                     _mode.value = FoodUiMode.List
                 }
                 .onFailure {
-                    _analyze.value = _analyze.value.copy(error = it.message ?: "Save failed")
+                    _analyze.value = _analyze.value.copy(error = it.message ?: context.getString(R.string.error_save_failed))
                 }
         }
     }
@@ -204,7 +208,7 @@ class FoodViewModel @Inject constructor(
                         reanalyzeStamp = System.currentTimeMillis(),
                     )
                 },
-                onFailure = { cur.copy(isReanalyzing = false, reanalyzeError = it.message ?: "Re-analysis failed") },
+                onFailure = { cur.copy(isReanalyzing = false, reanalyzeError = it.message ?: context.getString(R.string.error_reanalysis_failed)) },
             )
         }
     }

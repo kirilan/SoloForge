@@ -282,16 +282,22 @@ class WorkoutNotificationService : Service() {
 
     private fun buildNotification(): Notification {
         val cur = stateHolder.current()
-        val title = if (cur != null) "Workout · ${cur.mode.displayName}" else "Workout"
+        val title = if (cur != null) {
+            getString(R.string.notif_workout_title, getString(cur.mode.labelRes))
+        } else {
+            getString(R.string.notif_workout_title_plain)
+        }
         val text = if (cur != null) {
             val totalSec = cur.activeSeconds(System.currentTimeMillis())
-            val phaseLabel = when (cur.phase) {
-                WorkoutPhase.EXERCISE -> "Working"
-                WorkoutPhase.REST -> "Resting"
-                WorkoutPhase.PAUSED -> "Paused"
-            }
+            val phaseLabel = getString(
+                when (cur.phase) {
+                    WorkoutPhase.EXERCISE -> R.string.workout_working
+                    WorkoutPhase.REST -> R.string.workout_resting
+                    WorkoutPhase.PAUSED -> R.string.workout_paused
+                }
+            )
             "${formatHms(totalSec)} · $phaseLabel"
-        } else "Active"
+        } else getString(R.string.notif_workout_active)
 
         val openIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP

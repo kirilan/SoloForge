@@ -41,6 +41,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
+import com.kbul.spicycrab.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -73,7 +76,7 @@ fun HomeScreen(
         Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Today", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.home_today), style = MaterialTheme.typography.headlineMedium)
 
         ProgressCalendarTile(
             state = state,
@@ -140,7 +143,7 @@ private fun ProgressCalendarTile(
 
     ElevatedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Progress calendar", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.home_progress_calendar), style = MaterialTheme.typography.titleLarge)
             CompactDaySelector(
                 day = state.selectedDay,
                 selectedDate = state.selectedCalendarDate,
@@ -258,7 +261,7 @@ private fun CompactDaySelector(
 @Composable
 private fun CompactMarkers(day: CalendarDaySummary) {
     Row(horizontalArrangement = Arrangement.spacedBy(6.dp), verticalAlignment = Alignment.CenterVertically) {
-        Text("${day.kcal.toInt()} / ${day.calorieBudget} kcal", style = MaterialTheme.typography.labelMedium)
+        Text(stringResource(R.string.home_kcal_of, day.kcal.toInt(), day.calorieBudget), style = MaterialTheme.typography.labelMedium)
         if (day.meals.isNotEmpty()) Marker(MaterialTheme.colorScheme.primary)
         if (day.fasts.isNotEmpty()) Marker(MaterialTheme.colorScheme.tertiary)
         if (day.workouts.isNotEmpty()) Marker(MaterialTheme.colorScheme.secondary)
@@ -269,10 +272,10 @@ private fun CompactMarkers(day: CalendarDaySummary) {
 @Composable
 private fun CalendarLegend() {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
-        LegendItem("Food", MaterialTheme.colorScheme.primary)
-        LegendItem("Fast", MaterialTheme.colorScheme.tertiary)
-        LegendItem("Workout", MaterialTheme.colorScheme.secondary)
-        LegendItem("Weight", MaterialTheme.colorScheme.error)
+        LegendItem(stringResource(R.string.nav_food), MaterialTheme.colorScheme.primary)
+        LegendItem(stringResource(R.string.nav_fast), MaterialTheme.colorScheme.tertiary)
+        LegendItem(stringResource(R.string.nav_workout), MaterialTheme.colorScheme.secondary)
+        LegendItem(stringResource(R.string.nav_weight), MaterialTheme.colorScheme.error)
     }
 }
 
@@ -359,15 +362,15 @@ private fun SelectedDayDetails(
 
         val workoutBonus = day.calorieBudget - day.baseCalorieGoal
         Text(
-            "${day.kcal.toInt()} / ${day.calorieBudget} kcal" +
-                if (workoutBonus > 0) " (+$workoutBonus from training)" else "",
+            stringResource(R.string.home_kcal_of, day.kcal.toInt(), day.calorieBudget) +
+                if (workoutBonus > 0) stringResource(R.string.home_kcal_bonus_suffix, workoutBonus) else "",
             style = MaterialTheme.typography.bodyLarge,
             color = goalColor(day.kcal, day.calorieBudget.toDouble()),
         )
         GoalBar(day.kcal, day.calorieBudget.toDouble())
 
         if (!day.hasData) {
-            Text("No events logged for this day.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.home_no_events), color = MaterialTheme.colorScheme.onSurfaceVariant)
             JournalSection(day = day, onSave = { onSaveJournal(day.date, it) })
             return
         }
@@ -376,29 +379,29 @@ private fun SelectedDayDetails(
             val mode = FastingMode.fromName(fast.modeName)
             val duration = ((fast.endEpoch ?: System.currentTimeMillis()) - fast.startEpoch).coerceAtLeast(0L) / 1000L
             EventLine(
-                label = "Fast",
-                value = "${mode.displayName} - ${formatDuration(duration)}" +
-                    if (fast.completed) " completed" else " active",
+                label = stringResource(R.string.nav_fast),
+                value = "${mode.displayName} - ${formatDuration(duration)} " +
+                    stringResource(if (fast.completed) R.string.home_status_completed else R.string.home_status_active),
                 color = MaterialTheme.colorScheme.tertiary,
             )
         }
         day.meals.forEach { meal ->
             EventLine(
-                label = "Meal",
+                label = stringResource(R.string.home_event_meal),
                 value = "${meal.itemName} - ${meal.kcal.toInt()} kcal",
                 color = MaterialTheme.colorScheme.primary,
             )
         }
         day.workouts.forEach { workout ->
             EventLine(
-                label = "Workout",
-                value = "${WorkoutMode.fromName(workout.modeName).displayName} - ${formatDuration(workout.totalSeconds)}",
+                label = stringResource(R.string.nav_workout),
+                value = "${stringResource(WorkoutMode.fromName(workout.modeName).labelRes)} - ${formatDuration(workout.totalSeconds)}",
                 color = MaterialTheme.colorScheme.secondary,
             )
         }
         day.weights.forEach { weight ->
             EventLine(
-                label = "Weight",
+                label = stringResource(R.string.nav_weight),
                 value = "${"%.1f".format(toDisplayWeight(weight.weightKg))} $unit",
                 color = MaterialTheme.colorScheme.error,
             )
@@ -420,25 +423,25 @@ private fun JournalSection(day: CalendarDaySummary, onSave: (String) -> Unit) {
                 value = draft,
                 onValueChange = { draft = it },
                 modifier = Modifier.fillMaxWidth(),
-                label = { Text("Journal") },
+                label = { Text(stringResource(R.string.home_journal)) },
                 minLines = 3,
             )
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 Button(onClick = {
                     onSave(draft)
                     editing = false
-                }) { Text("Save") }
+                }) { Text(stringResource(R.string.common_save)) }
                 TextButton(onClick = {
                     draft = savedText
                     editing = false
-                }) { Text("Cancel") }
+                }) { Text(stringResource(R.string.common_cancel)) }
             }
         } else if (savedText.isNotEmpty()) {
-            Text("Journal", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.home_journal), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(savedText, style = MaterialTheme.typography.bodyMedium)
-            TextButton(onClick = { editing = true }) { Text("Edit note") }
+            TextButton(onClick = { editing = true }) { Text(stringResource(R.string.home_edit_note)) }
         } else {
-            TextButton(onClick = { editing = true }) { Text("Add journal note") }
+            TextButton(onClick = { editing = true }) { Text(stringResource(R.string.home_add_journal_note)) }
         }
     }
 }
@@ -471,11 +474,11 @@ private fun FastingTile(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Fasting", style = MaterialTheme.typography.titleLarge)
+                Text(stringResource(R.string.fasting_title), style = MaterialTheme.typography.titleLarge)
                 if (state.streak > 0) {
                     AssistChip(
                         onClick = onClick,
-                        label = { Text("${state.streak}-day streak") },
+                        label = { Text(stringResource(R.string.home_streak, state.streak)) },
                         leadingIcon = { Text("🔥") },
                         colors = AssistChipDefaults.assistChipColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -507,11 +510,11 @@ private fun ActiveFastContent(active: com.kbul.spicycrab.data.db.entities.FastSe
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         ProgressRing(
             progress = progress,
-            centerLabel = if (remaining > 0) "Remaining" else "Done",
+            centerLabel = stringResource(if (remaining > 0) R.string.fasting_remaining else R.string.fasting_done),
             centerValue = formatHms(if (remaining > 0) remaining else elapsedSec),
         )
     }
-    Text("Mode ${mode.displayName} · ${formatHms(elapsedSec)} elapsed", style = MaterialTheme.typography.bodyLarge)
+    Text(stringResource(R.string.fasting_mode_elapsed, mode.displayName, formatHms(elapsedSec)), style = MaterialTheme.typography.bodyLarge)
     Button(
         onClick = onStop,
         modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -519,7 +522,7 @@ private fun ActiveFastContent(active: com.kbul.spicycrab.data.db.entities.FastSe
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.onErrorContainer,
         ),
-    ) { Text("End fast") }
+    ) { Text(stringResource(R.string.fasting_end)) }
 }
 
 @Composable
@@ -537,20 +540,20 @@ private fun EatingWindowContent(
     val progress = (elapsedMs.toFloat() / windowMs.toFloat()).coerceIn(0f, 1f)
     val remainSec = remainingMs / 1000L
 
-    Text("Eating window", fontWeight = FontWeight.SemiBold)
+    Text(stringResource(R.string.home_eating_window), fontWeight = FontWeight.SemiBold)
     LinearProgressIndicator(
         progress = { progress },
         modifier = Modifier.fillMaxWidth().height(10.dp).clip(RoundedCornerShape(6.dp)),
     )
     Text(
-        "${formatHms(remainSec)} until window closes",
+        stringResource(R.string.home_until_window_closes, formatHms(remainSec)),
         style = MaterialTheme.typography.bodyLarge,
     )
     ModeChips(selected, onModeSelected)
     Button(
         onClick = onStart,
         modifier = Modifier.fillMaxWidth().height(56.dp),
-    ) { Text("Start ${selected.displayName} fast") }
+    ) { Text(stringResource(R.string.fasting_start_mode, selected.displayName)) }
 }
 
 @Composable
@@ -559,12 +562,12 @@ private fun IdleContent(
     onModeSelected: (FastingMode) -> Unit,
     onStart: () -> Unit,
 ) {
-    Text("Ready when you are.", style = MaterialTheme.typography.bodyLarge)
+    Text(stringResource(R.string.fasting_ready), style = MaterialTheme.typography.bodyLarge)
     ModeChips(selected, onModeSelected)
     Button(
         onClick = onStart,
         modifier = Modifier.fillMaxWidth().height(56.dp),
-    ) { Text("Start ${selected.displayName} fast") }
+    ) { Text(stringResource(R.string.fasting_start_mode, selected.displayName)) }
 }
 
 @Composable
@@ -595,7 +598,7 @@ private fun NutritionTile(
 
     ElevatedCard(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text("Today's nutrition", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.home_todays_nutrition), style = MaterialTheme.typography.titleLarge)
             Row(verticalAlignment = Alignment.Bottom) {
                 Text(
                     "${kcal.toInt()}",
@@ -610,7 +613,7 @@ private fun NutritionTile(
             }
             if (workoutBonusKcal > 0) {
                 Text(
-                    "+$workoutBonusKcal kcal from training",
+                    stringResource(R.string.home_kcal_from_training, workoutBonusKcal),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.primary,
                 )
@@ -618,12 +621,12 @@ private fun NutritionTile(
             GoalBar(kcal, adjustedKcalGoal.toDouble())
 
             Spacer(Modifier.height(4.dp))
-            MacroLine("Protein", protein, goals.proteinG.toDouble())
-            MacroLine("Carbs", carbs, goals.carbsG.toDouble())
-            MacroLine("Fat", fat, goals.fatG.toDouble())
+            MacroLine(stringResource(R.string.label_protein_g), protein, goals.proteinG.toDouble())
+            MacroLine(stringResource(R.string.label_carbs_g), carbs, goals.carbsG.toDouble())
+            MacroLine(stringResource(R.string.label_fat_g), fat, goals.fatG.toDouble())
 
             Text(
-                "${entries.size} ${if (entries.size == 1) "meal" else "meals"} tracked today",
+                pluralStringResource(R.plurals.home_meals_tracked, entries.size, entries.size),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -674,9 +677,9 @@ private fun WeightTile(
 
     ElevatedCard(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Weight", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.nav_weight), style = MaterialTheme.typography.titleLarge)
             if (latest == null) {
-                Text("No weight logged yet.", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.home_no_weight), color = MaterialTheme.colorScheme.onSurfaceVariant)
             } else {
                 val cur = toDisplay(latest.weightKg)
                 Row(verticalAlignment = Alignment.Bottom) {
@@ -691,7 +694,7 @@ private fun WeightTile(
                         delta < 0 -> MaterialTheme.colorScheme.primary
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     }
-                    Text("$sign${"%.1f".format(delta)} $unit since last", color = color)
+                    Text(stringResource(R.string.home_since_last, "$sign${"%.1f".format(delta)}", unit), color = color)
                 }
                 if (recentPoints.size >= 2) {
                     WeightChart(points = recentPoints, unitLabel = unit)
@@ -705,10 +708,10 @@ private fun WeightTile(
 private fun WorkoutTile(todaySeconds: Long, onClick: () -> Unit) {
     ElevatedCard(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text("Workout", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.nav_workout), style = MaterialTheme.typography.titleLarge)
             if (todaySeconds <= 0) {
                 Text(
-                    "No workout logged today.",
+                    stringResource(R.string.home_no_workout_today),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -717,7 +720,7 @@ private fun WorkoutTile(todaySeconds: Long, onClick: () -> Unit) {
                 val m = (todaySeconds % 3600) / 60
                 val label = if (h > 0) "${h}h ${m}m" else "${m}m"
                 Text(label, style = MaterialTheme.typography.displayMedium)
-                Text("logged today", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.home_logged_today), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

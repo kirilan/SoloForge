@@ -37,10 +37,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.ui.common.DateTimeField
 import java.time.Instant
@@ -56,7 +58,7 @@ fun WeightScreen(viewModel: WeightViewModel = hiltViewModel()) {
             ExtendedFloatingActionButton(
                 onClick = { viewModel.openLogSheet() },
                 icon = { Icon(Icons.Filled.Add, contentDescription = null) },
-                text = { Text("Log weight") },
+                text = { Text(stringResource(R.string.weight_log)) },
             )
         }
     ) { padding ->
@@ -65,7 +67,7 @@ fun WeightScreen(viewModel: WeightViewModel = hiltViewModel()) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Spacer(Modifier.height(8.dp))
-            Text("Weight", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.nav_weight), style = MaterialTheme.typography.headlineMedium)
 
             CurrentSummary(state, viewModel::toDisplay)
             RangeChips(state.range, viewModel::setRange)
@@ -79,12 +81,12 @@ fun WeightScreen(viewModel: WeightViewModel = hiltViewModel()) {
                 unitLabel = unit,
             )
 
-            Text("History", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.common_history), style = MaterialTheme.typography.titleMedium)
 
             if (state.entries.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Text(
-                        "No entries yet. Tap “Log weight” to add one.",
+                        stringResource(R.string.weight_no_entries),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -127,7 +129,7 @@ private fun CurrentSummary(state: WeightUiState, toDisplay: (Double) -> Double) 
     ElevatedCard(Modifier.fillMaxWidth()) {
         Column(Modifier.padding(16.dp)) {
             if (latest == null) {
-                Text("No weight logged yet.", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.home_no_weight), style = MaterialTheme.typography.bodyLarge)
             } else {
                 val curDisp = toDisplay(latest.weightKg)
                 Text("${"%.1f".format(curDisp)} $unit", style = MaterialTheme.typography.displayMedium)
@@ -140,7 +142,7 @@ private fun CurrentSummary(state: WeightUiState, toDisplay: (Double) -> Double) 
                         else -> MaterialTheme.colorScheme.onSurfaceVariant
                     }
                     Text(
-                        "$sign${"%.1f".format(delta)} $unit since last entry",
+                        stringResource(R.string.weight_since_last_entry, "$sign${"%.1f".format(delta)}", unit),
                         style = MaterialTheme.typography.bodyMedium,
                         color = color,
                     )
@@ -157,7 +159,7 @@ private fun RangeChips(current: WeightRange, onSelect: (WeightRange) -> Unit) {
             FilterChip(
                 selected = current == range,
                 onClick = { onSelect(range) },
-                label = { Text(range.label) },
+                label = { Text(stringResource(range.labelRes)) },
             )
         }
     }
@@ -184,12 +186,12 @@ private fun WeightRow(
                 Text("${"%.1f".format(displayValue)} $unit", style = MaterialTheme.typography.titleMedium)
                 Text(ts, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 if (entry.note.isNotBlank()) {
-                    Text("“${entry.note}”", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.common_quoted, entry.note), style = MaterialTheme.typography.bodyMedium)
                 }
             }
-            OutlinedButton(onClick = onClick) { Text("Edit") }
+            OutlinedButton(onClick = onClick) { Text(stringResource(R.string.common_edit)) }
             IconButton(onClick = onDelete) {
-                Icon(Icons.Outlined.Delete, contentDescription = "Delete")
+                Icon(Icons.Outlined.Delete, contentDescription = stringResource(R.string.common_delete))
             }
         }
     }
@@ -231,20 +233,20 @@ private fun LogWeightSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             Text(
-                if (initialEntry != null) "Edit weight" else "Log weight",
+                stringResource(if (initialEntry != null) R.string.weight_edit_title else R.string.weight_log),
                 style = MaterialTheme.typography.headlineMedium,
             )
             OutlinedTextField(
                 value = weightText,
                 onValueChange = { weightText = it.filter { ch -> ch.isDigit() || ch == '.' || ch == ',' } },
-                label = { Text("Weight ($unit)") },
+                label = { Text(stringResource(R.string.weight_label, unit)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = note,
                 onValueChange = { note = it },
-                label = { Text("Note (optional)") },
+                label = { Text(stringResource(R.string.weight_note_optional)) },
                 modifier = Modifier.fillMaxWidth(),
             )
             DateTimeField(
@@ -258,11 +260,11 @@ private fun LogWeightSheet(
                 },
                 enabled = weightText.replace(',', '.').toDoubleOrNull() != null,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-            ) { Text("Save") }
+            ) { Text(stringResource(R.string.common_save)) }
             OutlinedButton(
                 onClick = onDismiss,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text("Cancel") }
+            ) { Text(stringResource(R.string.common_cancel)) }
         }
     }
 }

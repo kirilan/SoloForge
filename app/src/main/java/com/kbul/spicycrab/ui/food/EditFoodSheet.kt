@@ -28,8 +28,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FoodEntry
 import com.kbul.spicycrab.ui.common.DateTimeField
 
@@ -59,18 +61,18 @@ fun EditFoodSheet(
                 .padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Edit meal", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.food_edit_title), style = MaterialTheme.typography.headlineMedium)
 
             OutlinedTextField(
                 value = draft.itemName,
                 onValueChange = { draft = draft.copy(itemName = it) },
-                label = { Text("Item") },
+                label = { Text(stringResource(R.string.label_item)) },
                 modifier = Modifier.fillMaxWidth(),
             )
             OutlinedTextField(
                 value = draft.comment,
                 onValueChange = { draft = draft.copy(comment = it) },
-                label = { Text("Comment") },
+                label = { Text(stringResource(R.string.label_comment)) },
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -88,40 +90,40 @@ fun EditFoodSheet(
                 )
             }
 
-            NumField("Grams", draft.grams) { draft = draft.copy(grams = it) }
+            NumField(stringResource(R.string.label_grams), draft.grams) { draft = draft.copy(grams = it) }
             ScaleByGramsButton(
                 currentGrams = draft.grams,
                 onApply = { newGrams -> draft = scaleEntry(draft, newGrams) },
                 modifier = Modifier.fillMaxWidth(),
             )
-            NumField("Calories", draft.kcal) { draft = draft.copy(kcal = it) }
-            NumField("Protein (g)", draft.proteinG) { draft = draft.copy(proteinG = it) }
-            NumField("Carbs (g)", draft.carbsG) { draft = draft.copy(carbsG = it) }
-            NumField("Fat (g)", draft.fatG) { draft = draft.copy(fatG = it) }
-            NumField("Fiber (g)", draft.fiberG) { draft = draft.copy(fiberG = it) }
+            NumField(stringResource(R.string.label_calories), draft.kcal) { draft = draft.copy(kcal = it) }
+            NumField(stringResource(R.string.label_protein_g), draft.proteinG) { draft = draft.copy(proteinG = it) }
+            NumField(stringResource(R.string.label_carbs_g), draft.carbsG) { draft = draft.copy(carbsG = it) }
+            NumField(stringResource(R.string.label_fat_g), draft.fatG) { draft = draft.copy(fatG = it) }
+            NumField(stringResource(R.string.label_fiber_g), draft.fiberG) { draft = draft.copy(fiberG = it) }
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.common_cancel)) }
                 Button(
                     onClick = { onSave(draft) },
                     enabled = !state.isReanalyzing,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.common_save)) }
             }
             var presetSaved by remember(draft.itemName) { mutableStateOf(false) }
             OutlinedButton(
                 onClick = { onSaveAsPreset(draft); presetSaved = true },
                 enabled = draft.itemName.isNotBlank() && !presetSaved,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text(if (presetSaved) "Saved to quick add ✓" else "Save as preset") }
+            ) { Text(stringResource(if (presetSaved) R.string.preset_saved else R.string.preset_save)) }
 
             TextButton(
                 onClick = { onDelete(entry) },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Delete entry", color = MaterialTheme.colorScheme.error) }
+            ) { Text(stringResource(R.string.food_delete_entry), color = MaterialTheme.colorScheme.error) }
         }
     }
 }
@@ -135,7 +137,7 @@ private fun ReanalyzeRow(
 ) {
     if (!canReanalyze) {
         Text(
-            "Add a comment describing the meal to re-analyze without a photo.",
+            stringResource(R.string.food_reanalyze_hint),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -150,10 +152,10 @@ private fun ReanalyzeRow(
             if (isReanalyzing) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     CircularProgressIndicator(modifier = Modifier.height(20.dp).padding(end = 8.dp), strokeWidth = 2.dp)
-                    Text("Re-analyzing…")
+                    Text(stringResource(R.string.analyze_reanalyzing))
                 }
             } else {
-                Text("Re-analyze with current comment")
+                Text(stringResource(R.string.analyze_reanalyze_comment))
             }
         }
         error?.let {

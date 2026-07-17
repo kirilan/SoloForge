@@ -1,0 +1,26 @@
+Solo Forge ist eine freie Open-Source-Fitness-App für Android: Intervallfasten-Timer, Kalorien- und Makrozähler, Gewichts-Tracker und Trainings-Timer in einem. Keine Werbung, kein Tracking, komplett offline.
+
+Sie ist auf lokale Datenhoheit ausgelegt:
+
+* Kein Backend
+* Keine Konten
+* Keine Analyse
+* Keine Absturzberichte
+* Android-Cloud-Backup deaktiviert
+* Vollständiges Backup und Wiederherstellung in eine einzige Datei, mit optionalem Auto-Backup in einen Ordner deiner Wahl
+
+Funktionen:
+
+* Intervallfasten-Timer mit den Modi 16:8, 18:6, 20:4 und 36 Stunden
+* Zustandsgesteuerte Fasten-Erinnerungen statt täglichem Benachrichtigungs-Spam
+* Essensfoto-Analyse mit deinem eigenen OpenRouter-API-Schlüssel
+* Manuelle Mahlzeiteneingabe und bearbeitbare Makro-Schätzungen
+* Lokale Kalorien- und Makroziele
+* Gewichtsverlauf mit Diagramm
+* Einfacher, Intervall- und Übung/Pause-Trainings-Timer
+* Dashboard für Fasten, Ernährung, Gewicht, Trainingszeit und Serien
+* Tägliche Tagebuchnotizen im Fortschrittskalender
+
+Solo Forge sendet nur dann eine Netzwerkanfrage, wenn du eine Essensfoto-Analyse startest. Diese Anfrage geht mit deinem eigenen API-Schlüssel an OpenRouter. Alle gespeicherten Mahlzeiten, Gewichtseinträge, Trainings, Fastenverläufe, Einstellungen und Exporte bleiben lokal auf deinem Gerät.
+
+Solo Forge ist unter der GPL-3.0 lizenziert.

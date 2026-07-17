@@ -1,0 +1,26 @@
+Solo Forge est une application de fitness Android libre et open source : minuteur de jeûne intermittent, compteur de calories et de macros, suivi du poids et minuteur d'entraînement, le tout en une seule app. Sans publicité, sans pistage, entièrement hors ligne.
+
+Elle est conçue autour de la propriété locale des données :
+
+* Pas de serveur
+* Pas de compte
+* Pas de statistiques
+* Pas de rapports de plantage
+* Sauvegarde cloud d'Android désactivée
+* Sauvegarde et restauration complètes dans un seul fichier, avec sauvegarde automatique facultative vers le dossier de votre choix
+
+Fonctionnalités :
+
+* Minuteur de jeûne intermittent avec les modes 16:8, 18:6, 20:4 et 36 heures
+* Rappels de jeûne liés à votre progression plutôt que du spam quotidien de notifications
+* Analyse de photos de repas avec votre propre clé d'API OpenRouter
+* Saisie manuelle des repas et estimations de macros modifiables
+* Objectifs locaux de calories et de macros
+* Historique du poids avec graphique
+* Minuteurs d'entraînement simple, par intervalles et exercice/repos
+* Tableau de bord pour le jeûne, la nutrition, le poids, le temps d'entraînement et les séries
+* Notes de journal quotidiennes dans le calendrier de progression
+
+Solo Forge n'envoie une requête réseau que lorsque vous lancez l'analyse d'une photo de repas. Cette requête va à OpenRouter avec la clé d'API que vous fournissez. Tous les repas enregistrés, les entrées de poids, les séances, l'historique de jeûne, les réglages et les exports restent sur votre appareil.
+
+Solo Forge est sous licence GPL-3.0.

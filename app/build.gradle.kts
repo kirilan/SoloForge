@@ -30,6 +30,10 @@ android {
         vectorDrawables { useSupportLibrary = true }
     }
 
+    androidResources {
+        localeFilters += listOf("en", "de", "es", "fr", "pt-rBR", "ru", "tr")
+    }
+
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {

@@ -1,0 +1,277 @@
+<resources>
+    <!-- Common -->
+    <string name="common_save">Kaydet</string>
+    <string name="common_cancel">İptal</string>
+    <string name="common_ok">Tamam</string>
+    <string name="common_next">İleri</string>
+    <string name="common_edit">Düzenle</string>
+    <string name="common_delete">Sil</string>
+    <string name="common_clear">Kaldır</string>
+    <string name="common_close">Kapat</string>
+    <string name="common_history">Geçmiş</string>
+    <string name="common_mode">Mod</string>
+    <string name="common_edited">%1$s · düzenlendi</string>
+    <string name="common_quoted">“%1$s”</string>
+    <string name="label_item">Yiyecek</string>
+    <string name="label_comment">Yorum</string>
+    <string name="label_grams">Gram</string>
+    <string name="label_calories">Kalori</string>
+    <string name="label_calories_kcal">Kalori (kcal)</string>
+    <string name="label_protein_g">Protein (g)</string>
+    <string name="label_carbs_g">Karbonhidrat (g)</string>
+    <string name="label_fat_g">Yağ (g)</string>
+    <string name="label_fiber_g">Lif (g)</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Ana sayfa</string>
+    <string name="nav_fast">Oruç</string>
+    <string name="nav_food">Yemek</string>
+    <string name="nav_weight">Kilo</string>
+    <string name="nav_workout">Antrenman</string>
+    <string name="nav_settings">Ayarlar</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">Ücretsiz. Açık kaynak. Önce yerel.</string>
+    <string name="onboarding_trust1_title">Özgür yazılım (GPL-3.0)</string>
+    <string name="onboarding_trust1_body">Uygulama incelenebilir, paylaşılabilir ve değiştirilebilir.</string>
+    <string name="onboarding_trust2_title">Verileriniz size ait</string>
+    <string name="onboarding_trust2_body">Hesap yok, sunucu yok ve Android bulut yedeklemesi kapalı.</string>
+    <string name="onboarding_trust3_title">Analitik ve telemetri yok</string>
+    <string name="onboarding_trust3_body">Tek ağ isteği, OpenRouter ile yemek fotoğrafı analizinizdir.</string>
+    <string name="onboarding_loading">Yükleniyor</string>
+    <string name="onboarding_continue">Devam</string>
+
+    <!-- Fasting -->
+    <string name="fasting_title">Oruç</string>
+    <string name="fasting_ready">Hazır olduğunuzda başlayın</string>
+    <string name="fasting_remaining">Kalan</string>
+    <string name="fasting_goal_reached">Hedefe ulaşıldı</string>
+    <string name="fasting_done">Bitti</string>
+    <string name="fasting_mode_elapsed">Mod %1$s · %2$s geçti</string>
+    <string name="fasting_edit_start">Başlangıcı düzenle</string>
+    <string name="fasting_end">Orucu bitir</string>
+    <string name="fasting_cancel_delete">İptal (bu orucu sil)</string>
+    <string name="fasting_pick_mode">Bir mod seçin</string>
+    <string name="fasting_start">Oruca başla</string>
+    <string name="fasting_start_mode">%1$s orucuna başla</string>
+    <string name="fasting_completed">Tamamlandı</string>
+    <string name="fasting_incomplete">Tamamlanmadı</string>
+    <string name="fast_edit_title">Orucu düzenle</string>
+    <string name="fast_edit_start_label">Başlangıç (yyyy-AA-gg SS:dd)</string>
+    <string name="fast_edit_end_label">Bitiş (boş = hâlâ sürüyor)</string>
+    <string name="fast_edit_error_start_format">Başlangıç saati biçimi geçersiz.</string>
+    <string name="fast_edit_error_end_before_start">Bitiş, başlangıçtan sonra olmalı.</string>
+    <string name="fast_edit_delete">Orucu sil</string>
+
+    <!-- Home -->
+    <string name="home_today">Bugün</string>
+    <string name="home_progress_calendar">İlerleme takvimi</string>
+    <string name="home_kcal_of">%1$d / %2$d kcal</string>
+    <string name="home_kcal_bonus_suffix">" (+%1$d antrenmandan)"</string>
+    <string name="home_no_events">Bu gün için kayıt yok.</string>
+    <string name="home_journal">Günlük</string>
+    <string name="home_edit_note">Notu düzenle</string>
+    <string name="home_add_journal_note">Günlük notu ekle</string>
+    <string name="home_event_meal">Öğün</string>
+    <string name="home_status_completed">tamamlandı</string>
+    <string name="home_status_active">sürüyor</string>
+    <string name="home_streak">%1$d günlük seri</string>
+    <string name="home_eating_window">Yeme penceresi</string>
+    <string name="home_until_window_closes">Pencerenin kapanmasına %1$s</string>
+    <string name="home_todays_nutrition">Bugünkü beslenme</string>
+    <string name="home_kcal_from_training">Antrenmandan +%1$d kcal</string>
+    <plurals name="home_meals_tracked">
+        <item quantity="one">Bugün %d öğün kaydedildi</item>
+        <item quantity="other">Bugün %d öğün kaydedildi</item>
+    </plurals>
+    <string name="home_no_weight">Henüz kilo kaydı yok.</string>
+    <string name="home_since_last">Son kayıttan bu yana %1$s %2$s</string>
+    <string name="home_no_workout_today">Bugün antrenman kaydı yok.</string>
+    <string name="home_logged_today">bugün kaydedildi</string>
+
+    <!-- Weight -->
+    <string name="weight_log">Kilo kaydet</string>
+    <string name="weight_edit_title">Kiloyu düzenle</string>
+    <string name="weight_label">Kilo (%1$s)</string>
+    <string name="weight_note_optional">Not (isteğe bağlı)</string>
+    <string name="weight_no_entries">Henüz kayıt yok. Eklemek için “Kilo kaydet”e dokunun.</string>
+    <string name="weight_since_last_entry">Son kayıttan bu yana %1$s %2$s</string>
+    <string name="weight_range_7d">7 g</string>
+    <string name="weight_range_30d">30 g</string>
+    <string name="weight_range_all">Tümü</string>
+    <string name="chart_log_first">Eğilimi görmek için bir kilo kaydedin.</string>
+    <string name="chart_log_one_more">Eğilim çizgisi için bir kayıt daha ekleyin.</string>
+
+    <!-- Food -->
+    <string name="food_add_manual_cd">Öğünü elle ekle</string>
+    <string name="food_describe_cd">Yemeği yazıyla tarif et</string>
+    <string name="food_analyze_photo">Fotoğrafı analiz et</string>
+    <string name="food_empty_ai">Henüz öğün kaydı yok. Bir fotoğraf analiz edin veya elle öğün ekleyin.</string>
+    <string name="food_empty_manual">Henüz öğün kaydı yok. Elle bir öğün ekleyin.</string>
+    <string name="food_macros_line">%1$d kcal · P%2$d / K%3$d / Y%4$d</string>
+    <string name="food_edit_title">Öğünü düzenle</string>
+    <string name="food_reanalyze_hint">Fotoğrafsız yeniden analiz için öğünü tarif eden bir yorum ekleyin.</string>
+    <string name="food_delete_entry">Kaydı sil</string>
+    <string name="quick_add">Hızlı ekle</string>
+    <string name="preset_save">Şablon olarak kaydet</string>
+    <string name="preset_saved">Hızlı ekleye kaydedildi ✓</string>
+    <string name="preset_delete_title">Şablon silinsin mi?</string>
+    <string name="preset_delete_text">“%1$s” hızlı ekleden kaldırılacak. Kaydedilmiş öğünler etkilenmez.</string>
+    <string name="manual_title">Öğünü elle ekle</string>
+    <string name="manual_desc">Fotoğraf analiz etmek yerine besin değerlerini kendiniz girin.</string>
+    <string name="manual_name_label">Öğün adı *</string>
+    <string name="manual_notes_optional">Notlar (isteğe bağlı)</string>
+    <string name="manual_total_weight">Toplam ağırlık (g)</string>
+    <string name="manual_kcal_required">Kalori (kcal) *</string>
+    <string name="manual_save">Öğünü kaydet</string>
+
+    <!-- Capture / Analyze -->
+    <string name="capture_permission_required">Kamera izni gerekli.</string>
+    <string name="capture_tap">Çekmek için dokunun</string>
+    <string name="analyze_describe_title">Öğünü tarif et</string>
+    <string name="analyze_review_title">Öğünü gözden geçir</string>
+    <string name="analyze_captured_cd">Çekilen öğün</string>
+    <string name="analyze_description">Açıklama</string>
+    <string name="analyze_comment_optional">Yorum (isteğe bağlı)</string>
+    <string name="analyze_placeholder_text">örn. 100 g karpuz</string>
+    <string name="analyze_placeholder_photo">örn. ızgara tavuk, ~200 g, yanında pilav</string>
+    <string name="analyze_button">Analiz et</string>
+    <string name="analyze_reanalyze_description">Mevcut açıklamayla yeniden analiz et</string>
+    <string name="analyze_reanalyze_comment">Mevcut yorumla yeniden analiz et</string>
+    <string name="analyze_analyzing">Analiz ediliyor…</string>
+    <string name="analyze_reanalyzing">Yeniden analiz ediliyor…</string>
+    <string name="analyze_discard">Vazgeç</string>
+    <string name="analyze_notes">Notlar: %1$s</string>
+    <string name="confidence_high">Yüksek güven</string>
+    <string name="confidence_medium">Orta güven</string>
+    <string name="confidence_low">Düşük güven — lütfen kontrol edin</string>
+    <string name="scale_adjust">Toplam ağırlığı ayarla</string>
+    <string name="scale_title">Makroları yeni toplam ağırlığa ölçekle</string>
+    <string name="scale_new_grams">Yeni toplam gram</string>
+    <string name="scale_apply">Uygula</string>
+    <string name="error_analysis_failed">Analiz başarısız</string>
+    <string name="error_save_failed">Kaydetme başarısız</string>
+    <string name="error_reanalysis_failed">Yeniden analiz başarısız</string>
+    <string name="error_no_api_key">Ayarlar\'dan OpenRouter API anahtarınızı girin.</string>
+    <string name="analysis_detail_prompt">Porsiyon boyutu, pişirme yağı, soslar ve gizli malzemeler gibi ayrıntılar ekleyip yeniden analiz edin.</string>
+
+    <!-- Workout -->
+    <string name="workout_mode_simple">Basit</string>
+    <string name="workout_mode_interval">Aralıklı</string>
+    <string name="workout_mode_exercise_rest">Egzersiz ve dinlenme</string>
+    <string name="workout_start">Antrenmana başla</string>
+    <string name="workout_end">Antrenmanı bitir</string>
+    <string name="workout_desc_simple">Antrenman sürenizi tutar. İstediğiniz zaman duraklatıp devam edin.</string>
+    <string name="workout_desc_interval">Her aralıkta bip sesi çalar. Büyük sayaç her aralıkta sıfırlanır.</string>
+    <string name="workout_desc_exercise_rest">Egzersiz ve dinlenme arasında geçiş yapın. Büyük sayaç her geçişte sıfırlanır. Duraklatılmış başlar.</string>
+    <string name="workout_interval_minutes">Aralık (dakika)</string>
+    <string name="workout_paused">Duraklatıldı</string>
+    <string name="workout_running">Sürüyor</string>
+    <string name="workout_working">Egzersiz</string>
+    <string name="workout_resting">Dinlenme</string>
+    <string name="workout_resume">Devam et</string>
+    <string name="workout_pause">Duraklat</string>
+    <string name="workout_interval_title">Aralıklı · %1$s dk</string>
+    <string name="workout_current_interval">geçerli aralık</string>
+    <string name="workout_total">Toplam: %1$s</string>
+    <plurals name="workout_intervals_completed">
+        <item quantity="one">%d aralık tamamlandı</item>
+        <item quantity="other">%d aralık tamamlandı</item>
+    </plurals>
+    <string name="workout_phase_working">EGZERSİZ</string>
+    <string name="workout_phase_resting">DİNLENME</string>
+    <string name="workout_phase_paused">DURAKLATILDI</string>
+    <string name="workout_current_phase">geçerli aşama</string>
+    <string name="workout_exercise">Egzersiz</string>
+    <string name="workout_rest">Dinlenme</string>
+    <string name="workout_stat_total">Toplam</string>
+    <string name="workout_switch_to_rest">Dinlenmeye geç</string>
+    <string name="workout_switch_to_exercise">Egzersize geç</string>
+    <string name="workout_begin_exercise">Egzersize başla</string>
+    <string name="workout_ex_rest_line">Egzersiz %1$s · Dinlenme %2$s</string>
+    <string name="workout_interval_line">Aralık: %1$s dk</string>
+    <string name="workout_edit_title">Antrenmanı düzenle</string>
+    <string name="workout_total_minutes">Toplam dakika</string>
+    <string name="workout_exercise_minutes">Egzersiz dakikaları</string>
+    <string name="workout_rest_minutes">Dinlenme dakikaları</string>
+    <string name="label_notes">Notlar</string>
+    <string name="workout_error_nonnegative">Değerler negatif olamaz.</string>
+    <string name="workout_delete">Antrenmanı sil</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ayarlar</string>
+    <string name="settings_default_mode">Varsayılan oruç modu</string>
+    <string name="settings_almost_there">“Az kaldı” motivasyonu</string>
+    <string name="settings_eating_window_reminder">Yeme penceresi kapanış hatırlatıcısı</string>
+    <string name="settings_section_ai">YZ / API</string>
+    <string name="settings_ai_food_analysis">YZ ile yemek analizi</string>
+    <string name="settings_ai_chain_desc">Yemek fotoğrafları otomatik bir model zinciri kullanır: önce hızlı bir analiz, güven düşükse daha güçlü bir inceleme ve yalnızca belirsizlik sürerse premium bir kontrol.</string>
+    <string name="settings_ai_off_desc">YZ analizi kapalı. Analiz düğmeleri gizli ve uygulama hiçbir ağ isteği yapmaz.</string>
+    <string name="settings_key_set">Bir OpenRouter anahtarı tanımlı.</string>
+    <string name="settings_key_none">API anahtarı tanımlı değil.</string>
+    <string name="settings_api_key_label">OpenRouter API anahtarı</string>
+    <string name="settings_replace">Değiştir</string>
+    <string name="settings_section_goals">Günlük beslenme hedefleri</string>
+    <string name="settings_section_data">Veriler</string>
+    <string name="settings_export_folder_set">Otomatik yedek klasörü ayarlandı. SoloForge-backup.json her değişiklikte oraya yeniden yazılır.</string>
+    <string name="settings_export_folder_none">Otomatik yedek klasörü seçilmedi. Cihaz dışı sürekli yedekleme için eşitlenen bir klasör (örn. Google Drive) seçin.</string>
+    <string name="settings_pick_folder">Klasör seç</string>
+    <string name="settings_save_photo">Her kayıtla fotoğrafı yerel olarak sakla</string>
+    <string name="settings_export_backup">Yedeği dışa aktar</string>
+    <string name="settings_import_backup">Yedeği içe aktar</string>
+    <string name="settings_backup_note">Yedek tüm kayıtları ve ayarları içerir ama API anahtarınızı içermez.</string>
+    <string name="settings_import_explain">“Birleştir” bu cihazdaki her şeyi korur ve yedekteki kayıtları ekler. “Değiştir” önce mevcut tüm verileri ve ayarları siler.</string>
+    <string name="settings_merge">Birleştir</string>
+    <string name="settings_replace_everything">Her şeyi değiştir</string>
+    <string name="settings_use_kg">Kilogram kullan</string>
+    <string name="settings_weigh_in_reminder">Haftalık tartılma hatırlatıcısı</string>
+    <string name="settings_day">Gün</string>
+    <string name="settings_hour">Saat</string>
+    <string name="settings_minute">Dakika</string>
+    <string name="settings_section_tabs">Sekmeler</string>
+    <string name="settings_tabs_desc">Kullanmadığınız sekmeleri gizleyin. Ana sayfa ve Ayarlar her zaman görünür.</string>
+    <string name="settings_show_fasting_tab">Oruç sekmesini göster</string>
+    <string name="settings_show_food_tab">Yemek sekmesini göster</string>
+    <string name="settings_show_weight_tab">Kilo sekmesini göster</string>
+    <string name="settings_show_workout_tab">Antrenman sekmesini göster</string>
+    <string name="settings_section_about">Hakkında</string>
+    <string name="settings_about_line1">Solo Forge, GPL-3.0 lisanslı özgür ve açık kaynaklı bir yazılımdır.</string>
+    <string name="settings_about_line2">Sunucu yok. Hesap yok. Analitik yok. Yemek fotoğrafları yalnızca siz analiz başlattığınızda OpenRouter\'a gönderilir.</string>
+    <string name="settings_version">Sürüm %1$s</string>
+    <string name="settings_gpl_footer">Solo Forge, GPL-3.0 altında özgür yazılımdır.</string>
+    <string name="settings_msg_backup_exported">Yedek dışa aktarıldı.</string>
+    <string name="settings_msg_export_failed">Dışa aktarma başarısız: %1$s</string>
+    <string name="settings_msg_backup_restored">Yedek geri yüklendi (%1$d kayıt).</string>
+    <plurals name="settings_msg_merged">
+        <item quantity="one">%d yeni kayıt birleştirildi.</item>
+        <item quantity="other">%d yeni kayıt birleştirildi.</item>
+    </plurals>
+    <string name="settings_msg_import_failed">İçe aktarma başarısız: %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_active_fast">Etkin oruç sayacı</string>
+    <string name="channel_active_fast_desc">Oruç sürerken kalıcı bildirim</string>
+    <string name="channel_active_workout">Etkin antrenman sayacı</string>
+    <string name="channel_active_workout_desc">Antrenman sürerken kalıcı bildirim</string>
+    <string name="channel_fasting_reminders">Oruç hatırlatıcıları</string>
+    <string name="channel_fasting_reminders_desc">Yeme penceresi kapanış uyarıları ve “Az kaldı” motivasyonu</string>
+    <string name="channel_weight_reminders">Kilo hatırlatıcıları</string>
+    <string name="channel_weight_reminders_desc">Haftalık tartılma hatırlatıcısı</string>
+    <string name="notif_fasting_title">Oruç · %1$s</string>
+    <string name="notif_fasting_text">%1$s geçti · %2$s kaldı</string>
+    <string name="notif_workout_title">Antrenman · %1$s</string>
+    <string name="notif_workout_title_plain">Antrenman</string>
+    <string name="notif_workout_active">Etkin</string>
+    <string name="reminder_almost_there_title">Az kaldı</string>
+    <string name="reminder_window_title">Yeme penceresi kapanıyor</string>
+    <string name="reminder_window_message">Yeme pencereniz 1 saat içinde kapanıyor. Son öğününüzü planlayın.</string>
+    <string name="weigh_in_title">Haftalık tartılma zamanı</string>
+    <string name="weigh_in_text">Tartıya çıkın ve kilonuzu kaydedin.</string>
+    <string-array name="fasting_encouragements">
+        <item>Bir saat kaldı — başarabilirsiniz.</item>
+        <item>60 dakika kaldı. Güçlü bitirin.</item>
+        <item>Son düzlük! Su için ve devam edin.</item>
+        <item>Az kaldı. Gelecekteki siz teşekkür edecek.</item>
+        <item>Bir saat daha. Zinciri kırmayın.</item>
+    </string-array>
+</resources>

@@ -1,0 +1,26 @@
+Solo Forge es una app de fitness para Android libre y de código abierto: temporizador de ayuno intermitente, contador de calorías y macros, registro de peso y temporizador de ejercicio, todo en uno. Sin anuncios, sin rastreo, totalmente sin conexión.
+
+Está construida en torno a la propiedad local de tus datos:
+
+* Sin servidor
+* Sin cuentas
+* Sin análisis
+* Sin informes de fallos
+* Copia en la nube de Android desactivada
+* Copia de seguridad y restauración completas en un solo archivo, con copia automática opcional a la carpeta que elijas
+
+Funciones:
+
+* Temporizador de ayuno intermitente con modos 16:8, 18:6, 20:4 y 36 horas
+* Recordatorios de ayuno según tu estado, sin spam diario de notificaciones
+* Análisis de fotos de comida con tu propia clave de API de OpenRouter
+* Registro manual de comidas y estimaciones de macros editables
+* Objetivos locales de calorías y macros
+* Historial de peso con gráfica
+* Temporizadores de ejercicio simple, por intervalos y de ejercicio/descanso
+* Panel de ayuno, nutrición, peso, tiempo de ejercicio y rachas
+* Notas de diario en el calendario de progreso
+
+Solo Forge solo envía una petición de red cuando inicias el análisis de una foto de comida. Esa petición va a OpenRouter con la clave de API que tú proporcionas. Todas las comidas guardadas, registros de peso, ejercicios, historial de ayunos, ajustes y exportaciones permanecen en tu dispositivo.
+
+Solo Forge tiene licencia GPL-3.0.

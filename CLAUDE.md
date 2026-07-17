@@ -76,6 +76,7 @@ app/src/main/java/com/kbul/spicycrab/
 - **Backup** is one versioned JSON file (`BackupFile`, kotlinx.serialization) holding all Room tables + settings, never the API key. Manual export/import lives in Settings; import offers **merge** (union deduped on natural keys — timestamps, preset name, journal date; local wins on conflict, journal concatenates, one active fast survives; importing the same file twice is a no-op) or **replace**. When an auto-backup folder is set (`ACTION_OPEN_DOCUMENT_TREE`, persisted URI permission), `BackupManager` rewrites `SoloForge-backup.json` there on every data change, debounced — that folder synced to Drive/Dropbox is the continuous off-device backup. CSV export was removed in 0.3.0.
 - **Android system backup is disabled** (`allowBackup=false`). Device migration should use explicit export/import flows, not silent Android cloud backup.
 - **API key** is the only secret; it's in EncryptedSharedPreferences and excluded from auto-backup (`backup_rules.xml` / `data_extraction_rules.xml`).
+- **All user-visible strings live in `res/values/strings.xml`** (`screen_element` naming, e.g. `fasting_start`). Compose uses `stringResource`/`pluralStringResource`; services, workers, and repositories use `context.getString`. Shipped locales: en, de, es, fr, pt-rBR, ru, tr (`locales_config.xml` + `localeFilters` in `app/build.gradle.kts` must list the same set). OpenRouter prompts (`VisionPrompts.kt`) stay English — they're model input, not UI.
 - **No comments unless the *why* is non-obvious.** Prefer well-named functions to docstrings.
 - **No barebones fallbacks or "in case X fails" code paths** unless the failure is at a real boundary (network, file I/O, missing key).
 
@@ -104,14 +105,16 @@ Solo Forge is licensed under the **GNU General Public License v3.0**. The full l
 
 Three distribution channels with different signing keys (builds are not cross-installable):
 
-1. **Version bump**: `versionCode` + `versionName` in `app/build.gradle.kts`, and add
+1. **String freeze**: merge any pending Weblate translation PRs before tagging. Strings added
+   after the freeze ship with English fallback (acceptable — Android falls back per string).
+2. **Version bump**: `versionCode` + `versionName` in `app/build.gradle.kts`, and add
    `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` (plain prose, ~1 short paragraph).
-2. **Commit + tag** `vX.Y.Z` and push. **The tag push IS the F-Droid release** — fdroiddata uses
+3. **Commit + tag** `vX.Y.Z` and push. **The tag push IS the F-Droid release** — fdroiddata uses
    `UpdateCheckMode: Tags` + `AutoUpdateMode: Version`; their bot picks it up and publishes in ~2–7 days.
-3. **GitHub release**: `gh release create vX.Y.Z` with notes and a **debug-signed APK** named
+4. **GitHub release**: `gh release create vX.Y.Z` with notes and a **debug-signed APK** named
    `SoloForge-X.Y.Z-debug.apk`. GitHub releases have always been debug-key-signed; switching keys would
    break in-place updates (and lose local data) for existing GitHub users, so keep the debug key.
-4. **Google Play**: separate track, signed AAB via the upload key (`.\gradlew.bat bundleRelease`,
+5. **Google Play**: separate track, signed AAB via the upload key (`.\gradlew.bat bundleRelease`,
    reads `keystore.properties` at repo root, gitignored). Never upload a new AAB while a Play review
    is pending.
 

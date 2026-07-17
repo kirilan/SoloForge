@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -38,6 +39,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import com.kbul.spicycrab.BuildConfig
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.domain.fasting.FastingMode
 
@@ -61,56 +63,56 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         Modifier.fillMaxSize().padding(16.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Settings", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineMedium)
 
-        SectionCard("Fasting") {
+        SectionCard(stringResource(R.string.fasting_title)) {
             DefaultModeDropdown(s.defaultFastingModeName, viewModel::setDefaultFastingMode)
             SwitchRow(
-                "“Almost there” encouragement",
+                stringResource(R.string.settings_almost_there),
                 s.almostThereEnabled,
                 viewModel::setAlmostThereEnabled,
             )
             SwitchRow(
-                "Eating-window-closing reminder",
+                stringResource(R.string.settings_eating_window_reminder),
                 s.eatingWindowClosingEnabled,
                 viewModel::setEatingWindowClosingEnabled,
             )
         }
 
-        SectionCard("AI / API") {
-            SwitchRow("AI food analysis", s.aiFeaturesEnabled, viewModel::setAiFeaturesEnabled)
+        SectionCard(stringResource(R.string.settings_section_ai)) {
+            SwitchRow(stringResource(R.string.settings_ai_food_analysis), s.aiFeaturesEnabled, viewModel::setAiFeaturesEnabled)
             if (s.aiFeaturesEnabled) {
                 ApiKeyField(hasKey, viewModel::setApiKey, viewModel::clearApiKey)
                 Text(
-                    "Food photos use an automatic model chain: fast default analysis first, stronger review when confidence is low, and a premium check only when uncertainty remains.",
+                    stringResource(R.string.settings_ai_chain_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             } else {
                 Text(
-                    "AI analysis is off. The analyze buttons are hidden and the app makes no network calls.",
+                    stringResource(R.string.settings_ai_off_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
 
-        SectionCard("Daily nutrition goals") {
+        SectionCard(stringResource(R.string.settings_section_goals)) {
             GoalsForm(s.goals, viewModel::setGoals)
         }
 
-        SectionCard("Data") {
+        SectionCard(stringResource(R.string.settings_section_data)) {
             ExportFolderRow(s.exportFolderUri, viewModel::setExportFolder)
-            SwitchRow("Save photo locally with each entry", s.savePhotoLocally, viewModel::setSavePhotoLocally)
+            SwitchRow(stringResource(R.string.settings_save_photo), s.savePhotoLocally, viewModel::setSavePhotoLocally)
             BackupButtons(
                 onExport = viewModel::exportBackup,
                 onImport = viewModel::importBackup,
             )
         }
 
-        SectionCard("Weight") {
-            SwitchRow("Use kilograms", s.weightUnitKg, viewModel::setWeightUnitKg)
-            SwitchRow("Weekly weigh-in reminder", s.weighInEnabled, viewModel::setWeighInEnabled)
+        SectionCard(stringResource(R.string.nav_weight)) {
+            SwitchRow(stringResource(R.string.settings_use_kg), s.weightUnitKg, viewModel::setWeightUnitKg)
+            SwitchRow(stringResource(R.string.settings_weigh_in_reminder), s.weighInEnabled, viewModel::setWeighInEnabled)
             if (s.weighInEnabled) {
                 WeighInTimeRow(
                     dayOfWeek = s.weighInDayOfWeek,
@@ -121,37 +123,37 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             }
         }
 
-        SectionCard("Tabs") {
+        SectionCard(stringResource(R.string.settings_section_tabs)) {
             Text(
-                "Hide tabs you don't use. Home and Settings are always shown.",
+                stringResource(R.string.settings_tabs_desc),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            SwitchRow("Show Fasting tab", s.showFastingTab, viewModel::setShowFastingTab)
-            SwitchRow("Show Food tab", s.showFoodTab, viewModel::setShowFoodTab)
-            SwitchRow("Show Weight tab", s.showWeightTab, viewModel::setShowWeightTab)
-            SwitchRow("Show Workout tab", s.showWorkoutTab, viewModel::setShowWorkoutTab)
+            SwitchRow(stringResource(R.string.settings_show_fasting_tab), s.showFastingTab, viewModel::setShowFastingTab)
+            SwitchRow(stringResource(R.string.settings_show_food_tab), s.showFoodTab, viewModel::setShowFoodTab)
+            SwitchRow(stringResource(R.string.settings_show_weight_tab), s.showWeightTab, viewModel::setShowWeightTab)
+            SwitchRow(stringResource(R.string.settings_show_workout_tab), s.showWorkoutTab, viewModel::setShowWorkoutTab)
         }
 
-        SectionCard("About") {
+        SectionCard(stringResource(R.string.settings_section_about)) {
             Text(
-                "Solo Forge is free and open source software licensed under GPL-3.0.",
+                stringResource(R.string.settings_about_line1),
                 style = MaterialTheme.typography.bodyLarge,
             )
             Text(
-                "No backend. No accounts. No analytics. Food images are sent only to OpenRouter when you start meal analysis.",
+                stringResource(R.string.settings_about_line2),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                "Version ${BuildConfig.VERSION_NAME}",
+                stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
         }
 
         Text(
-            "Solo Forge is GPL-3.0 free software.",
+            stringResource(R.string.settings_gpl_footer),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.align(Alignment.CenterHorizontally),
@@ -168,7 +170,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 private fun DefaultModeDropdown(currentName: String, onSelected: (String) -> Unit) {
     val current = FastingMode.fromName(currentName)
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text("Default fasting mode", style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.settings_default_mode), style = MaterialTheme.typography.bodyMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             FastingMode.entries.forEach { mode ->
                 androidx.compose.material3.FilterChip(
@@ -198,13 +200,13 @@ private fun SectionCard(title: String, content: @Composable () -> Unit) {
 private fun ApiKeyField(hasKey: Boolean, onSet: (String) -> Unit, onClear: () -> Unit) {
     var input by remember { mutableStateOf("") }
     Text(
-        if (hasKey) "An OpenRouter key is set." else "No API key set.",
+        stringResource(if (hasKey) R.string.settings_key_set else R.string.settings_key_none),
         style = MaterialTheme.typography.bodyMedium,
     )
     OutlinedTextField(
         value = input,
         onValueChange = { input = it },
-        label = { Text("OpenRouter API key") },
+        label = { Text(stringResource(R.string.settings_api_key_label)) },
         placeholder = { Text("sk-or-…") },
         visualTransformation = PasswordVisualTransformation(),
         modifier = Modifier.fillMaxWidth(),
@@ -214,23 +216,23 @@ private fun ApiKeyField(hasKey: Boolean, onSet: (String) -> Unit, onClear: () ->
             onClick = { onSet(input); input = "" },
             enabled = input.isNotBlank(),
             modifier = Modifier.weight(1f).height(48.dp),
-        ) { Text(if (hasKey) "Replace" else "Save") }
+        ) { Text(stringResource(if (hasKey) R.string.settings_replace else R.string.common_save)) }
         if (hasKey) {
             OutlinedButton(
                 onClick = onClear,
                 modifier = Modifier.weight(1f).height(48.dp),
-            ) { Text("Clear") }
+            ) { Text(stringResource(R.string.common_clear)) }
         }
     }
 }
 
 @Composable
 private fun GoalsForm(goals: NutritionGoals, onChange: (NutritionGoals) -> Unit) {
-    NumField("Calories (kcal)", goals.kcal) { onChange(goals.copy(kcal = it)) }
-    NumField("Protein (g)", goals.proteinG) { onChange(goals.copy(proteinG = it)) }
-    NumField("Carbs (g)", goals.carbsG) { onChange(goals.copy(carbsG = it)) }
-    NumField("Fat (g)", goals.fatG) { onChange(goals.copy(fatG = it)) }
-    NumField("Fiber (g)", goals.fiberG) { onChange(goals.copy(fiberG = it)) }
+    NumField(stringResource(R.string.label_calories_kcal), goals.kcal) { onChange(goals.copy(kcal = it)) }
+    NumField(stringResource(R.string.label_protein_g), goals.proteinG) { onChange(goals.copy(proteinG = it)) }
+    NumField(stringResource(R.string.label_carbs_g), goals.carbsG) { onChange(goals.copy(carbsG = it)) }
+    NumField(stringResource(R.string.label_fat_g), goals.fatG) { onChange(goals.copy(fatG = it)) }
+    NumField(stringResource(R.string.label_fiber_g), goals.fiberG) { onChange(goals.copy(fiberG = it)) }
 }
 
 @Composable
@@ -258,20 +260,19 @@ private fun ExportFolderRow(currentUri: String?, onSet: (String?) -> Unit) {
     }
 
     Text(
-        currentUri?.let { "Auto-backup folder set. SoloForge-backup.json is rewritten there on every change." }
-            ?: "No auto-backup folder selected. Pick a synced folder (e.g. Google Drive) for continuous off-device backup.",
+        stringResource(if (currentUri != null) R.string.settings_export_folder_set else R.string.settings_export_folder_none),
         style = MaterialTheme.typography.bodyMedium,
     )
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(
             onClick = { launcher.launch(null) },
             modifier = Modifier.weight(1f).height(48.dp),
-        ) { Text("Pick folder") }
+        ) { Text(stringResource(R.string.settings_pick_folder)) }
         if (currentUri != null) {
             OutlinedButton(
                 onClick = { onSet(null) },
                 modifier = Modifier.weight(1f).height(48.dp),
-            ) { Text("Clear") }
+            ) { Text(stringResource(R.string.common_clear)) }
         }
     }
 }
@@ -293,14 +294,14 @@ private fun BackupButtons(
         Button(
             onClick = { exportLauncher.launch("SoloForge-backup-${java.time.LocalDate.now()}.json") },
             modifier = Modifier.weight(1f).height(48.dp),
-        ) { Text("Export backup") }
+        ) { Text(stringResource(R.string.settings_export_backup)) }
         OutlinedButton(
             onClick = { importLauncher.launch(arrayOf("application/json", "application/octet-stream")) },
             modifier = Modifier.weight(1f).height(48.dp),
-        ) { Text("Import backup") }
+        ) { Text(stringResource(R.string.settings_import_backup)) }
     }
     Text(
-        "The backup holds all entries and settings, but not your API key.",
+        stringResource(R.string.settings_backup_note),
         style = MaterialTheme.typography.bodySmall,
         color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
@@ -308,24 +309,21 @@ private fun BackupButtons(
     pendingImportUri?.let { uri ->
         androidx.compose.material3.AlertDialog(
             onDismissRequest = { pendingImportUri = null },
-            title = { Text("Import backup") },
+            title = { Text(stringResource(R.string.settings_import_backup)) },
             text = {
-                Text(
-                    "Merge keeps everything on this device and adds entries from the backup. " +
-                        "Replace erases all current data and settings first.",
-                )
+                Text(stringResource(R.string.settings_import_explain))
             },
             confirmButton = {
                 androidx.compose.material3.TextButton(onClick = {
                     onImport(uri, true)
                     pendingImportUri = null
-                }) { Text("Merge") }
+                }) { Text(stringResource(R.string.settings_merge)) }
             },
             dismissButton = {
                 androidx.compose.material3.TextButton(onClick = {
                     onImport(uri, false)
                     pendingImportUri = null
-                }) { Text("Replace everything", color = MaterialTheme.colorScheme.error) }
+                }) { Text(stringResource(R.string.settings_replace_everything), color = MaterialTheme.colorScheme.error) }
             },
         )
     }
@@ -338,12 +336,12 @@ private fun WeighInTimeRow(
     minute: Int,
     onChange: (Int, Int, Int) -> Unit,
 ) {
-    val days = listOf("Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun")
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Day", style = MaterialTheme.typography.bodyMedium)
+        Text(stringResource(R.string.settings_day), style = MaterialTheme.typography.bodyMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-            days.forEachIndexed { idx, label ->
-                val day = idx + 1
+            java.time.DayOfWeek.entries.forEach { dow ->
+                val day = dow.value
+                val label = dow.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
                 androidx.compose.material3.FilterChip(
                     selected = dayOfWeek == day,
                     onClick = { onChange(day, hour, minute) },
@@ -355,14 +353,14 @@ private fun WeighInTimeRow(
             OutlinedTextField(
                 value = hour.toString(),
                 onValueChange = { v -> v.filter { it.isDigit() }.toIntOrNull()?.coerceIn(0, 23)?.let { onChange(dayOfWeek, it, minute) } },
-                label = { Text("Hour") },
+                label = { Text(stringResource(R.string.settings_hour)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.weight(1f),
             )
             OutlinedTextField(
                 value = minute.toString().padStart(2, '0'),
                 onValueChange = { v -> v.filter { it.isDigit() }.toIntOrNull()?.coerceIn(0, 59)?.let { onChange(dayOfWeek, hour, it) } },
-                label = { Text("Minute") },
+                label = { Text(stringResource(R.string.settings_minute)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.weight(1f),
             )

@@ -34,12 +34,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
 import com.kbul.spicycrab.domain.workout.ActiveWorkoutState
 import com.kbul.spicycrab.domain.workout.WorkoutMode
@@ -66,7 +69,7 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = hiltViewModel()) {
         Modifier.fillMaxSize().padding(20.dp).verticalScroll(rememberScrollState()),
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Text("Workout", style = MaterialTheme.typography.headlineMedium)
+        Text(stringResource(R.string.nav_workout), style = MaterialTheme.typography.headlineMedium)
 
         val active = state.active
         if (active != null) {
@@ -98,11 +101,11 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = hiltViewModel()) {
             Button(
                 onClick = viewModel::start,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
-            ) { Text("Start workout") }
+            ) { Text(stringResource(R.string.workout_start)) }
         }
 
         if (state.history.isNotEmpty()) {
-            Text("History", style = MaterialTheme.typography.titleMedium)
+            Text(stringResource(R.string.common_history), style = MaterialTheme.typography.titleMedium)
             state.history.take(20).forEach { session ->
                 WorkoutHistoryRow(session) { viewModel.openEdit(session) }
             }
@@ -122,21 +125,23 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = hiltViewModel()) {
 @Composable
 private fun ModeSelector(selected: WorkoutMode, onSelect: (WorkoutMode) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("Mode", style = MaterialTheme.typography.titleMedium)
+        Text(stringResource(R.string.common_mode), style = MaterialTheme.typography.titleMedium)
         LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             items(WorkoutMode.entries) { mode ->
                 FilterChip(
                     selected = selected == mode,
                     onClick = { onSelect(mode) },
-                    label = { Text(mode.displayName) },
+                    label = { Text(stringResource(mode.labelRes)) },
                 )
             }
         }
-        val description = when (selected) {
-            WorkoutMode.SIMPLE -> "Times your session. Pause and resume any time."
-            WorkoutMode.INTERVAL -> "Plays a beep every interval. Big counter resets each interval."
-            WorkoutMode.EXERCISE_REST -> "Toggle between exercise and rest. Big counter resets at every toggle. Starts paused."
-        }
+        val description = stringResource(
+            when (selected) {
+                WorkoutMode.SIMPLE -> R.string.workout_desc_simple
+                WorkoutMode.INTERVAL -> R.string.workout_desc_interval
+                WorkoutMode.EXERCISE_REST -> R.string.workout_desc_exercise_rest
+            }
+        )
         Text(description, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
     }
 }
@@ -150,7 +155,7 @@ private fun IntervalPicker(minutes: Double, onChange: (Double) -> Unit) {
             input = txt.filter { it.isDigit() || it == '.' || it == ',' }
             input.replace(',', '.').toDoubleOrNull()?.let(onChange)
         },
-        label = { Text("Interval (minutes)") },
+        label = { Text(stringResource(R.string.workout_interval_minutes)) },
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
         modifier = Modifier.fillMaxWidth(),
     )
@@ -171,10 +176,10 @@ private fun SimpleActiveCard(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("Simple", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.workout_mode_simple), style = MaterialTheme.typography.titleLarge)
             BigTimer(seconds = total)
             Text(
-                if (isPaused) "Paused" else "Running",
+                stringResource(if (isPaused) R.string.workout_paused else R.string.workout_running),
                 style = MaterialTheme.typography.titleMedium,
                 color = if (isPaused) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.primary,
             )
@@ -184,7 +189,7 @@ private fun SimpleActiveCard(
                 colors = if (isPaused)
                     ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 else ButtonDefaults.buttonColors(),
-            ) { Text(if (isPaused) "Resume" else "Pause") }
+            ) { Text(stringResource(if (isPaused) R.string.workout_resume else R.string.workout_pause)) }
             EndButton(onStop)
         }
     }
@@ -207,16 +212,16 @@ private fun IntervalActiveCard(
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text("Interval · ${formatMinutes(intervalSec / 60.0)} min", style = MaterialTheme.typography.titleLarge)
+            Text(stringResource(R.string.workout_interval_title, formatMinutes(intervalSec / 60.0)), style = MaterialTheme.typography.titleLarge)
             BigTimer(seconds = intervalElapsed)
-            Text("current interval", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(stringResource(R.string.workout_current_interval), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Spacer(Modifier.height(4.dp))
             Text(
-                "Total: ${formatHms(total)}",
+                stringResource(R.string.workout_total, formatHms(total)),
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(
-                "${intervalsCompleted} interval${if (intervalsCompleted == 1L) "" else "s"} completed",
+                pluralStringResource(R.plurals.workout_intervals_completed, intervalsCompleted.toInt(), intervalsCompleted.toInt()),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -248,11 +253,13 @@ private fun ExerciseRestActiveCard(
         WorkoutPhase.REST -> MaterialTheme.colorScheme.onTertiary
         WorkoutPhase.PAUSED -> MaterialTheme.colorScheme.onSurfaceVariant
     }
-    val phaseLabel = when (state.phase) {
-        WorkoutPhase.EXERCISE -> "WORKING"
-        WorkoutPhase.REST -> "RESTING"
-        WorkoutPhase.PAUSED -> "PAUSED"
-    }
+    val phaseLabel = stringResource(
+        when (state.phase) {
+            WorkoutPhase.EXERCISE -> R.string.workout_phase_working
+            WorkoutPhase.REST -> R.string.workout_phase_resting
+            WorkoutPhase.PAUSED -> R.string.workout_phase_paused
+        }
+    )
 
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
@@ -270,7 +277,7 @@ private fun ExerciseRestActiveCard(
             )
             BigTimer(seconds = phaseElapsed, color = onPhaseColor)
             Text(
-                "current phase",
+                stringResource(R.string.workout_current_phase),
                 style = MaterialTheme.typography.bodyMedium,
                 color = onPhaseColor.copy(alpha = 0.85f),
             )
@@ -281,9 +288,9 @@ private fun ExerciseRestActiveCard(
         Modifier.fillMaxWidth().padding(top = 12.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
     ) {
-        StatBlock("Exercise", totalEx)
-        StatBlock("Rest", totalRest)
-        StatBlock("Total", total)
+        StatBlock(stringResource(R.string.workout_exercise), totalEx)
+        StatBlock(stringResource(R.string.workout_rest), totalRest)
+        StatBlock(stringResource(R.string.workout_stat_total), total)
     }
 
     Spacer(Modifier.height(8.dp))
@@ -291,18 +298,20 @@ private fun ExerciseRestActiveCard(
         onClick = onTogglePhase,
         modifier = Modifier.fillMaxWidth().height(72.dp),
     ) {
-        val label = when (state.phase) {
-            WorkoutPhase.EXERCISE -> "Switch to rest"
-            WorkoutPhase.REST -> "Switch to exercise"
-            WorkoutPhase.PAUSED -> "Begin exercise"
-        }
+        val label = stringResource(
+            when (state.phase) {
+                WorkoutPhase.EXERCISE -> R.string.workout_switch_to_rest
+                WorkoutPhase.REST -> R.string.workout_switch_to_exercise
+                WorkoutPhase.PAUSED -> R.string.workout_begin_exercise
+            }
+        )
         Text(label, style = MaterialTheme.typography.titleLarge)
     }
     if (state.phase != WorkoutPhase.PAUSED) {
         OutlinedButton(
             onClick = onPause,
             modifier = Modifier.fillMaxWidth().height(48.dp),
-        ) { Text("Pause") }
+        ) { Text(stringResource(R.string.workout_pause)) }
     }
     EndButton(onStop)
 }
@@ -335,7 +344,7 @@ private fun EndButton(onStop: () -> Unit) {
             containerColor = MaterialTheme.colorScheme.errorContainer,
             contentColor = MaterialTheme.colorScheme.onErrorContainer,
         ),
-    ) { Text("End workout") }
+    ) { Text(stringResource(R.string.workout_end)) }
 }
 
 @Composable
@@ -348,28 +357,28 @@ private fun WorkoutHistoryRow(session: WorkoutSession, onClick: () -> Unit) {
     ElevatedCard(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(14.dp)) {
             Text(
-                "${mode.displayName} · ${formatHms(session.totalSeconds)}",
+                "${stringResource(mode.labelRes)} · ${formatHms(session.totalSeconds)}",
                 style = MaterialTheme.typography.titleMedium,
             )
             Text(
-                if (edited) "$ts · edited" else ts,
+                if (edited) stringResource(R.string.common_edited, ts) else ts,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             if (mode == WorkoutMode.EXERCISE_REST) {
                 Text(
-                    "Exercise ${formatHms(session.exerciseSeconds)} · Rest ${formatHms(session.restSeconds)}",
+                    stringResource(R.string.workout_ex_rest_line, formatHms(session.exerciseSeconds), formatHms(session.restSeconds)),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             if (mode == WorkoutMode.INTERVAL && session.intervalSeconds > 0) {
                 Text(
-                    "Interval: ${formatMinutes(session.intervalSeconds / 60.0)} min",
+                    stringResource(R.string.workout_interval_line, formatMinutes(session.intervalSeconds / 60.0)),
                     style = MaterialTheme.typography.bodyMedium,
                 )
             }
             if (session.notes.isNotBlank()) {
-                Text("“${session.notes}”", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.common_quoted, session.notes), style = MaterialTheme.typography.bodyMedium)
             }
         }
     }

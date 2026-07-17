@@ -15,7 +15,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 
 data class ChartPoint(val timeMs: Long, val value: Double)
 
@@ -30,7 +32,7 @@ fun WeightChart(
     if (points.size < 2) {
         Box(modifier.fillMaxWidth().height(180.dp), contentAlignment = Alignment.Center) {
             Text(
-                if (points.isEmpty()) "Log a weight to see your trend." else "Log one more entry to plot a trend.",
+                stringResource(if (points.isEmpty()) R.string.chart_log_first else R.string.chart_log_one_more),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )

@@ -1,0 +1,26 @@
+O Solo Forge é um app de fitness para Android livre e de código aberto: cronômetro de jejum intermitente, contador de calorias e macros, registro de peso e cronômetro de treino, tudo em um. Sem anúncios, sem rastreamento, totalmente offline.
+
+Ele é construído em torno da posse local dos seus dados:
+
+* Sem servidor
+* Sem contas
+* Sem análises
+* Sem relatórios de falhas
+* Backup na nuvem do Android desativado
+* Backup e restauração completos em um único arquivo, com backup automático opcional para a pasta que você escolher
+
+Recursos:
+
+* Cronômetro de jejum intermitente com modos 16:8, 18:6, 20:4 e 36 horas
+* Lembretes de jejum baseados no seu estado, sem spam diário de notificações
+* Análise de fotos de comida com a sua própria chave de API do OpenRouter
+* Registro manual de refeições e estimativas de macros editáveis
+* Metas locais de calorias e macros
+* Histórico de peso com gráfico
+* Cronômetros de treino simples, por intervalos e exercício/descanso
+* Painel de jejum, nutrição, peso, tempo de treino e sequências
+* Notas de diário no calendário de progresso
+
+O Solo Forge só envia uma solicitação de rede quando você inicia a análise de uma foto de comida. Essa solicitação vai ao OpenRouter com a chave de API que você fornece. Todas as refeições salvas, registros de peso, treinos, histórico de jejum, ajustes e exportações permanecem no seu aparelho.
+
+O Solo Forge é licenciado sob a GPL-3.0.

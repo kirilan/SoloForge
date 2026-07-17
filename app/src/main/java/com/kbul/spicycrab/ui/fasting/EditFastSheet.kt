@@ -27,7 +27,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FastSession
 import com.kbul.spicycrab.domain.fasting.FastingMode
 import java.time.Instant
@@ -61,9 +63,9 @@ fun EditFastSheet(
             Modifier.fillMaxWidth().verticalScroll(rememberScrollState()).padding(20.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Text("Edit fast", style = MaterialTheme.typography.headlineMedium)
+            Text(stringResource(R.string.fast_edit_title), style = MaterialTheme.typography.headlineMedium)
 
-            Text("Mode", style = MaterialTheme.typography.bodyMedium)
+            Text(stringResource(R.string.common_mode), style = MaterialTheme.typography.bodyMedium)
             LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 items(FastingMode.entries) { mode ->
                     FilterChip(
@@ -77,14 +79,14 @@ fun EditFastSheet(
             OutlinedTextField(
                 value = startText,
                 onValueChange = { startText = it; error = null },
-                label = { Text("Start (yyyy-MM-dd HH:mm)") },
+                label = { Text(stringResource(R.string.fast_edit_start_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
             OutlinedTextField(
                 value = endText,
                 onValueChange = { endText = it; error = null },
-                label = { Text("End (blank = still active)") },
+                label = { Text(stringResource(R.string.fast_edit_end_label)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
             )
@@ -99,15 +101,17 @@ fun EditFastSheet(
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Cancel") }
+                ) { Text(stringResource(R.string.common_cancel)) }
+                val errStartFormat = stringResource(R.string.fast_edit_error_start_format)
+                val errEndBeforeStart = stringResource(R.string.fast_edit_error_end_before_start)
                 Button(
                     onClick = {
                         val startEpoch = parseEpoch(startText)
                         val endEpoch = if (endText.isBlank()) null else parseEpoch(endText)
                         when {
-                            startEpoch == null -> error = "Start time format invalid."
+                            startEpoch == null -> error = errStartFormat
                             endEpoch != null && endEpoch < startEpoch ->
-                                error = "End must be after start."
+                                error = errEndBeforeStart
                             else -> onSave(
                                 session.copy(
                                     modeName = modeName,
@@ -118,12 +122,12 @@ fun EditFastSheet(
                         }
                     },
                     modifier = Modifier.weight(1f).height(56.dp),
-                ) { Text("Save") }
+                ) { Text(stringResource(R.string.common_save)) }
             }
             TextButton(
                 onClick = { onDelete(session) },
                 modifier = Modifier.fillMaxWidth(),
-            ) { Text("Delete fast", color = MaterialTheme.colorScheme.error) }
+            ) { Text(stringResource(R.string.fast_edit_delete), color = MaterialTheme.colorScheme.error) }
         }
     }
 }

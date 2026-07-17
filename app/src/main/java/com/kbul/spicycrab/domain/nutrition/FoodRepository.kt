@@ -1,6 +1,7 @@
-package com.kbul.spicycrab.domain.nutrition
+﻿package com.kbul.spicycrab.domain.nutrition
 
 import android.content.Context
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.dao.FoodEntryDao
 import com.kbul.spicycrab.data.db.dao.MealPresetDao
 import com.kbul.spicycrab.data.db.entities.FoodEntry
@@ -43,7 +44,7 @@ class FoodRepository @Inject constructor(
 
     private suspend fun analyzeWithChain(base64: String?, comment: String): Result<NutritionEstimate> {
         val key = keyStore.getOpenRouterKey()
-            ?: return Result.failure(IllegalStateException("Set your OpenRouter API key in Settings."))
+            ?: return Result.failure(IllegalStateException(context.getString(R.string.error_no_api_key)))
 
         return runCatching {
             val first = analyzeWithModel(key, FoodAnalysisModels.DEFAULT, base64, comment)
@@ -58,14 +59,14 @@ class FoodRepository @Inject constructor(
                 .getOrElse {
                     return@runCatching second.copy(
                         modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${FoodAnalysisModels.ESCALATION}",
-                        detailPrompt = "Add details like portion size, cooking oil, sauces, and hidden ingredients, then re-analyze.",
+                        detailPrompt = context.getString(R.string.analysis_detail_prompt),
                     )
                 }
                 .copy(modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${FoodAnalysisModels.ESCALATION} -> ${FoodAnalysisModels.PREMIUM}")
 
             if (third.confidence.equals("low", ignoreCase = true)) {
                 third.copy(
-                    detailPrompt = "Add details like portion size, cooking oil, sauces, and hidden ingredients, then re-analyze.",
+                    detailPrompt = context.getString(R.string.analysis_detail_prompt),
                 )
             } else {
                 third

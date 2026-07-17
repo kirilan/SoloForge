@@ -1,0 +1,283 @@
+<resources>
+    <!-- Common -->
+    <string name="common_save">Сохранить</string>
+    <string name="common_cancel">Отмена</string>
+    <string name="common_ok">ОК</string>
+    <string name="common_next">Далее</string>
+    <string name="common_edit">Изменить</string>
+    <string name="common_delete">Удалить</string>
+    <string name="common_clear">Убрать</string>
+    <string name="common_close">Закрыть</string>
+    <string name="common_history">История</string>
+    <string name="common_mode">Режим</string>
+    <string name="common_edited">%1$s · изменено</string>
+    <string name="common_quoted">«%1$s»</string>
+    <string name="label_item">Блюдо</string>
+    <string name="label_comment">Комментарий</string>
+    <string name="label_grams">Граммы</string>
+    <string name="label_calories">Калории</string>
+    <string name="label_calories_kcal">Калории (ккал)</string>
+    <string name="label_protein_g">Белки (г)</string>
+    <string name="label_carbs_g">Углеводы (г)</string>
+    <string name="label_fat_g">Жиры (г)</string>
+    <string name="label_fiber_g">Клетчатка (г)</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Главная</string>
+    <string name="nav_fast">Голодание</string>
+    <string name="nav_food">Еда</string>
+    <string name="nav_weight">Вес</string>
+    <string name="nav_workout">Тренировка</string>
+    <string name="nav_settings">Настройки</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">Бесплатно. Открытый код. Данные локально.</string>
+    <string name="onboarding_trust1_title">Свободное ПО (GPL-3.0)</string>
+    <string name="onboarding_trust1_body">Приложение можно изучать, распространять и изменять.</string>
+    <string name="onboarding_trust2_title">Ваши данные — только ваши</string>
+    <string name="onboarding_trust2_body">Без аккаунта, без сервера, облачное резервное копирование Android отключено.</string>
+    <string name="onboarding_trust3_title">Без аналитики и телеметрии</string>
+    <string name="onboarding_trust3_body">Единственный сетевой запрос — ваш анализ фото еды через OpenRouter.</string>
+    <string name="onboarding_loading">Загрузка</string>
+    <string name="onboarding_continue">Продолжить</string>
+
+    <!-- Fasting -->
+    <string name="fasting_title">Голодание</string>
+    <string name="fasting_ready">Начнём, когда будете готовы</string>
+    <string name="fasting_remaining">Осталось</string>
+    <string name="fasting_goal_reached">Цель достигнута</string>
+    <string name="fasting_done">Готово</string>
+    <string name="fasting_mode_elapsed">Режим %1$s · прошло %2$s</string>
+    <string name="fasting_edit_start">Изменить начало</string>
+    <string name="fasting_end">Завершить голодание</string>
+    <string name="fasting_cancel_delete">Отменить (удалить это голодание)</string>
+    <string name="fasting_pick_mode">Выберите режим</string>
+    <string name="fasting_start">Начать голодание</string>
+    <string name="fasting_start_mode">Начать голодание %1$s</string>
+    <string name="fasting_completed">Завершено</string>
+    <string name="fasting_incomplete">Не завершено</string>
+    <string name="fast_edit_title">Изменить голодание</string>
+    <string name="fast_edit_start_label">Начало (гггг-ММ-дд ЧЧ:мм)</string>
+    <string name="fast_edit_end_label">Конец (пусто = ещё активно)</string>
+    <string name="fast_edit_error_start_format">Неверный формат времени начала.</string>
+    <string name="fast_edit_error_end_before_start">Конец должен быть позже начала.</string>
+    <string name="fast_edit_delete">Удалить голодание</string>
+
+    <!-- Home -->
+    <string name="home_today">Сегодня</string>
+    <string name="home_progress_calendar">Календарь прогресса</string>
+    <string name="home_kcal_of">%1$d / %2$d ккал</string>
+    <string name="home_kcal_bonus_suffix">" (+%1$d за тренировку)"</string>
+    <string name="home_no_events">За этот день нет записей.</string>
+    <string name="home_journal">Дневник</string>
+    <string name="home_edit_note">Изменить заметку</string>
+    <string name="home_add_journal_note">Добавить заметку в дневник</string>
+    <string name="home_event_meal">Приём пищи</string>
+    <string name="home_status_completed">завершено</string>
+    <string name="home_status_active">активно</string>
+    <string name="home_streak">Серия: %1$d дн.</string>
+    <string name="home_eating_window">Пищевое окно</string>
+    <string name="home_until_window_closes">%1$s до закрытия окна</string>
+    <string name="home_todays_nutrition">Питание за сегодня</string>
+    <string name="home_kcal_from_training">+%1$d ккал за тренировку</string>
+    <plurals name="home_meals_tracked">
+        <item quantity="one">Сегодня записан %d приём пищи</item>
+        <item quantity="few">Сегодня записано %d приёма пищи</item>
+        <item quantity="many">Сегодня записано %d приёмов пищи</item>
+        <item quantity="other">Сегодня записано %d приёма пищи</item>
+    </plurals>
+    <string name="home_no_weight">Вес ещё не записан.</string>
+    <string name="home_since_last">%1$s %2$s с прошлого раза</string>
+    <string name="home_no_workout_today">Сегодня тренировок не записано.</string>
+    <string name="home_logged_today">записано сегодня</string>
+
+    <!-- Weight -->
+    <string name="weight_log">Записать вес</string>
+    <string name="weight_edit_title">Изменить вес</string>
+    <string name="weight_label">Вес (%1$s)</string>
+    <string name="weight_note_optional">Заметка (необязательно)</string>
+    <string name="weight_no_entries">Записей пока нет. Нажмите «Записать вес», чтобы добавить.</string>
+    <string name="weight_since_last_entry">%1$s %2$s с последней записи</string>
+    <string name="weight_range_7d">7 дн.</string>
+    <string name="weight_range_30d">30 дн.</string>
+    <string name="weight_range_all">Все</string>
+    <string name="chart_log_first">Запишите вес, чтобы увидеть тенденцию.</string>
+    <string name="chart_log_one_more">Добавьте ещё одну запись, чтобы построить график.</string>
+
+    <!-- Food -->
+    <string name="food_add_manual_cd">Добавить приём пищи вручную</string>
+    <string name="food_describe_cd">Описать еду текстом</string>
+    <string name="food_analyze_photo">Анализ фото</string>
+    <string name="food_empty_ai">Приёмов пищи пока нет. Проанализируйте фото или добавьте приём пищи вручную.</string>
+    <string name="food_empty_manual">Приёмов пищи пока нет. Добавьте приём пищи вручную.</string>
+    <string name="food_macros_line">%1$d ккал · Б%2$d / У%3$d / Ж%4$d</string>
+    <string name="food_edit_title">Изменить приём пищи</string>
+    <string name="food_reanalyze_hint">Добавьте комментарий с описанием блюда, чтобы повторить анализ без фото.</string>
+    <string name="food_delete_entry">Удалить запись</string>
+    <string name="quick_add">Быстрое добавление</string>
+    <string name="preset_save">Сохранить как шаблон</string>
+    <string name="preset_saved">Сохранено в быстрое добавление ✓</string>
+    <string name="preset_delete_title">Удалить шаблон?</string>
+    <string name="preset_delete_text">Убрать «%1$s» из быстрого добавления. Уже записанные приёмы пищи не изменятся.</string>
+    <string name="manual_title">Добавить приём пищи вручную</string>
+    <string name="manual_desc">Введите пищевую ценность сами вместо анализа фото.</string>
+    <string name="manual_name_label">Название блюда *</string>
+    <string name="manual_notes_optional">Заметки (необязательно)</string>
+    <string name="manual_total_weight">Общий вес (г)</string>
+    <string name="manual_kcal_required">Калории (ккал) *</string>
+    <string name="manual_save">Сохранить приём пищи</string>
+
+    <!-- Capture / Analyze -->
+    <string name="capture_permission_required">Нужно разрешение на камеру.</string>
+    <string name="capture_tap">Нажмите, чтобы снять</string>
+    <string name="analyze_describe_title">Опишите блюдо</string>
+    <string name="analyze_review_title">Проверьте блюдо</string>
+    <string name="analyze_captured_cd">Снятое блюдо</string>
+    <string name="analyze_description">Описание</string>
+    <string name="analyze_comment_optional">Комментарий (необязательно)</string>
+    <string name="analyze_placeholder_text">напр. 100 г арбуза</string>
+    <string name="analyze_placeholder_photo">напр. курица на гриле, ~200 г, гарнир — рис</string>
+    <string name="analyze_button">Анализировать</string>
+    <string name="analyze_reanalyze_description">Повторить анализ с текущим описанием</string>
+    <string name="analyze_reanalyze_comment">Повторить анализ с текущим комментарием</string>
+    <string name="analyze_analyzing">Анализ…</string>
+    <string name="analyze_reanalyzing">Повторный анализ…</string>
+    <string name="analyze_discard">Отменить</string>
+    <string name="analyze_notes">Примечания: %1$s</string>
+    <string name="confidence_high">Высокая уверенность</string>
+    <string name="confidence_medium">Средняя уверенность</string>
+    <string name="confidence_low">Низкая уверенность — проверьте</string>
+    <string name="scale_adjust">Изменить общий вес</string>
+    <string name="scale_title">Пересчитать макросы под новый общий вес</string>
+    <string name="scale_new_grams">Новый общий вес в граммах</string>
+    <string name="scale_apply">Применить</string>
+    <string name="error_analysis_failed">Анализ не удался</string>
+    <string name="error_save_failed">Не удалось сохранить</string>
+    <string name="error_reanalysis_failed">Повторный анализ не удался</string>
+    <string name="error_no_api_key">Укажите ключ API OpenRouter в настройках.</string>
+    <string name="analysis_detail_prompt">Добавьте детали — размер порции, масло, соусы, скрытые ингредиенты — и повторите анализ.</string>
+
+    <!-- Workout -->
+    <string name="workout_mode_simple">Простой</string>
+    <string name="workout_mode_interval">Интервалы</string>
+    <string name="workout_mode_exercise_rest">Упражнение и отдых</string>
+    <string name="workout_start">Начать тренировку</string>
+    <string name="workout_end">Завершить тренировку</string>
+    <string name="workout_desc_simple">Засекает время тренировки. Пауза и продолжение в любой момент.</string>
+    <string name="workout_desc_interval">Сигнал в конце каждого интервала. Большой счётчик обнуляется с каждым интервалом.</string>
+    <string name="workout_desc_exercise_rest">Переключайтесь между упражнением и отдыхом. Большой счётчик обнуляется при каждом переключении. Старт на паузе.</string>
+    <string name="workout_interval_minutes">Интервал (минуты)</string>
+    <string name="workout_paused">Пауза</string>
+    <string name="workout_running">Идёт</string>
+    <string name="workout_working">Упражнение</string>
+    <string name="workout_resting">Отдых</string>
+    <string name="workout_resume">Продолжить</string>
+    <string name="workout_pause">Пауза</string>
+    <string name="workout_interval_title">Интервалы · %1$s мин</string>
+    <string name="workout_current_interval">текущий интервал</string>
+    <string name="workout_total">Всего: %1$s</string>
+    <plurals name="workout_intervals_completed">
+        <item quantity="one">Завершён %d интервал</item>
+        <item quantity="few">Завершено %d интервала</item>
+        <item quantity="many">Завершено %d интервалов</item>
+        <item quantity="other">Завершено %d интервала</item>
+    </plurals>
+    <string name="workout_phase_working">УПРАЖНЕНИЕ</string>
+    <string name="workout_phase_resting">ОТДЫХ</string>
+    <string name="workout_phase_paused">ПАУЗА</string>
+    <string name="workout_current_phase">текущая фаза</string>
+    <string name="workout_exercise">Упражнение</string>
+    <string name="workout_rest">Отдых</string>
+    <string name="workout_stat_total">Всего</string>
+    <string name="workout_switch_to_rest">Перейти к отдыху</string>
+    <string name="workout_switch_to_exercise">Перейти к упражнению</string>
+    <string name="workout_begin_exercise">Начать упражнение</string>
+    <string name="workout_ex_rest_line">Упражнение %1$s · Отдых %2$s</string>
+    <string name="workout_interval_line">Интервал: %1$s мин</string>
+    <string name="workout_edit_title">Изменить тренировку</string>
+    <string name="workout_total_minutes">Всего минут</string>
+    <string name="workout_exercise_minutes">Минуты упражнений</string>
+    <string name="workout_rest_minutes">Минуты отдыха</string>
+    <string name="label_notes">Заметки</string>
+    <string name="workout_error_nonnegative">Значения не могут быть отрицательными.</string>
+    <string name="workout_delete">Удалить тренировку</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Настройки</string>
+    <string name="settings_default_mode">Режим голодания по умолчанию</string>
+    <string name="settings_almost_there">Подбадривание «Почти получилось»</string>
+    <string name="settings_eating_window_reminder">Напоминание о закрытии пищевого окна</string>
+    <string name="settings_section_ai">ИИ / API</string>
+    <string name="settings_ai_food_analysis">Анализ еды с помощью ИИ</string>
+    <string name="settings_ai_chain_desc">Фото еды проходят автоматическую цепочку моделей: сначала быстрый анализ, при низкой уверенности — более сильная проверка, и только при остающейся неопределённости — премиум-проверка.</string>
+    <string name="settings_ai_off_desc">Анализ ИИ выключен. Кнопки анализа скрыты, и приложение не делает никаких сетевых запросов.</string>
+    <string name="settings_key_set">Ключ OpenRouter задан.</string>
+    <string name="settings_key_none">Ключ API не задан.</string>
+    <string name="settings_api_key_label">Ключ API OpenRouter</string>
+    <string name="settings_replace">Заменить</string>
+    <string name="settings_section_goals">Дневные цели питания</string>
+    <string name="settings_section_data">Данные</string>
+    <string name="settings_export_folder_set">Папка автокопий задана. SoloForge-backup.json перезаписывается там при каждом изменении.</string>
+    <string name="settings_export_folder_none">Папка автокопий не выбрана. Выберите синхронизируемую папку (напр. Google Drive) для непрерывного резервного копирования вне устройства.</string>
+    <string name="settings_pick_folder">Выбрать папку</string>
+    <string name="settings_save_photo">Сохранять фото локально с каждой записью</string>
+    <string name="settings_export_backup">Экспорт копии</string>
+    <string name="settings_import_backup">Импорт копии</string>
+    <string name="settings_backup_note">Копия содержит все записи и настройки, но не ваш ключ API.</string>
+    <string name="settings_import_explain">«Объединить» сохранит всё на этом устройстве и добавит записи из копии. «Заменить» сначала сотрёт все текущие данные и настройки.</string>
+    <string name="settings_merge">Объединить</string>
+    <string name="settings_replace_everything">Заменить всё</string>
+    <string name="settings_use_kg">Использовать килограммы</string>
+    <string name="settings_weigh_in_reminder">Еженедельное напоминание о взвешивании</string>
+    <string name="settings_day">День</string>
+    <string name="settings_hour">Час</string>
+    <string name="settings_minute">Минута</string>
+    <string name="settings_section_tabs">Вкладки</string>
+    <string name="settings_tabs_desc">Скройте вкладки, которыми не пользуетесь. Главная и Настройки видны всегда.</string>
+    <string name="settings_show_fasting_tab">Показывать вкладку «Голодание»</string>
+    <string name="settings_show_food_tab">Показывать вкладку «Еда»</string>
+    <string name="settings_show_weight_tab">Показывать вкладку «Вес»</string>
+    <string name="settings_show_workout_tab">Показывать вкладку «Тренировка»</string>
+    <string name="settings_section_about">О приложении</string>
+    <string name="settings_about_line1">Solo Forge — свободное ПО с открытым кодом под лицензией GPL-3.0.</string>
+    <string name="settings_about_line2">Без сервера. Без аккаунтов. Без аналитики. Фото еды отправляются в OpenRouter только когда вы запускаете анализ.</string>
+    <string name="settings_version">Версия %1$s</string>
+    <string name="settings_gpl_footer">Solo Forge — свободное ПО под GPL-3.0.</string>
+    <string name="settings_msg_backup_exported">Копия экспортирована.</string>
+    <string name="settings_msg_export_failed">Экспорт не удался: %1$s</string>
+    <string name="settings_msg_backup_restored">Копия восстановлена (записей: %1$d).</string>
+    <plurals name="settings_msg_merged">
+        <item quantity="one">Добавлена %d новая запись.</item>
+        <item quantity="few">Добавлены %d новые записи.</item>
+        <item quantity="many">Добавлено %d новых записей.</item>
+        <item quantity="other">Добавлено %d новой записи.</item>
+    </plurals>
+    <string name="settings_msg_import_failed">Импорт не удался: %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_active_fast">Таймер активного голодания</string>
+    <string name="channel_active_fast_desc">Постоянное уведомление, пока идёт голодание</string>
+    <string name="channel_active_workout">Таймер активной тренировки</string>
+    <string name="channel_active_workout_desc">Постоянное уведомление, пока идёт тренировка</string>
+    <string name="channel_fasting_reminders">Напоминания о голодании</string>
+    <string name="channel_fasting_reminders_desc">Оповещения о закрытии пищевого окна и подбадривания «Почти получилось»</string>
+    <string name="channel_weight_reminders">Напоминания о весе</string>
+    <string name="channel_weight_reminders_desc">Еженедельное напоминание о взвешивании</string>
+    <string name="notif_fasting_title">Голодание · %1$s</string>
+    <string name="notif_fasting_text">Прошло %1$s · осталось %2$s</string>
+    <string name="notif_workout_title">Тренировка · %1$s</string>
+    <string name="notif_workout_title_plain">Тренировка</string>
+    <string name="notif_workout_active">Активна</string>
+    <string name="reminder_almost_there_title">Почти получилось</string>
+    <string name="reminder_window_title">Пищевое окно закрывается</string>
+    <string name="reminder_window_message">Ваше пищевое окно закроется через 1 час. Спланируйте последний приём пищи.</string>
+    <string name="weigh_in_title">Время еженедельного взвешивания</string>
+    <string name="weigh_in_text">Встаньте на весы и запишите свой вес.</string>
+    <string-array name="fasting_encouragements">
+        <item>Остался час — вы справитесь.</item>
+        <item>60 минут до конца. Сильный финиш.</item>
+        <item>Финишная прямая! Пейте воду и держитесь.</item>
+        <item>Почти получилось. Будущий вы скажет спасибо.</item>
+        <item>Ещё один час. Не разрывайте цепочку.</item>
+    </string-array>
+</resources>

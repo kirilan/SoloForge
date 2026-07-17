@@ -1,7 +1,9 @@
 package com.kbul.spicycrab.ui.weight
 
+import androidx.annotation.StringRes
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.weight.WeightRepository
@@ -16,8 +18,8 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class WeightRange(val label: String, val days: Int?) {
-    SEVEN("7d", 7), THIRTY("30d", 30), ALL("All", null)
+enum class WeightRange(@StringRes val labelRes: Int, val days: Int?) {
+    SEVEN(R.string.weight_range_7d, 7), THIRTY(R.string.weight_range_30d, 30), ALL(R.string.weight_range_all, null)
 }
 
 data class WeightUiState(

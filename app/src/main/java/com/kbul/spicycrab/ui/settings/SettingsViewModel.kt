@@ -1,9 +1,12 @@
 package com.kbul.spicycrab.ui.settings
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import android.net.Uri
+import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.backup.BackupManager
+import dagger.hilt.android.qualifiers.ApplicationContext
 import com.kbul.spicycrab.data.prefs.AppSettings
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.data.prefs.SecureKeyStore
@@ -27,6 +30,7 @@ class SettingsViewModel @Inject constructor(
     private val keyStore: SecureKeyStore,
     private val reminderScheduler: ReminderScheduler,
     private val backupManager: BackupManager,
+    @ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     private val _exportMessage = MutableStateFlow<String?>(null)
@@ -103,8 +107,8 @@ class SettingsViewModel @Inject constructor(
     fun exportBackup(uri: Uri) {
         viewModelScope.launch {
             _exportMessage.value = backupManager.exportTo(uri).fold(
-                onSuccess = { "Backup exported." },
-                onFailure = { "Export failed: ${it.message}" },
+                onSuccess = { context.getString(R.string.settings_msg_backup_exported) },
+                onFailure = { context.getString(R.string.settings_msg_export_failed, it.message) },
             )
         }
     }
@@ -113,10 +117,10 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _exportMessage.value = backupManager.importFrom(uri, merge).fold(
                 onSuccess = { summary ->
-                    if (summary.replaced) "Backup restored (${summary.added} entries)."
-                    else "Merged ${summary.added} new ${if (summary.added == 1) "entry" else "entries"}."
+                    if (summary.replaced) context.getString(R.string.settings_msg_backup_restored, summary.added)
+                    else context.resources.getQuantityString(R.plurals.settings_msg_merged, summary.added, summary.added)
                 },
-                onFailure = { "Import failed: ${it.message}" },
+                onFailure = { context.getString(R.string.settings_msg_import_failed, it.message) },
             )
         }
     }

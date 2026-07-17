@@ -15,9 +15,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.kbul.spicycrab.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
@@ -34,13 +37,13 @@ import com.kbul.spicycrab.ui.settings.SettingsScreen
 import com.kbul.spicycrab.ui.weight.WeightScreen
 import com.kbul.spicycrab.ui.workout.WorkoutScreen
 
-enum class TopLevelDest(val route: String, val label: String, val icon: ImageVector) {
-    Home("home", "Home", Icons.Outlined.Home),
-    Fasting("fasting", "Fast", Icons.Outlined.AccessTime),
-    Food("food", "Food", Icons.Outlined.Restaurant),
-    Weight("weight", "Weight", Icons.Outlined.MonitorWeight),
-    Workout("workout", "Workout", Icons.Outlined.FitnessCenter),
-    Settings("settings", "Settings", Icons.Outlined.Settings),
+enum class TopLevelDest(val route: String, @StringRes val labelRes: Int, val icon: ImageVector) {
+    Home("home", R.string.nav_home, Icons.Outlined.Home),
+    Fasting("fasting", R.string.nav_fast, Icons.Outlined.AccessTime),
+    Food("food", R.string.nav_food, Icons.Outlined.Restaurant),
+    Weight("weight", R.string.nav_weight, Icons.Outlined.MonitorWeight),
+    Workout("workout", R.string.nav_workout, Icons.Outlined.FitnessCenter),
+    Settings("settings", R.string.nav_settings, Icons.Outlined.Settings),
 }
 
 @Composable
@@ -79,8 +82,8 @@ fun AppNav(viewModel: AppNavViewModel = hiltViewModel()) {
                     NavigationBarItem(
                         selected = selected,
                         onClick = { navigateTo(navController, dest, currentRoute) },
-                        icon = { Icon(dest.icon, contentDescription = dest.label) },
-                        label = { Text(dest.label) }
+                        icon = { Icon(dest.icon, contentDescription = stringResource(dest.labelRes)) },
+                        label = { Text(stringResource(dest.labelRes)) }
                     )
                 }
             }

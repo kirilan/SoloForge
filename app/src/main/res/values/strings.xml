@@ -1,3 +1,279 @@
 <resources>
-    <string name="app_name">Solo Forge</string>
+    <string name="app_name" translatable="false">Solo Forge</string>
+
+    <!-- Common -->
+    <string name="common_save">Save</string>
+    <string name="common_cancel">Cancel</string>
+    <string name="common_ok">OK</string>
+    <string name="common_next">Next</string>
+    <string name="common_edit">Edit</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_clear">Clear</string>
+    <string name="common_close">Close</string>
+    <string name="common_history">History</string>
+    <string name="common_mode">Mode</string>
+    <string name="common_edited">%1$s · edited</string>
+    <string name="common_quoted">“%1$s”</string>
+    <string name="label_item">Item</string>
+    <string name="label_comment">Comment</string>
+    <string name="label_grams">Grams</string>
+    <string name="label_calories">Calories</string>
+    <string name="label_calories_kcal">Calories (kcal)</string>
+    <string name="label_protein_g">Protein (g)</string>
+    <string name="label_carbs_g">Carbs (g)</string>
+    <string name="label_fat_g">Fat (g)</string>
+    <string name="label_fiber_g">Fiber (g)</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">Home</string>
+    <string name="nav_fast">Fast</string>
+    <string name="nav_food">Food</string>
+    <string name="nav_weight">Weight</string>
+    <string name="nav_workout">Workout</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">Free. Open source. Local-first.</string>
+    <string name="onboarding_trust1_title">GPL-3.0 free software</string>
+    <string name="onboarding_trust1_body">The app is licensed to be studied, shared, and modified.</string>
+    <string name="onboarding_trust2_title">Your data stays yours</string>
+    <string name="onboarding_trust2_body">No account, no backend, and Android cloud backup is disabled.</string>
+    <string name="onboarding_trust3_title">No analytics or telemetry</string>
+    <string name="onboarding_trust3_body">The only network call is your OpenRouter food-photo analysis.</string>
+    <string name="onboarding_loading">Loading</string>
+    <string name="onboarding_continue">Continue</string>
+
+    <!-- Fasting -->
+    <string name="fasting_title">Fasting</string>
+    <string name="fasting_ready">Ready when you are</string>
+    <string name="fasting_remaining">Remaining</string>
+    <string name="fasting_goal_reached">Goal reached</string>
+    <string name="fasting_done">Done</string>
+    <string name="fasting_mode_elapsed">Mode %1$s · %2$s elapsed</string>
+    <string name="fasting_edit_start">Edit start</string>
+    <string name="fasting_end">End fast</string>
+    <string name="fasting_cancel_delete">Cancel (delete this fast)</string>
+    <string name="fasting_pick_mode">Pick a mode</string>
+    <string name="fasting_start">Start fast</string>
+    <string name="fasting_start_mode">Start %1$s fast</string>
+    <string name="fasting_completed">Completed</string>
+    <string name="fasting_incomplete">Incomplete</string>
+    <string name="fast_edit_title">Edit fast</string>
+    <string name="fast_edit_start_label">Start (yyyy-MM-dd HH:mm)</string>
+    <string name="fast_edit_end_label">End (blank = still active)</string>
+    <string name="fast_edit_error_start_format">Start time format invalid.</string>
+    <string name="fast_edit_error_end_before_start">End must be after start.</string>
+    <string name="fast_edit_delete">Delete fast</string>
+
+    <!-- Home -->
+    <string name="home_today">Today</string>
+    <string name="home_progress_calendar">Progress calendar</string>
+    <string name="home_kcal_of">%1$d / %2$d kcal</string>
+    <string name="home_kcal_bonus_suffix">" (+%1$d from training)"</string>
+    <string name="home_no_events">No events logged for this day.</string>
+    <string name="home_journal">Journal</string>
+    <string name="home_edit_note">Edit note</string>
+    <string name="home_add_journal_note">Add journal note</string>
+    <string name="home_event_meal">Meal</string>
+    <string name="home_status_completed">completed</string>
+    <string name="home_status_active">active</string>
+    <string name="home_streak">%1$d-day streak</string>
+    <string name="home_eating_window">Eating window</string>
+    <string name="home_until_window_closes">%1$s until window closes</string>
+    <string name="home_todays_nutrition">Today\'s nutrition</string>
+    <string name="home_kcal_from_training">+%1$d kcal from training</string>
+    <plurals name="home_meals_tracked">
+        <item quantity="one">%d meal tracked today</item>
+        <item quantity="other">%d meals tracked today</item>
+    </plurals>
+    <string name="home_no_weight">No weight logged yet.</string>
+    <string name="home_since_last">%1$s %2$s since last</string>
+    <string name="home_no_workout_today">No workout logged today.</string>
+    <string name="home_logged_today">logged today</string>
+
+    <!-- Weight -->
+    <string name="weight_log">Log weight</string>
+    <string name="weight_edit_title">Edit weight</string>
+    <string name="weight_label">Weight (%1$s)</string>
+    <string name="weight_note_optional">Note (optional)</string>
+    <string name="weight_no_entries">No entries yet. Tap “Log weight” to add one.</string>
+    <string name="weight_since_last_entry">%1$s %2$s since last entry</string>
+    <string name="weight_range_7d">7d</string>
+    <string name="weight_range_30d">30d</string>
+    <string name="weight_range_all">All</string>
+    <string name="chart_log_first">Log a weight to see your trend.</string>
+    <string name="chart_log_one_more">Log one more entry to plot a trend.</string>
+
+    <!-- Food -->
+    <string name="food_add_manual_cd">Add manual meal</string>
+    <string name="food_describe_cd">Describe food in text</string>
+    <string name="food_analyze_photo">Analyze photo</string>
+    <string name="food_empty_ai">No meals logged yet. Analyze a photo or add a manual meal.</string>
+    <string name="food_empty_manual">No meals logged yet. Add a manual meal.</string>
+    <string name="food_macros_line">%1$d kcal · P%2$d / C%3$d / F%4$d</string>
+    <string name="food_edit_title">Edit meal</string>
+    <string name="food_reanalyze_hint">Add a comment describing the meal to re-analyze without a photo.</string>
+    <string name="food_delete_entry">Delete entry</string>
+    <string name="quick_add">Quick add</string>
+    <string name="preset_save">Save as preset</string>
+    <string name="preset_saved">Saved to quick add ✓</string>
+    <string name="preset_delete_title">Delete preset?</string>
+    <string name="preset_delete_text">Remove “%1$s” from quick add. Meals you already logged are not affected.</string>
+    <string name="manual_title">Add manual meal</string>
+    <string name="manual_desc">Enter nutrition details yourself instead of analyzing a photo.</string>
+    <string name="manual_name_label">Meal name *</string>
+    <string name="manual_notes_optional">Notes (optional)</string>
+    <string name="manual_total_weight">Total weight (g)</string>
+    <string name="manual_kcal_required">Calories (kcal) *</string>
+    <string name="manual_save">Save meal</string>
+
+    <!-- Capture / Analyze -->
+    <string name="capture_permission_required">Camera permission is required.</string>
+    <string name="capture_tap">Tap to capture</string>
+    <string name="analyze_describe_title">Describe meal</string>
+    <string name="analyze_review_title">Review meal</string>
+    <string name="analyze_captured_cd">Captured meal</string>
+    <string name="analyze_description">Description</string>
+    <string name="analyze_comment_optional">Comment (optional)</string>
+    <string name="analyze_placeholder_text">e.g. 100 g watermelon</string>
+    <string name="analyze_placeholder_photo">e.g. grilled chicken, ~200g, side of rice</string>
+    <string name="analyze_button">Analyze</string>
+    <string name="analyze_reanalyze_description">Re-analyze with current description</string>
+    <string name="analyze_reanalyze_comment">Re-analyze with current comment</string>
+    <string name="analyze_analyzing">Analyzing…</string>
+    <string name="analyze_reanalyzing">Re-analyzing…</string>
+    <string name="analyze_discard">Discard</string>
+    <string name="analyze_notes">Notes: %1$s</string>
+    <string name="confidence_high">High confidence</string>
+    <string name="confidence_medium">Medium confidence</string>
+    <string name="confidence_low">Low confidence — please review</string>
+    <string name="scale_adjust">Adjust total weight</string>
+    <string name="scale_title">Scale macros to new total weight</string>
+    <string name="scale_new_grams">New total grams</string>
+    <string name="scale_apply">Apply</string>
+    <string name="error_analysis_failed">Analysis failed</string>
+    <string name="error_save_failed">Save failed</string>
+    <string name="error_reanalysis_failed">Re-analysis failed</string>
+    <string name="error_no_api_key">Set your OpenRouter API key in Settings.</string>
+    <string name="analysis_detail_prompt">Add details like portion size, cooking oil, sauces, and hidden ingredients, then re-analyze.</string>
+
+    <!-- Workout -->
+    <string name="workout_mode_simple">Simple</string>
+    <string name="workout_mode_interval">Interval</string>
+    <string name="workout_mode_exercise_rest">Exercise &amp; Rest</string>
+    <string name="workout_start">Start workout</string>
+    <string name="workout_end">End workout</string>
+    <string name="workout_desc_simple">Times your session. Pause and resume any time.</string>
+    <string name="workout_desc_interval">Plays a beep every interval. Big counter resets each interval.</string>
+    <string name="workout_desc_exercise_rest">Toggle between exercise and rest. Big counter resets at every toggle. Starts paused.</string>
+    <string name="workout_interval_minutes">Interval (minutes)</string>
+    <string name="workout_paused">Paused</string>
+    <string name="workout_running">Running</string>
+    <string name="workout_working">Working</string>
+    <string name="workout_resting">Resting</string>
+    <string name="workout_resume">Resume</string>
+    <string name="workout_pause">Pause</string>
+    <string name="workout_interval_title">Interval · %1$s min</string>
+    <string name="workout_current_interval">current interval</string>
+    <string name="workout_total">Total: %1$s</string>
+    <plurals name="workout_intervals_completed">
+        <item quantity="one">%d interval completed</item>
+        <item quantity="other">%d intervals completed</item>
+    </plurals>
+    <string name="workout_phase_working">WORKING</string>
+    <string name="workout_phase_resting">RESTING</string>
+    <string name="workout_phase_paused">PAUSED</string>
+    <string name="workout_current_phase">current phase</string>
+    <string name="workout_exercise">Exercise</string>
+    <string name="workout_rest">Rest</string>
+    <string name="workout_stat_total">Total</string>
+    <string name="workout_switch_to_rest">Switch to rest</string>
+    <string name="workout_switch_to_exercise">Switch to exercise</string>
+    <string name="workout_begin_exercise">Begin exercise</string>
+    <string name="workout_ex_rest_line">Exercise %1$s · Rest %2$s</string>
+    <string name="workout_interval_line">Interval: %1$s min</string>
+    <string name="workout_edit_title">Edit workout</string>
+    <string name="workout_total_minutes">Total minutes</string>
+    <string name="workout_exercise_minutes">Exercise minutes</string>
+    <string name="workout_rest_minutes">Rest minutes</string>
+    <string name="label_notes">Notes</string>
+    <string name="workout_error_nonnegative">Values must be non-negative.</string>
+    <string name="workout_delete">Delete workout</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_default_mode">Default fasting mode</string>
+    <string name="settings_almost_there">“Almost there” encouragement</string>
+    <string name="settings_eating_window_reminder">Eating-window-closing reminder</string>
+    <string name="settings_section_ai">AI / API</string>
+    <string name="settings_ai_food_analysis">AI food analysis</string>
+    <string name="settings_ai_chain_desc">Food photos use an automatic model chain: fast default analysis first, stronger review when confidence is low, and a premium check only when uncertainty remains.</string>
+    <string name="settings_ai_off_desc">AI analysis is off. The analyze buttons are hidden and the app makes no network calls.</string>
+    <string name="settings_key_set">An OpenRouter key is set.</string>
+    <string name="settings_key_none">No API key set.</string>
+    <string name="settings_api_key_label">OpenRouter API key</string>
+    <string name="settings_replace">Replace</string>
+    <string name="settings_section_goals">Daily nutrition goals</string>
+    <string name="settings_section_data">Data</string>
+    <string name="settings_export_folder_set">Auto-backup folder set. SoloForge-backup.json is rewritten there on every change.</string>
+    <string name="settings_export_folder_none">No auto-backup folder selected. Pick a synced folder (e.g. Google Drive) for continuous off-device backup.</string>
+    <string name="settings_pick_folder">Pick folder</string>
+    <string name="settings_save_photo">Save photo locally with each entry</string>
+    <string name="settings_export_backup">Export backup</string>
+    <string name="settings_import_backup">Import backup</string>
+    <string name="settings_backup_note">The backup holds all entries and settings, but not your API key.</string>
+    <string name="settings_import_explain">Merge keeps everything on this device and adds entries from the backup. Replace erases all current data and settings first.</string>
+    <string name="settings_merge">Merge</string>
+    <string name="settings_replace_everything">Replace everything</string>
+    <string name="settings_use_kg">Use kilograms</string>
+    <string name="settings_weigh_in_reminder">Weekly weigh-in reminder</string>
+    <string name="settings_day">Day</string>
+    <string name="settings_hour">Hour</string>
+    <string name="settings_minute">Minute</string>
+    <string name="settings_section_tabs">Tabs</string>
+    <string name="settings_tabs_desc">Hide tabs you don\'t use. Home and Settings are always shown.</string>
+    <string name="settings_show_fasting_tab">Show Fasting tab</string>
+    <string name="settings_show_food_tab">Show Food tab</string>
+    <string name="settings_show_weight_tab">Show Weight tab</string>
+    <string name="settings_show_workout_tab">Show Workout tab</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_about_line1">Solo Forge is free and open source software licensed under GPL-3.0.</string>
+    <string name="settings_about_line2">No backend. No accounts. No analytics. Food images are sent only to OpenRouter when you start meal analysis.</string>
+    <string name="settings_version">Version %1$s</string>
+    <string name="settings_gpl_footer">Solo Forge is GPL-3.0 free software.</string>
+    <string name="settings_msg_backup_exported">Backup exported.</string>
+    <string name="settings_msg_export_failed">Export failed: %1$s</string>
+    <string name="settings_msg_backup_restored">Backup restored (%1$d entries).</string>
+    <plurals name="settings_msg_merged">
+        <item quantity="one">Merged %d new entry.</item>
+        <item quantity="other">Merged %d new entries.</item>
+    </plurals>
+    <string name="settings_msg_import_failed">Import failed: %1$s</string>
+
+    <!-- Notifications -->
+    <string name="channel_active_fast">Active fast timer</string>
+    <string name="channel_active_fast_desc">Persistent notification while a fast is running</string>
+    <string name="channel_active_workout">Active workout timer</string>
+    <string name="channel_active_workout_desc">Persistent notification while a workout is running</string>
+    <string name="channel_fasting_reminders">Fasting reminders</string>
+    <string name="channel_fasting_reminders_desc">Eating-window-closing alerts and almost-there encouragement</string>
+    <string name="channel_weight_reminders">Weight reminders</string>
+    <string name="channel_weight_reminders_desc">Weekly weigh-in reminder</string>
+    <string name="notif_fasting_title">Fasting · %1$s</string>
+    <string name="notif_fasting_text">%1$s elapsed · %2$s left</string>
+    <string name="notif_workout_title">Workout · %1$s</string>
+    <string name="notif_workout_title_plain">Workout</string>
+    <string name="notif_workout_active">Active</string>
+    <string name="reminder_almost_there_title">Almost there</string>
+    <string name="reminder_window_title">Eating window closing</string>
+    <string name="reminder_window_message">Your eating window closes in 1 hour. Plan your last meal.</string>
+    <string name="weigh_in_title">Time for your weekly weigh-in</string>
+    <string name="weigh_in_text">Step on the scale and log your weight.</string>
+    <string-array name="fasting_encouragements">
+        <item>One hour to go — you\'ve got this.</item>
+        <item>60 minutes left. Strong finish.</item>
+        <item>Final stretch! Stay hydrated and keep going.</item>
+        <item>Almost there. Your future self will thank you.</item>
+        <item>One more hour. Don\'t break the chain.</item>
+    </string-array>
 </resources>
