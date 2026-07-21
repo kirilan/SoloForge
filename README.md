@@ -8,6 +8,7 @@
 
 <p align="center">
   <a href="https://f-droid.org/packages/com.kbul.spicycrab/"><img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" height="75" alt="Get it on F-Droid"></a>
+  <a href="https://play.google.com/store/apps/details?id=com.kbul.spicycrab"><img src="https://play.google.com/intl/en_us/badges/static/images/badges/en_badge_web_generic.png" height="75" alt="Get it on Google Play"></a>
 </p>
 
 Solo Forge is a free and open source, local-first Android fitness app for fasting, nutrition, weight tracking, and workout timing. It is GPL-3.0 licensed and built to keep user data on the device, with no backend, account system, analytics, or cloud telemetry.
@@ -139,6 +140,10 @@ fastlane/metadata/android/en-US/
 
 The fdroiddata recipe uses `UpdateCheckMode: Tags` with `AutoUpdateMode: Version`, so pushing a `vX.Y.Z` release tag is what triggers an F-Droid release (published in roughly 2–7 days). The official recipe deliberately has no `AntiFeatures:` — the F-Droid reviewer removed the `NonFreeNet` flag during inclusion review (fdroiddata MR !38080) because the OpenRouter feature is off by default, opt-in, and requires the user's own key. Do not re-add it.
 
+## Google Play
+
+Solo Forge is also live on Google Play as [`com.kbul.spicycrab`](https://play.google.com/store/apps/details?id=com.kbul.spicycrab). The Play build is a release AAB signed with the upload key (`.\gradlew.bat bundleRelease`), so it is a separate signing identity from the F-Droid and GitHub builds and the three are not cross-installable. The store listing text and screenshots come from the same `fastlane/metadata/android/en-US/` content.
+
 ## Project Layout
 
 ```text
@@ -200,4 +205,4 @@ Solo Forge is licensed under the GNU General Public License v3.0. See [LICENSE](
 
 ## Status
 
-Solo Forge is released and published on F-Droid, with debug-signed APKs on GitHub releases. Core features — fasting, food tracking, weight, workouts, dashboard, and JSON backup export/import — are in place; development continues on UI polish and broader device testing.
+Solo Forge is released and published on F-Droid and Google Play, with debug-signed APKs on GitHub releases. Core features — fasting, food tracking, weight, workouts, dashboard, and JSON backup export/import — are in place; development continues on UI polish and broader device testing.

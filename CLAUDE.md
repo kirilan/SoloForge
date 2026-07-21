@@ -114,7 +114,8 @@ Three distribution channels with different signing keys (builds are not cross-in
 4. **GitHub release**: `gh release create vX.Y.Z` with notes and a **debug-signed APK** named
    `SoloForge-X.Y.Z-debug.apk`. GitHub releases have always been debug-key-signed; switching keys would
    break in-place updates (and lose local data) for existing GitHub users, so keep the debug key.
-5. **Google Play**: separate track, signed AAB via the upload key (`.\gradlew.bat bundleRelease`,
+5. **Google Play**: live at https://play.google.com/store/apps/details?id=com.kbul.spicycrab.
+   Separate track, signed AAB via the upload key (`.\gradlew.bat bundleRelease`,
    reads `keystore.properties` at repo root, gitignored). Never upload a new AAB while a Play review
    is pending.
 
