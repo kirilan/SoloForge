@@ -77,6 +77,7 @@ app/src/main/java/com/kbul/spicycrab/
 - **Android system backup is disabled** (`allowBackup=false`). Device migration should use explicit export/import flows, not silent Android cloud backup.
 - **API key** is the only secret; it's in EncryptedSharedPreferences and excluded from auto-backup (`backup_rules.xml` / `data_extraction_rules.xml`).
 - **All user-visible strings live in `res/values/strings.xml`** (`screen_element` naming, e.g. `fasting_start`). Compose uses `stringResource`/`pluralStringResource`; services, workers, and repositories use `context.getString`. Shipped locales: en, de, es, fr, pt-rBR, ru, tr (`locales_config.xml` + `localeFilters` in `app/build.gradle.kts` must list the same set). OpenRouter prompts (`VisionPrompts.kt`) stay English — they're model input, not UI.
+- **Every new string ships translated into all six locales in the same commit.** There is no translation platform: Weblate was never set up and is parked until there's demand for more languages, so translations are machine-produced and reviewed by eye. Product names (e.g. "Health Connect") stay untranslated. This is enforced, not remembered — lint's `MissingTranslation` is an error and CI runs `lintDebug`, so a half-translated string set fails the build. Don't downgrade that rule to get a build through; add the translations.
 - **No comments unless the *why* is non-obvious.** Prefer well-named functions to docstrings.
 - **No barebones fallbacks or "in case X fails" code paths** unless the failure is at a real boundary (network, file I/O, missing key).
 
@@ -105,8 +106,8 @@ Solo Forge is licensed under the **GNU General Public License v3.0**. The full l
 
 Three distribution channels with different signing keys (builds are not cross-installable):
 
-1. **String freeze**: merge any pending Weblate translation PRs before tagging. Strings added
-   after the freeze ship with English fallback (acceptable — Android falls back per string).
+1. **Translations**: nothing to do at release time — strings are translated as they're added
+   (see the strings convention above), so `main` is always release-ready on that front.
 2. **Version bump**: `versionCode` + `versionName` in `app/build.gradle.kts`, and add
    `fastlane/metadata/android/en-US/changelogs/<versionCode>.txt` (plain prose, ~1 short paragraph).
 3. **Commit + tag** `vX.Y.Z` and push. **The tag push IS the F-Droid release** — fdroiddata uses

@@ -234,6 +234,13 @@
     <string name="settings_show_food_tab">Yemek sekmesini göster</string>
     <string name="settings_show_weight_tab">Kilo sekmesini göster</string>
     <string name="settings_show_workout_tab">Antrenman sekmesini göster</string>
+    <string name="settings_section_health">Health Connect</string>
+    <string name="settings_health_desc">Kilo ve antrenmanları bu cihazdaki diğer sağlık uygulamalarıyla senkronize edin. Hiçbir şey telefonunuzdan çıkmaz.</string>
+    <string name="settings_health_import">Health Connect\'ten içe aktar</string>
+    <string name="settings_health_export">Health Connect\'e dışa aktar</string>
+    <string name="settings_health_manage">İzinleri yönet</string>
+    <string name="settings_health_sync_now">Şimdi senkronize et</string>
+    <string name="settings_health_last_sync">Son senkronizasyon: %1$s</string>
     <string name="settings_section_about">Hakkında</string>
     <string name="settings_about_line1">Solo Forge, GPL-3.0 lisanslı özgür ve açık kaynaklı bir yazılımdır.</string>
     <string name="settings_about_line2">Sunucu yok. Hesap yok. Analitik yok. Yemek fotoğrafları yalnızca siz analiz başlattığınızda OpenRouter\'a gönderilir.</string>

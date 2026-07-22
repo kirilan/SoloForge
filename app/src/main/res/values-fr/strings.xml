@@ -236,6 +236,13 @@
     <string name="settings_show_food_tab">Afficher l\'onglet Repas</string>
     <string name="settings_show_weight_tab">Afficher l\'onglet Poids</string>
     <string name="settings_show_workout_tab">Afficher l\'onglet Sport</string>
+    <string name="settings_section_health">Health Connect</string>
+    <string name="settings_health_desc">Synchronisez le poids et les séances avec les autres applis de santé de cet appareil. Rien ne quitte votre téléphone.</string>
+    <string name="settings_health_import">Importer depuis Health Connect</string>
+    <string name="settings_health_export">Exporter vers Health Connect</string>
+    <string name="settings_health_manage">Gérer les autorisations</string>
+    <string name="settings_health_sync_now">Synchroniser maintenant</string>
+    <string name="settings_health_last_sync">Dernière synchronisation : %1$s</string>
     <string name="settings_section_about">À propos</string>
     <string name="settings_about_line1">Solo Forge est un logiciel libre et open source sous licence GPL-3.0.</string>
     <string name="settings_about_line2">Pas de serveur. Pas de compte. Pas de statistiques. Les photos de repas ne sont envoyées à OpenRouter que lorsque vous lancez une analyse.</string>

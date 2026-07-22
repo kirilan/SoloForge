@@ -234,6 +234,13 @@
     <string name="settings_show_food_tab">Mostrar pestaña Comida</string>
     <string name="settings_show_weight_tab">Mostrar pestaña Peso</string>
     <string name="settings_show_workout_tab">Mostrar pestaña Ejercicio</string>
+    <string name="settings_section_health">Health Connect</string>
+    <string name="settings_health_desc">Sincroniza peso y entrenamientos con otras apps de salud de este dispositivo. Nada sale de tu teléfono.</string>
+    <string name="settings_health_import">Importar desde Health Connect</string>
+    <string name="settings_health_export">Exportar a Health Connect</string>
+    <string name="settings_health_manage">Gestionar permisos</string>
+    <string name="settings_health_sync_now">Sincronizar ahora</string>
+    <string name="settings_health_last_sync">Última sincronización: %1$s</string>
     <string name="settings_section_about">Acerca de</string>
     <string name="settings_about_line1">Solo Forge es software libre y de código abierto con licencia GPL-3.0.</string>
     <string name="settings_about_line2">Sin servidor. Sin cuentas. Sin análisis. Las fotos de comida solo se envían a OpenRouter cuando inicias un análisis.</string>

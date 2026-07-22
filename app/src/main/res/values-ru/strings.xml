@@ -238,6 +238,13 @@
     <string name="settings_show_food_tab">Показывать вкладку «Еда»</string>
     <string name="settings_show_weight_tab">Показывать вкладку «Вес»</string>
     <string name="settings_show_workout_tab">Показывать вкладку «Тренировка»</string>
+    <string name="settings_section_health">Health Connect</string>
+    <string name="settings_health_desc">Синхронизируйте вес и тренировки с другими приложениями для здоровья на этом устройстве. Ничего не покидает ваш телефон.</string>
+    <string name="settings_health_import">Импорт из Health Connect</string>
+    <string name="settings_health_export">Экспорт в Health Connect</string>
+    <string name="settings_health_manage">Управление разрешениями</string>
+    <string name="settings_health_sync_now">Синхронизировать сейчас</string>
+    <string name="settings_health_last_sync">Последняя синхронизация: %1$s</string>
     <string name="settings_section_about">О приложении</string>
     <string name="settings_about_line1">Solo Forge — свободное ПО с открытым кодом под лицензией GPL-3.0.</string>
     <string name="settings_about_line2">Без сервера. Без аккаунтов. Без аналитики. Фото еды отправляются в OpenRouter только когда вы запускаете анализ.</string>
