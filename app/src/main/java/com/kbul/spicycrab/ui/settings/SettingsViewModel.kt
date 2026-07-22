@@ -11,6 +11,7 @@ import com.kbul.spicycrab.data.prefs.AppSettings
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.data.prefs.SecureKeyStore
 import com.kbul.spicycrab.data.prefs.SettingsRepo
+import com.kbul.spicycrab.domain.health.HealthConnectRepository
 import com.kbul.spicycrab.notifications.ReminderScheduler
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -30,8 +31,32 @@ class SettingsViewModel @Inject constructor(
     private val keyStore: SecureKeyStore,
     private val reminderScheduler: ReminderScheduler,
     private val backupManager: BackupManager,
+    private val healthConnect: HealthConnectRepository,
     @ApplicationContext private val context: Context,
 ) : ViewModel() {
+
+    val healthConnectAvailable: Boolean = healthConnect.isAvailable()
+    val healthImportPermissions: Set<String> get() = healthConnect.importPermissions
+    val healthExportPermissions: Set<String> get() = healthConnect.exportPermissions
+    fun healthPermissionContract() = healthConnect.permissionRequestContract()
+
+    // A direction is on if any of its permissions were granted (subset grants are fine — we sync what we have).
+    fun onHealthImportResult(granted: Set<String>) = viewModelScope.launch {
+        val enabled = granted.any { it in healthImportPermissions }
+        settings.setHealthImportEnabled(enabled)
+        if (enabled) healthConnect.sync()
+    }
+
+    fun onHealthExportResult(granted: Set<String>) = viewModelScope.launch {
+        val enabled = granted.any { it in healthExportPermissions }
+        settings.setHealthExportEnabled(enabled)
+        if (enabled) healthConnect.sync()
+    }
+
+    fun setHealthImportEnabled(value: Boolean) = viewModelScope.launch { settings.setHealthImportEnabled(value) }
+    fun setHealthExportEnabled(value: Boolean) = viewModelScope.launch { settings.setHealthExportEnabled(value) }
+
+    fun syncHealthNow() = viewModelScope.launch { healthConnect.sync() }
 
     private val _exportMessage = MutableStateFlow<String?>(null)
     val exportMessage: StateFlow<String?> = _exportMessage.asStateFlow()

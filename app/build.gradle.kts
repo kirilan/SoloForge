@@ -17,14 +17,14 @@ plugins {
 
 android {
     namespace = "com.kbul.spicycrab"
-    compileSdk = 35
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "com.kbul.spicycrab"
         minSdk = 26
-        targetSdk = 35
-        versionCode = 7
-        versionName = "0.3.1"
+        targetSdk = 36
+        versionCode = 8
+        versionName = "0.4.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
@@ -130,6 +130,11 @@ dependencies {
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.kotlinx.serialization.json)
 
+    implementation(libs.androidx.health.connect)
+    // HC pulls full Guava (runtime-only via its own `implementation`), whose constraint empties
+    // CameraX's listenablefuture stub — leaving ListenableFuture off the *compile* classpath.
+    // Declaring Guava directly puts it on the compile classpath; R8 strips the unused bulk in release.
+    implementation("com.google.guava:guava:31.1-android")
     implementation(libs.coil.compose)
     implementation(libs.androidx.documentfile)
     implementation(libs.androidx.exifinterface)

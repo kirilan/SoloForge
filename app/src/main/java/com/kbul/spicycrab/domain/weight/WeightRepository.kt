@@ -2,6 +2,7 @@ package com.kbul.spicycrab.domain.weight
 
 import com.kbul.spicycrab.data.db.dao.WeightEntryDao
 import com.kbul.spicycrab.data.db.entities.WeightEntry
+import com.kbul.spicycrab.domain.health.HealthConnectRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -9,6 +10,7 @@ import javax.inject.Singleton
 @Singleton
 class WeightRepository @Inject constructor(
     private val dao: WeightEntryDao,
+    private val healthConnect: HealthConnectRepository,
 ) {
 
     fun observeAll(): Flow<List<WeightEntry>> = dao.observeAll()
@@ -27,7 +29,10 @@ class WeightRepository @Inject constructor(
         dao.update(entry.copy(lastModifiedEpoch = System.currentTimeMillis()))
     }
 
-    suspend fun delete(entry: WeightEntry) = dao.delete(entry)
+    suspend fun delete(entry: WeightEntry) {
+        dao.delete(entry)
+        healthConnect.onLocalWeightDeleted(entry)
+    }
 
     suspend fun mostRecent(): WeightEntry? = dao.mostRecent()
 

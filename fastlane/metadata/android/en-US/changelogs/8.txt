@@ -1,0 +1,1 @@
+Solo Forge can now sync with Health Connect, so weight and workouts recorded by other apps on your phone show up here without retyping them. Import and export are separate switches in Settings, both off by default, and each only asks for the permissions it needs. As always this stays on your device: Health Connect is Android's local health store, and nothing is sent anywhere.

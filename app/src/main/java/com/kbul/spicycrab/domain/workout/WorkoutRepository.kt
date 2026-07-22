@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.core.content.ContextCompat
 import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
+import com.kbul.spicycrab.domain.health.HealthConnectRepository
 import com.kbul.spicycrab.notifications.WorkoutNotificationService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -15,6 +16,7 @@ import javax.inject.Singleton
 class WorkoutRepository @Inject constructor(
     private val dao: WorkoutSessionDao,
     private val stateHolder: WorkoutStateHolder,
+    private val healthConnect: HealthConnectRepository,
     @ApplicationContext private val context: Context,
 ) {
 
@@ -85,5 +87,8 @@ class WorkoutRepository @Inject constructor(
         dao.update(updated.copy(lastModifiedEpoch = System.currentTimeMillis()))
     }
 
-    suspend fun delete(session: WorkoutSession) = dao.delete(session)
+    suspend fun delete(session: WorkoutSession) {
+        dao.delete(session)
+        healthConnect.onLocalWorkoutDeleted(session)
+    }
 }

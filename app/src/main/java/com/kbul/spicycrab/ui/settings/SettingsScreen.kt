@@ -123,6 +123,10 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             }
         }
 
+        if (viewModel.healthConnectAvailable) {
+            HealthConnectSection(s.healthImportEnabled, s.healthExportEnabled, s.healthLastSyncEpoch, viewModel)
+        }
+
         SectionCard(stringResource(R.string.settings_section_tabs)) {
             Text(
                 stringResource(R.string.settings_tabs_desc),
@@ -365,6 +369,62 @@ private fun WeighInTimeRow(
                 modifier = Modifier.weight(1f),
             )
         }
+    }
+}
+
+@Composable
+private fun HealthConnectSection(
+    importEnabled: Boolean,
+    exportEnabled: Boolean,
+    lastSyncEpoch: Long,
+    viewModel: SettingsViewModel,
+) {
+    val context = LocalContext.current
+    val importLauncher = rememberLauncherForActivityResult(viewModel.healthPermissionContract()) { granted ->
+        viewModel.onHealthImportResult(granted)
+    }
+    val exportLauncher = rememberLauncherForActivityResult(viewModel.healthPermissionContract()) { granted ->
+        viewModel.onHealthExportResult(granted)
+    }
+
+    SectionCard(stringResource(R.string.settings_section_health)) {
+        Text(
+            stringResource(R.string.settings_health_desc),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        SwitchRow(stringResource(R.string.settings_health_import), importEnabled) { want ->
+            if (want) importLauncher.launch(viewModel.healthImportPermissions)
+            else viewModel.setHealthImportEnabled(false)
+        }
+        SwitchRow(stringResource(R.string.settings_health_export), exportEnabled) { want ->
+            if (want) exportLauncher.launch(viewModel.healthExportPermissions)
+            else viewModel.setHealthExportEnabled(false)
+        }
+        if (importEnabled || exportEnabled) {
+            OutlinedButton(
+                onClick = { viewModel.syncHealthNow() },
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) { Text(stringResource(R.string.settings_health_sync_now)) }
+            if (lastSyncEpoch > 0) {
+                Text(
+                    stringResource(
+                        R.string.settings_health_last_sync,
+                        java.text.DateFormat.getDateTimeInstance().format(java.util.Date(lastSyncEpoch)),
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+        OutlinedButton(
+            onClick = {
+                runCatching {
+                    context.startActivity(Intent("androidx.health.connect.action.HEALTH_CONNECT_SETTINGS"))
+                }
+            },
+            modifier = Modifier.fillMaxWidth().height(48.dp),
+        ) { Text(stringResource(R.string.settings_health_manage)) }
     }
 }
 

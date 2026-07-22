@@ -167,5 +167,8 @@ class BackupMergeTest {
         showWeightTab = true,
         showWorkoutTab = true,
         onboardingComplete = true,
+        healthImportEnabled = false,
+        healthExportEnabled = false,
+        healthLastSyncEpoch = 0L,
     )
 }

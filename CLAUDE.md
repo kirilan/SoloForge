@@ -17,7 +17,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 ## Tech stack
 
 - **Kotlin** + **Jetpack Compose** + **Material 3** (dynamic color)
-- **Min SDK 26**, **compile/target SDK 35**
+- **Min SDK 26**, **compile SDK 36**, **target SDK 36**
 - **Hilt** for DI; **Room** for SQLite; **DataStore** for prefs; **EncryptedSharedPreferences** for the API key
 - **WorkManager** for one-shot reminder workers; **foreground service** for the active-fast live notification
 - **CameraX** for capture; **Ktor + kotlinx.serialization** for OpenRouter; **Coil** for image rendering

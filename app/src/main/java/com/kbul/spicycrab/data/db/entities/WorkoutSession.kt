@@ -17,4 +17,5 @@ data class WorkoutSession(
     val restSeconds: Long,
     val notes: String,
     val lastModifiedEpoch: Long,
+    val healthConnectId: String? = null,
 )

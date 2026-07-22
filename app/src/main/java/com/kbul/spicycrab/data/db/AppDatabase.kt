@@ -17,7 +17,7 @@ import com.kbul.spicycrab.data.db.entities.WorkoutSession
 
 @Database(
     entities = [FastSession::class, FoodEntry::class, WeightEntry::class, WorkoutSession::class, MealPreset::class, JournalEntry::class],
-    version = 7,
+    version = 8,
     exportSchema = true,
 )
 abstract class AppDatabase : RoomDatabase() {

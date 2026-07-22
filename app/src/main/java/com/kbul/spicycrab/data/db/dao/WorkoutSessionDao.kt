@@ -30,6 +30,12 @@ interface WorkoutSessionDao {
     @Query("SELECT * FROM workout_sessions WHERE id = :id")
     suspend fun getById(id: Long): WorkoutSession?
 
+    @Query("SELECT * FROM workout_sessions WHERE healthConnectId = :healthConnectId LIMIT 1")
+    suspend fun getByHealthConnectId(healthConnectId: String): WorkoutSession?
+
+    @Query("DELETE FROM workout_sessions WHERE healthConnectId = :healthConnectId")
+    suspend fun deleteByHealthConnectId(healthConnectId: String)
+
     @Query("DELETE FROM workout_sessions")
     suspend fun deleteAll()
 }

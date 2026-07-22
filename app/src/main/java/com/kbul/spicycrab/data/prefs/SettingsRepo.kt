@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.longPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -45,6 +46,10 @@ data class AppSettings(
     val showWeightTab: Boolean,
     val showWorkoutTab: Boolean,
     val onboardingComplete: Boolean,
+    // Defaults keep pre-0.4.0 backup files decodable.
+    val healthImportEnabled: Boolean = false,
+    val healthExportEnabled: Boolean = false,
+    val healthLastSyncEpoch: Long = 0L,
 )
 
 @Singleton
@@ -70,6 +75,16 @@ class SettingsRepo @Inject constructor(
     suspend fun setShowWeightTab(value: Boolean) = update { it[KEY_TAB_WEIGHT] = value }
     suspend fun setShowWorkoutTab(value: Boolean) = update { it[KEY_TAB_WORKOUT] = value }
     suspend fun setOnboardingComplete(value: Boolean) = update { it[KEY_ONBOARDING_COMPLETE] = value }
+    suspend fun setHealthImportEnabled(value: Boolean) = update { it[KEY_HEALTH_IMPORT] = value }
+    suspend fun setHealthExportEnabled(value: Boolean) = update { it[KEY_HEALTH_EXPORT] = value }
+    suspend fun setHealthLastSync(epoch: Long) = update { it[KEY_HEALTH_LAST_SYNC] = epoch }
+
+    // HC change token is device-specific operational state — not observed by UI, not backed up.
+    suspend fun healthChangeToken(): String? = context.settingsDataStore.data.first()[KEY_HEALTH_TOKEN]
+    suspend fun setHealthChangeToken(token: String?) = update {
+        if (token == null) it.remove(KEY_HEALTH_TOKEN) else it[KEY_HEALTH_TOKEN] = token
+    }
+
     suspend fun setWeighInEnabled(value: Boolean) = update { it[KEY_WEIGH_ENABLED] = value }
     suspend fun setWeighInTime(dayOfWeek: Int, hour: Int, minute: Int) = update {
         it[KEY_WEIGH_DAY] = dayOfWeek
@@ -106,6 +121,9 @@ class SettingsRepo @Inject constructor(
         it[KEY_TAB_WEIGHT] = s.showWeightTab
         it[KEY_TAB_WORKOUT] = s.showWorkoutTab
         it[KEY_ONBOARDING_COMPLETE] = s.onboardingComplete
+        // Toggles restore; healthLastSyncEpoch/token stay local (device-specific, like exportFolderUri).
+        it[KEY_HEALTH_IMPORT] = s.healthImportEnabled
+        it[KEY_HEALTH_EXPORT] = s.healthExportEnabled
     }
 
     private suspend fun update(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
@@ -136,6 +154,9 @@ class SettingsRepo @Inject constructor(
         showWeightTab = this[KEY_TAB_WEIGHT] ?: true,
         showWorkoutTab = this[KEY_TAB_WORKOUT] ?: true,
         onboardingComplete = this[KEY_ONBOARDING_COMPLETE] ?: false,
+        healthImportEnabled = this[KEY_HEALTH_IMPORT] ?: false,
+        healthExportEnabled = this[KEY_HEALTH_EXPORT] ?: false,
+        healthLastSyncEpoch = this[KEY_HEALTH_LAST_SYNC] ?: 0L,
     )
 
     private companion object {
@@ -160,5 +181,9 @@ class SettingsRepo @Inject constructor(
         val KEY_TAB_WEIGHT = booleanPreferencesKey("tab_weight_visible")
         val KEY_TAB_WORKOUT = booleanPreferencesKey("tab_workout_visible")
         val KEY_ONBOARDING_COMPLETE = booleanPreferencesKey("onboarding_complete")
+        val KEY_HEALTH_IMPORT = booleanPreferencesKey("health_import_enabled")
+        val KEY_HEALTH_EXPORT = booleanPreferencesKey("health_export_enabled")
+        val KEY_HEALTH_LAST_SYNC = longPreferencesKey("health_last_sync")
+        val KEY_HEALTH_TOKEN = stringPreferencesKey("health_change_token")
     }
 }

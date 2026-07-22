@@ -12,6 +12,7 @@ import androidx.sqlite.db.SupportSQLiteDatabase
  *   v5: weight_entries gains lastModifiedEpoch
  *   v6: + meal_presets
  *   v7: + journal_entries
+ *   v8: weight_entries & workout_sessions gain healthConnectId (nullable)
  *
  * Early development used `fallbackToDestructiveMigration()`, so v1–v3 schema
  * JSONs were never exported. The migrations below exist as defensive paths
@@ -181,4 +182,12 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
     }
 }
 
-val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7)
+// Nullable, no default → plain ADD COLUMN (no Room defaultValue mismatch, unlike MIGRATION_2_3).
+val MIGRATION_7_8 = object : Migration(7, 8) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE weight_entries ADD COLUMN healthConnectId TEXT")
+        db.execSQL("ALTER TABLE workout_sessions ADD COLUMN healthConnectId TEXT")
+    }
+}
+
+val ALL_MIGRATIONS = arrayOf(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)

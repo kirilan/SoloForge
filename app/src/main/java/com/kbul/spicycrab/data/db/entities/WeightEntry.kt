@@ -12,4 +12,5 @@ data class WeightEntry(
     val lastModifiedEpoch: Long,
     val weightKg: Double,
     val note: String,
+    val healthConnectId: String? = null,
 )

@@ -17,6 +17,7 @@ camerax = "1.4.0"
 ktor = "2.3.13"
 serialization = "1.7.3"
 coil = "2.7.0"
+healthConnect = "1.1.0"
 documentFile = "1.0.1"
 exifInterface = "1.3.7"
 junit = "4.13.2"
@@ -74,6 +75,9 @@ ktor-client-mock = { group = "io.ktor", name = "ktor-client-mock", version.ref =
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "serialization" }
 
 # Charts
+
+# Health Connect
+androidx-health-connect = { group = "androidx.health.connect", name = "connect-client", version.ref = "healthConnect" }
 
 # Image loading
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }

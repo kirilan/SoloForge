@@ -236,6 +236,13 @@
     <string name="settings_show_food_tab">Show Food tab</string>
     <string name="settings_show_weight_tab">Show Weight tab</string>
     <string name="settings_show_workout_tab">Show Workout tab</string>
+    <string name="settings_section_health">Health Connect</string>
+    <string name="settings_health_desc">Sync weight and workouts with other health apps on this device. Nothing leaves your phone.</string>
+    <string name="settings_health_import">Import from Health Connect</string>
+    <string name="settings_health_export">Export to Health Connect</string>
+    <string name="settings_health_manage">Manage permissions</string>
+    <string name="settings_health_sync_now">Sync now</string>
+    <string name="settings_health_last_sync">Last sync: %1$s</string>
     <string name="settings_section_about">About</string>
     <string name="settings_about_line1">Solo Forge is free and open source software licensed under GPL-3.0.</string>
     <string name="settings_about_line2">No backend. No accounts. No analytics. Food images are sent only to OpenRouter when you start meal analysis.</string>
