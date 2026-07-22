@@ -34,6 +34,11 @@ android {
         localeFilters += listOf("en", "de", "es", "fr", "pt-rBR", "ru", "tr")
     }
 
+    lint {
+        // Strings added between Weblate string freezes ship with English fallback on purpose.
+        informational += "MissingTranslation"
+    }
+
     signingConfigs {
         create("release") {
             if (keystorePropertiesFile.exists()) {
