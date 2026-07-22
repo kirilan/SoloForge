@@ -20,6 +20,7 @@ Features:
 * Simple, interval, and exercise/rest workout timers
 * Dashboard for fasting, nutrition, weight, workout time, and streaks
 * Daily journal notes on the progress calendar
+* Optional Health Connect sync for weight and workouts, so entries recorded by a scale or tracker do not need retyping
 
 Solo Forge sends a network request only when you start food photo analysis. That request goes to OpenRouter using the API key you provide. All saved meals, weight entries, workouts, fasting history, settings, and exports remain local to your device.
 
