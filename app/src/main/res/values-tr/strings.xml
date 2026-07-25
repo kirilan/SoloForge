@@ -244,6 +244,7 @@
     <string name="settings_section_about">Hakkında</string>
     <string name="settings_about_line1">Solo Forge, GPL-3.0 lisanslı özgür ve açık kaynaklı bir yazılımdır.</string>
     <string name="settings_about_line2">Sunucu yok. Hesap yok. Analitik yok. Yemek fotoğrafları yalnızca siz analiz başlattığınızda OpenRouter\'a gönderilir.</string>
+    <string name="settings_privacy_policy">Gizlilik politikası</string>
     <string name="settings_version">Sürüm %1$s</string>
     <string name="settings_gpl_footer">Solo Forge, GPL-3.0 altında özgür yazılımdır.</string>
     <string name="settings_msg_backup_exported">Yedek dışa aktarıldı.</string>

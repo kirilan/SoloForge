@@ -246,6 +246,7 @@
     <string name="settings_section_about">About</string>
     <string name="settings_about_line1">Solo Forge is free and open source software licensed under GPL-3.0.</string>
     <string name="settings_about_line2">No backend. No accounts. No analytics. Food images are sent only to OpenRouter when you start meal analysis.</string>
+    <string name="settings_privacy_policy">Privacy policy</string>
     <string name="settings_version">Version %1$s</string>
     <string name="settings_gpl_footer">Solo Forge is GPL-3.0 free software.</string>
     <string name="settings_msg_backup_exported">Backup exported.</string>

@@ -248,6 +248,7 @@
     <string name="settings_section_about">О приложении</string>
     <string name="settings_about_line1">Solo Forge — свободное ПО с открытым кодом под лицензией GPL-3.0.</string>
     <string name="settings_about_line2">Без сервера. Без аккаунтов. Без аналитики. Фото еды отправляются в OpenRouter только когда вы запускаете анализ.</string>
+    <string name="settings_privacy_policy">Политика конфиденциальности</string>
     <string name="settings_version">Версия %1$s</string>
     <string name="settings_gpl_footer">Solo Forge — свободное ПО под GPL-3.0.</string>
     <string name="settings_msg_backup_exported">Копия экспортирована.</string>

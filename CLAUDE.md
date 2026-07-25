@@ -126,8 +126,16 @@ The project site is **https://soloforge.dimitroff.work** — a two-page static s
 policy) in a separate repo, `kirilan/soloforge-site` (local checkout: `C:\Users\kiril\soloforge-site`),
 auto-deployed by Cloudflare Pages on push to `main`. The landing page mirrors the fastlane store
 listing (copy, screenshots, badges), so when a release changes features, screenshots, or the store
-description, update the site too. The privacy page is the Google Play privacy-policy URL — keep it
-in sync with the privacy guarantees below. Website edits happen in that repo, never in this one.
+description, update the site too. Website edits happen in that repo, never in this one.
+
+**`https://soloforge.dimitroff.work/privacy` is the one and only privacy policy.** It is the URL
+registered in Play Console, so anything it claims is what Google reviews against — keep it in sync
+with the privacy guarantees below, and with Health Connect and any other data the app touches.
+`PRIVACY.md` in this repo is only a pointer to it; do not grow it back into a second copy. Play
+rejected the 0.4.0 update on 25 Jul 2026 because the then-registered policy (`PRIVACY.md`) had gone
+stale — no data-deletion section, no Health Connect, and still documenting the CSV export removed in
+0.3.0. A policy must state how users delete their data, explicitly, using that word, even when the
+answer is "there is no request process because nothing is held".
 
 ### F-Droid metadata
 

@@ -244,6 +244,7 @@
     <string name="settings_section_about">Acerca de</string>
     <string name="settings_about_line1">Solo Forge es software libre y de código abierto con licencia GPL-3.0.</string>
     <string name="settings_about_line2">Sin servidor. Sin cuentas. Sin análisis. Las fotos de comida solo se envían a OpenRouter cuando inicias un análisis.</string>
+    <string name="settings_privacy_policy">Política de privacidad</string>
     <string name="settings_version">Versión %1$s</string>
     <string name="settings_gpl_footer">Solo Forge es software libre bajo la GPL-3.0.</string>
     <string name="settings_msg_backup_exported">Copia exportada.</string>

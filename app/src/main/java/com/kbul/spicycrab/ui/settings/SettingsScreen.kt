@@ -28,6 +28,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
@@ -149,6 +150,10 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
+            val uriHandler = LocalUriHandler.current
+            OutlinedButton(onClick = { uriHandler.openUri("https://soloforge.dimitroff.work/privacy") }) {
+                Text(stringResource(R.string.settings_privacy_policy))
+            }
             Text(
                 stringResource(R.string.settings_version, BuildConfig.VERSION_NAME),
                 style = MaterialTheme.typography.bodySmall,
