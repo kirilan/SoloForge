@@ -24,9 +24,28 @@ object ImageUtils {
         return Base64.encodeToString(bytes, Base64.NO_WRAP)
     }
 
-    private fun rotateIfNeeded(file: File): Bitmap {
-        val bitmap = BitmapFactory.decodeFile(file.absolutePath)
+    internal fun sampleSizeFor(width: Int, height: Int, maxLongEdge: Int): Int {
+        var sample = 1
+        var longest = maxOf(width, height)
+        while (longest / 2 >= maxLongEdge) {
+            longest /= 2
+            sample *= 2
+        }
+        return sample
+    }
+
+    private fun decodeDownsampled(file: File): Bitmap {
+        val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+        BitmapFactory.decodeFile(file.absolutePath, bounds)
+        val options = BitmapFactory.Options().apply {
+            inSampleSize = sampleSizeFor(bounds.outWidth, bounds.outHeight, MAX_LONG_EDGE)
+        }
+        return BitmapFactory.decodeFile(file.absolutePath, options)
             ?: error("Cannot decode image")
+    }
+
+    private fun rotateIfNeeded(file: File): Bitmap {
+        val bitmap = decodeDownsampled(file)
         val orientation = runCatching {
             ExifInterface(file.absolutePath).getAttributeInt(
                 ExifInterface.TAG_ORIENTATION,
