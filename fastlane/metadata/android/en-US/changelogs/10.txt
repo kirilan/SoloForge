@@ -1,0 +1,1 @@
+Photo analysis now uses far less memory: pictures are scaled down as they are read rather than after, which should stop the food camera running out of memory on phones with big sensors. The first-run intro screen no longer sits under the status bar or the gesture handle. The analyzed photo itself is unchanged.
