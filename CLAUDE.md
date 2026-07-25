@@ -118,7 +118,11 @@ Three distribution channels with different signing keys (builds are not cross-in
 5. **Google Play**: live at https://play.google.com/store/apps/details?id=com.kbul.spicycrab.
    Separate track, signed AAB via the upload key (`.\gradlew.bat bundleRelease`,
    reads `keystore.properties` at repo root, gitignored). Never upload a new AAB while a Play review
-   is pending.
+   is pending. Publish with `python tools/play_release.py` (`--dry-run` first) rather than the
+   Console UI — it uploads the AAB, sets the release notes from `changelogs/<versionCode>.txt`, and
+   starts a full rollout via the Play Developer API. Needs `GOOGLE_PLAY_SERVICE_ACCOUNT` pointing at
+   a service-account JSON with "Release manager"; keep that file out of the repo, like the keystore.
+   Policy declarations and App content forms still have to be done in the Console by hand.
 
 ### Website
 
