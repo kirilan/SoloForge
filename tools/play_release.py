@@ -6,6 +6,10 @@ access); point GOOGLE_PLAY_SERVICE_ACCOUNT at it.
 
     python tools/play_release.py --dry-run     # everything except going live
     python tools/play_release.py
+    python tools/play_release.py --status      # what each track is serving
+
+A stale testing track counts against the target API requirement, so --status is
+the fastest way to find the build behind a Console warning.
 
 The Console is still the place for policy declarations and App content forms.
 """
@@ -49,11 +53,32 @@ def main():
     parser.add_argument("--aab", type=Path, default=AAB)
     parser.add_argument("--dry-run", action="store_true",
                         help="do everything but commit; the edit is discarded")
+    parser.add_argument("--status", action="store_true",
+                        help="list every track's active releases and exit")
     args = parser.parse_args()
 
     key = os.environ.get("GOOGLE_PLAY_SERVICE_ACCOUNT")
     if not key or not Path(key).is_file():
         sys.exit("Set GOOGLE_PLAY_SERVICE_ACCOUNT to the service account JSON path")
+
+    session = AuthorizedSession(
+        service_account.Credentials.from_service_account_file(key, scopes=SCOPES)
+    )
+    base = f"{API}/applications/{PACKAGE}"
+
+    if args.status:
+        edit = check(session.post(f"{base}/edits"), "Creating edit")["id"]
+        tracks = check(session.get(f"{base}/edits/{edit}/tracks"), "Listing tracks")
+        for track in tracks.get("tracks", []):
+            for release in track.get("releases", []):
+                codes = ", ".join(release.get("versionCodes", [])) or "—"
+                fraction = release.get("userFraction")
+                rollout = f" {fraction:.0%}" if fraction else ""
+                print(f"{track['track']:<12} {release['status']}{rollout}  "
+                      f"versionCode {codes}  {release.get('name', '')}")
+        session.delete(f"{base}/edits/{edit}")
+        return
+
     if not args.aab.is_file():
         sys.exit(f"No AAB at {args.aab} — run: gradlew.bat bundleRelease")
 
@@ -62,11 +87,6 @@ def main():
     if not notes_file.is_file():
         sys.exit(f"No changelog at {notes_file}")
     notes = notes_file.read_text(encoding="utf-8").strip()
-
-    session = AuthorizedSession(
-        service_account.Credentials.from_service_account_file(key, scopes=SCOPES)
-    )
-    base = f"{API}/applications/{PACKAGE}"
 
     edit = check(session.post(f"{base}/edits"), "Creating edit")["id"]
     print(f"Edit {edit}")
