@@ -58,7 +58,9 @@ fun WorkoutScreen(viewModel: WorkoutViewModel = hiltViewModel()) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val editing by viewModel.editing.collectAsStateWithLifecycle()
 
-    val keepScreenOn = state.active != null && state.active!!.mode.requiresScreenOn
+    val keepScreenOn = state.active?.let {
+        it.mode.requiresScreenOn && it.phase != WorkoutPhase.PAUSED
+    } == true
     val view = LocalView.current
     DisposableEffect(keepScreenOn) {
         view.keepScreenOn = keepScreenOn
@@ -353,7 +355,7 @@ private fun WorkoutHistoryRow(session: WorkoutSession, onClick: () -> Unit) {
     val formatter = DateTimeFormatter.ofPattern("MMM d · HH:mm")
     val ts = formatter.format(Instant.ofEpochMilli(session.startEpoch).atZone(zone))
     val mode = WorkoutMode.fromName(session.modeName)
-    val edited = session.lastModifiedEpoch > session.startEpoch + 1500
+    val edited = session.lastModifiedEpoch > (session.endEpoch ?: session.startEpoch) + 1500
     ElevatedCard(Modifier.fillMaxWidth().clickable(onClick = onClick)) {
         Column(Modifier.padding(14.dp)) {
             Text(

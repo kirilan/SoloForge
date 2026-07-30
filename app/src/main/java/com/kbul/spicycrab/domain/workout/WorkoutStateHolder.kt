@@ -1,5 +1,6 @@
 package com.kbul.spicycrab.domain.workout
 
+import com.kbul.spicycrab.data.db.entities.WorkoutSession
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -29,6 +30,39 @@ fun ActiveWorkoutState.activeSeconds(nowMs: Long): Long {
         WorkoutPhase.PAUSED -> 0L
     }
     return accumulatedExerciseSeconds + accumulatedRestSeconds + phaseAdds
+}
+
+fun WorkoutSession.toActiveWorkoutState(nowMs: Long = System.currentTimeMillis()): ActiveWorkoutState? {
+    if (endEpoch != null) return null
+    val mode = WorkoutMode.fromName(modeName)
+    val phase = activePhaseName
+        ?.let { stored -> WorkoutPhase.entries.firstOrNull { it.name == stored } }
+        ?: if (mode == WorkoutMode.EXERCISE_REST) WorkoutPhase.PAUSED else WorkoutPhase.EXERCISE
+    val persistedPhaseStart = phaseStartEpoch
+        ?: if (phase == WorkoutPhase.PAUSED) nowMs else startEpoch
+    return ActiveWorkoutState(
+        sessionId = id,
+        mode = mode,
+        startEpoch = startEpoch,
+        intervalSeconds = intervalSeconds,
+        phase = phase,
+        phaseStartEpoch = persistedPhaseStart,
+        accumulatedExerciseSeconds = exerciseSeconds,
+        accumulatedRestSeconds = restSeconds,
+    )
+}
+
+fun WorkoutSession.effectiveTotalSeconds(nowMs: Long): Long =
+    toActiveWorkoutState(nowMs)?.activeSeconds(nowMs) ?: totalSeconds
+
+fun reconcileActiveWorkoutState(
+    memory: ActiveWorkoutState?,
+    database: WorkoutSession?,
+    nowMs: Long = System.currentTimeMillis(),
+): ActiveWorkoutState? {
+    if (database == null) return null
+    return memory?.takeIf { it.sessionId == database.id }
+        ?: database.toActiveWorkoutState(nowMs)
 }
 
 @Singleton

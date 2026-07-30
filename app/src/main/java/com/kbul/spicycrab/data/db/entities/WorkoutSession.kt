@@ -18,4 +18,6 @@ data class WorkoutSession(
     val notes: String,
     val lastModifiedEpoch: Long,
     val healthConnectId: String? = null,
+    val activePhaseName: String? = null,
+    val phaseStartEpoch: Long? = null,
 )

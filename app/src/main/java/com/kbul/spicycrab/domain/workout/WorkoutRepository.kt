@@ -9,6 +9,8 @@ import com.kbul.spicycrab.notifications.WorkoutNotificationService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -19,34 +21,32 @@ class WorkoutRepository @Inject constructor(
     private val healthConnect: HealthConnectRepository,
     @ApplicationContext private val context: Context,
 ) {
+    private val startMutex = Mutex()
 
     fun observeAll(): Flow<List<WorkoutSession>> = dao.observeAll()
     fun observeActive(): Flow<ActiveWorkoutState?> =
         combine(stateHolder.state, dao.observeActive()) { memory, dbActive ->
-            memory ?: dbActive?.let { session ->
-                ActiveWorkoutState(
-                    sessionId = session.id,
-                    mode = WorkoutMode.fromName(session.modeName),
-                    startEpoch = session.startEpoch,
-                    intervalSeconds = session.intervalSeconds,
-                    phase = if (WorkoutMode.fromName(session.modeName) == WorkoutMode.EXERCISE_REST) {
-                        WorkoutPhase.PAUSED
-                    } else {
-                        WorkoutPhase.EXERCISE
-                    },
-                    phaseStartEpoch = if (WorkoutMode.fromName(session.modeName) == WorkoutMode.EXERCISE_REST) {
-                        System.currentTimeMillis()
-                    } else {
-                        session.startEpoch
-                    },
-                    accumulatedExerciseSeconds = session.exerciseSeconds,
-                    accumulatedRestSeconds = session.restSeconds,
-                ).also { stateHolder.set(it) }
+            reconcileActiveWorkoutState(memory, dbActive).also { reconciled ->
+                if (reconciled != memory) stateHolder.set(reconciled)
             }
         }
 
-    suspend fun start(mode: WorkoutMode, intervalSeconds: Int): WorkoutSession {
+    suspend fun resumeActiveNotification() {
+        if (dao.getActive() == null) return
+        ContextCompat.startForegroundService(
+            context,
+            WorkoutNotificationService.restoreIntent(context),
+        )
+    }
+
+    suspend fun start(mode: WorkoutMode, intervalSeconds: Int): WorkoutSession = startMutex.withLock {
+        dao.getActive()?.let { return@withLock it }
         val now = System.currentTimeMillis()
+        val initialPhase = if (mode == WorkoutMode.EXERCISE_REST) {
+            WorkoutPhase.PAUSED
+        } else {
+            WorkoutPhase.EXERCISE
+        }
         val draft = WorkoutSession(
             modeName = mode.name,
             startEpoch = now,
@@ -57,14 +57,16 @@ class WorkoutRepository @Inject constructor(
             restSeconds = 0L,
             notes = "",
             lastModifiedEpoch = now,
+            activePhaseName = initialPhase.name,
+            phaseStartEpoch = now,
         )
         val id = dao.insert(draft)
         val saved = draft.copy(id = id)
         ContextCompat.startForegroundService(
             context,
-            WorkoutNotificationService.startIntent(context, id, mode, intervalSeconds),
+            WorkoutNotificationService.startIntent(context, id, mode, intervalSeconds, now),
         )
-        return saved
+        saved
     }
 
     fun togglePhase() {

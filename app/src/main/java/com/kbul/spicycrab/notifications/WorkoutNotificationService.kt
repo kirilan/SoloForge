@@ -27,13 +27,17 @@ import com.kbul.spicycrab.domain.workout.WorkoutPhase
 import com.kbul.spicycrab.domain.workout.WorkoutStateHolder
 import com.kbul.spicycrab.domain.workout.activeSeconds
 import com.kbul.spicycrab.domain.workout.currentPhaseElapsedSeconds
+import com.kbul.spicycrab.domain.workout.toActiveWorkoutState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -43,6 +47,7 @@ class WorkoutNotificationService : Service() {
     @Inject lateinit var dao: WorkoutSessionDao
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val persistenceMutex = Mutex()
     private var tickerJob: Job? = null
     private var beepJob: Job? = null
 
@@ -51,6 +56,7 @@ class WorkoutNotificationService : Service() {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_START -> handleStart(intent)
+            ACTION_RESTORE -> restoreActiveWorkout()
             ACTION_TOGGLE_PHASE -> togglePhase()
             ACTION_TOGGLE_PAUSE -> togglePause()
             ACTION_PAUSE -> setPhase(WorkoutPhase.PAUSED)
@@ -58,6 +64,11 @@ class WorkoutNotificationService : Service() {
                 stopAndPersist()
                 return START_NOT_STICKY
             }
+            ACTION_DISCARD -> {
+                finishService()
+                return START_NOT_STICKY
+            }
+            else -> restoreActiveWorkout()
         }
         return START_STICKY
     }
@@ -67,7 +78,7 @@ class WorkoutNotificationService : Service() {
         val modeName = intent.getStringExtra(EXTRA_MODE) ?: WorkoutMode.SIMPLE.name
         val mode = WorkoutMode.fromName(modeName)
         val intervalSec = intent.getIntExtra(EXTRA_INTERVAL_SEC, 0)
-        val now = System.currentTimeMillis()
+        val startEpoch = intent.getLongExtra(EXTRA_START_EPOCH, System.currentTimeMillis())
 
         val initialPhase = when (mode) {
             WorkoutMode.SIMPLE, WorkoutMode.INTERVAL -> WorkoutPhase.EXERCISE
@@ -78,10 +89,10 @@ class WorkoutNotificationService : Service() {
             ActiveWorkoutState(
                 sessionId = sessionId,
                 mode = mode,
-                startEpoch = now,
+                startEpoch = startEpoch,
                 intervalSeconds = intervalSec,
                 phase = initialPhase,
-                phaseStartEpoch = now,
+                phaseStartEpoch = startEpoch,
                 accumulatedExerciseSeconds = 0L,
                 accumulatedRestSeconds = 0L,
             )
@@ -108,13 +119,13 @@ class WorkoutNotificationService : Service() {
             WorkoutPhase.REST -> { accRest += phaseElapsed; newPhase = WorkoutPhase.EXERCISE }
             WorkoutPhase.PAUSED -> { newPhase = WorkoutPhase.EXERCISE }
         }
-        stateHolder.set(
+        setStateAndPersist(
             cur.copy(
                 phase = newPhase,
                 phaseStartEpoch = now,
                 accumulatedExerciseSeconds = accEx,
                 accumulatedRestSeconds = accRest,
-            )
+            ),
         )
         phaseChangeFeedback()
     }
@@ -123,7 +134,7 @@ class WorkoutNotificationService : Service() {
         val cur = stateHolder.current() ?: return
         val now = System.currentTimeMillis()
         if (cur.phase == WorkoutPhase.PAUSED) {
-            stateHolder.set(cur.copy(phase = WorkoutPhase.EXERCISE, phaseStartEpoch = now))
+            setStateAndPersist(cur.copy(phase = WorkoutPhase.EXERCISE, phaseStartEpoch = now))
         } else {
             val phaseElapsed = ((now - cur.phaseStartEpoch) / 1000L).coerceAtLeast(0L)
             val acc = when (cur.phase) {
@@ -131,7 +142,7 @@ class WorkoutNotificationService : Service() {
                 WorkoutPhase.REST -> cur.copy(accumulatedRestSeconds = cur.accumulatedRestSeconds + phaseElapsed)
                 WorkoutPhase.PAUSED -> cur
             }
-            stateHolder.set(acc.copy(phase = WorkoutPhase.PAUSED, phaseStartEpoch = now))
+            setStateAndPersist(acc.copy(phase = WorkoutPhase.PAUSED, phaseStartEpoch = now))
         }
     }
 
@@ -145,12 +156,21 @@ class WorkoutNotificationService : Service() {
             WorkoutPhase.REST -> cur.copy(accumulatedRestSeconds = cur.accumulatedRestSeconds + phaseElapsed)
             WorkoutPhase.PAUSED -> cur
         }
-        stateHolder.set(acc.copy(phase = phase, phaseStartEpoch = now))
+        setStateAndPersist(acc.copy(phase = phase, phaseStartEpoch = now))
     }
 
     private fun stopAndPersist() {
-        val cur = stateHolder.current()
-        if (cur != null) {
+        scope.launch {
+            val cur = stateHolder.current() ?: dao.getActive()?.toActiveWorkoutState()
+            if (cur != null) {
+                finalizeWorkout(cur)
+            }
+            finishService()
+        }
+    }
+
+    private suspend fun finalizeWorkout(cur: ActiveWorkoutState) {
+        persistenceMutex.withLock {
             val now = System.currentTimeMillis()
             val phaseElapsed = ((now - cur.phaseStartEpoch) / 1000L).coerceAtLeast(0L)
             val finalEx = cur.accumulatedExerciseSeconds +
@@ -158,31 +178,66 @@ class WorkoutNotificationService : Service() {
             val finalRest = cur.accumulatedRestSeconds +
                 if (cur.phase == WorkoutPhase.REST) phaseElapsed else 0L
             val totalActive = cur.activeSeconds(now)
-            scope.launch {
-                val existing = dao.getById(cur.sessionId)
-                if (existing != null) {
-                    val finalized = existing.copy(
-                        endEpoch = now,
-                        totalSeconds = totalActive,
-                        exerciseSeconds = finalEx,
-                        restSeconds = finalRest,
-                        lastModifiedEpoch = now,
-                    )
-                    dao.update(finalized)
-                }
-                stateHolder.set(null)
-                tickerJob?.cancel(); tickerJob = null
-                beepJob?.cancel(); beepJob = null
-                stopForeground(STOP_FOREGROUND_REMOVE)
-                stopSelf()
+            val existing = dao.getById(cur.sessionId)
+            if (existing != null && existing.endEpoch == null) {
+                val finalized = existing.copy(
+                    endEpoch = now,
+                    totalSeconds = totalActive,
+                    exerciseSeconds = finalEx,
+                    restSeconds = finalRest,
+                    lastModifiedEpoch = now,
+                    activePhaseName = null,
+                    phaseStartEpoch = null,
+                )
+                dao.update(finalized)
             }
-        } else {
-            stateHolder.set(null)
-            tickerJob?.cancel(); tickerJob = null
-            beepJob?.cancel(); beepJob = null
-            stopForeground(STOP_FOREGROUND_REMOVE)
-            stopSelf()
         }
+    }
+
+    private fun setStateAndPersist(state: ActiveWorkoutState) {
+        stateHolder.set(state)
+        scope.launch {
+            persistenceMutex.withLock {
+                val existing = dao.getById(state.sessionId)
+                if (existing != null && existing.endEpoch == null) {
+                    dao.update(
+                        existing.copy(
+                            exerciseSeconds = state.accumulatedExerciseSeconds,
+                            restSeconds = state.accumulatedRestSeconds,
+                            lastModifiedEpoch = System.currentTimeMillis(),
+                            activePhaseName = state.phase.name,
+                            phaseStartEpoch = state.phaseStartEpoch,
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    private fun restoreActiveWorkout() {
+        scope.launch {
+            val restored = stateHolder.current() ?: dao.getActive()?.toActiveWorkoutState()
+            if (restored == null) {
+                finishService()
+                return@launch
+            }
+            stateHolder.set(restored)
+            startForegroundNotification()
+            startTicker()
+            if (restored.mode == WorkoutMode.INTERVAL && restored.intervalSeconds > 0) {
+                startBeepLoop()
+            }
+        }
+    }
+
+    private fun finishService() {
+        stateHolder.set(null)
+        tickerJob?.cancel()
+        tickerJob = null
+        beepJob?.cancel()
+        beepJob = null
+        stopForeground(STOP_FOREGROUND_REMOVE)
+        stopSelf()
     }
 
     private fun startTicker() {
@@ -321,30 +376,44 @@ class WorkoutNotificationService : Service() {
     override fun onDestroy() {
         tickerJob?.cancel()
         beepJob?.cancel()
+        scope.cancel()
         super.onDestroy()
     }
 
     companion object {
         private const val NOTIF_ID = 1002
         const val ACTION_START = "com.kbul.spicycrab.action.START_WORKOUT"
+        const val ACTION_RESTORE = "com.kbul.spicycrab.action.RESTORE_WORKOUT"
         const val ACTION_TOGGLE_PHASE = "com.kbul.spicycrab.action.TOGGLE_PHASE"
         const val ACTION_TOGGLE_PAUSE = "com.kbul.spicycrab.action.TOGGLE_PAUSE"
         const val ACTION_PAUSE = "com.kbul.spicycrab.action.PAUSE_WORKOUT"
         const val ACTION_STOP = "com.kbul.spicycrab.action.STOP_WORKOUT"
+        const val ACTION_DISCARD = "com.kbul.spicycrab.action.DISCARD_WORKOUT"
         const val EXTRA_SESSION_ID = "session_id"
         const val EXTRA_MODE = "mode"
         const val EXTRA_INTERVAL_SEC = "interval_sec"
+        const val EXTRA_START_EPOCH = "start_epoch"
 
-        fun startIntent(context: Context, sessionId: Long, mode: WorkoutMode, intervalSec: Int): Intent =
+        fun startIntent(
+            context: Context,
+            sessionId: Long,
+            mode: WorkoutMode,
+            intervalSec: Int,
+            startEpoch: Long,
+        ): Intent =
             Intent(context, WorkoutNotificationService::class.java).apply {
                 action = ACTION_START
                 putExtra(EXTRA_SESSION_ID, sessionId)
                 putExtra(EXTRA_MODE, mode.name)
                 putExtra(EXTRA_INTERVAL_SEC, intervalSec)
+                putExtra(EXTRA_START_EPOCH, startEpoch)
             }
 
         fun togglePhaseIntent(context: Context): Intent =
             Intent(context, WorkoutNotificationService::class.java).apply { action = ACTION_TOGGLE_PHASE }
+
+        fun restoreIntent(context: Context): Intent =
+            Intent(context, WorkoutNotificationService::class.java).apply { action = ACTION_RESTORE }
 
         fun togglePauseIntent(context: Context): Intent =
             Intent(context, WorkoutNotificationService::class.java).apply { action = ACTION_TOGGLE_PAUSE }
@@ -354,6 +423,9 @@ class WorkoutNotificationService : Service() {
 
         fun stopIntent(context: Context): Intent =
             Intent(context, WorkoutNotificationService::class.java).apply { action = ACTION_STOP }
+
+        fun discardIntent(context: Context): Intent =
+            Intent(context, WorkoutNotificationService::class.java).apply { action = ACTION_DISCARD }
 
         private fun formatHms(seconds: Long): String {
             val h = seconds / 3600

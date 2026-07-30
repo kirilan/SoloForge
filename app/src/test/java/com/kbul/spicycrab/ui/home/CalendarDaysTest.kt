@@ -42,6 +42,20 @@ class CalendarDaysTest {
     }
 
     @Test
+    fun fastEndingAtMidnightDoesNotAppearOnFollowingDay() {
+        val previous = today.minusDays(1)
+        val session = fast(
+            start = at(previous, 20, 0),
+            end = today.atStartOfDay(zone).toInstant().toEpochMilli(),
+        )
+
+        val days = build(fasts = listOf(session))
+
+        assertTrue(days.single { it.date == previous }.fasts.contains(session))
+        assertFalse(days.single { it.date == today }.fasts.contains(session))
+    }
+
+    @Test
     fun activeFastExtendsToNowOnly() {
         val active = fast(start = at(today.minusDays(1), 20, 0), end = null)
         val days = build(fasts = listOf(active))
@@ -67,6 +81,29 @@ class CalendarDaysTest {
         val day = days.single { it.date == today }
         assertEquals(2000 + 250, day.calorieBudget)
         assertEquals(2000, days.single { it.date == today.minusDays(1) }.calorieBudget)
+    }
+
+    @Test
+    fun activeWorkoutContributesLiveTimeAndBonus() {
+        val started = at(today, 10, 0)
+        val active = WorkoutSession(
+            modeName = "SIMPLE",
+            startEpoch = started,
+            endEpoch = null,
+            totalSeconds = 0L,
+            intervalSeconds = 0,
+            exerciseSeconds = 0L,
+            restSeconds = 0L,
+            notes = "",
+            lastModifiedEpoch = started,
+            activePhaseName = "EXERCISE",
+            phaseStartEpoch = started,
+        )
+
+        val day = build(workouts = listOf(active)).single { it.date == today }
+
+        assertEquals(2 * 3600L, day.workoutSeconds)
+        assertEquals(2000 + 500, day.calorieBudget)
     }
 
     @Test

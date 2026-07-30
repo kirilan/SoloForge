@@ -27,6 +27,9 @@ interface WorkoutSessionDao {
     @Query("SELECT * FROM workout_sessions WHERE endEpoch IS NULL ORDER BY startEpoch DESC LIMIT 1")
     fun observeActive(): Flow<WorkoutSession?>
 
+    @Query("SELECT * FROM workout_sessions WHERE endEpoch IS NULL ORDER BY startEpoch DESC LIMIT 1")
+    suspend fun getActive(): WorkoutSession?
+
     @Query("SELECT * FROM workout_sessions WHERE id = :id")
     suspend fun getById(id: Long): WorkoutSession?
 

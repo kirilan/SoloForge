@@ -16,6 +16,7 @@ import com.kbul.spicycrab.domain.fasting.StreakCalculator
 import com.kbul.spicycrab.domain.nutrition.FoodRepository
 import com.kbul.spicycrab.domain.weight.WeightRepository
 import com.kbul.spicycrab.domain.workout.WorkoutRepository
+import com.kbul.spicycrab.domain.workout.effectiveTotalSeconds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -42,10 +43,10 @@ data class CalendarDaySummary(
     val meals: List<FoodEntry>,
     val fasts: List<FastSession>,
     val workouts: List<WorkoutSession>,
+    val workoutSeconds: Long,
     val weights: List<WeightEntry>,
     val journal: JournalEntry?,
 ) {
-    val workoutSeconds: Long = workouts.sumOf { it.totalSeconds }
     val hasData: Boolean = meals.isNotEmpty() || fasts.isNotEmpty() || workouts.isNotEmpty() || weights.isNotEmpty()
     val calorieProgress: Float =
         if (calorieBudget <= 0) 0f else (kcal / calorieBudget.toDouble()).toFloat().coerceIn(0f, 1.5f)
@@ -134,7 +135,7 @@ class HomeViewModel @Inject constructor(
         val endOfDay = todayDate.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
         val today = foods.filter { it.timestampEpoch >= startOfDay && it.timestampEpoch < endOfDay }
         val workoutsToday = workouts.filter { it.startEpoch >= startOfDay && it.startEpoch < endOfDay }
-        val totalWorkoutSeconds = workoutsToday.sumOf { it.totalSeconds }
+        val totalWorkoutSeconds = workoutsToday.sumOf { it.effectiveTotalSeconds(now) }
         val bonus = (250.0 * totalWorkoutSeconds / 3600.0).toInt()
         val calendarDays = buildCalendarDays(
             month = month,
@@ -248,7 +249,8 @@ internal fun buildCalendarDays(
         val start = date.atStartOfDay(zone).toInstant().toEpochMilli()
         val end = date.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli()
         val dayWorkouts = workouts.filter { it.startEpoch >= start && it.startEpoch < end }
-        val workoutBonus = (250.0 * dayWorkouts.sumOf { it.totalSeconds } / 3600.0).toInt()
+        val workoutSeconds = dayWorkouts.sumOf { it.effectiveTotalSeconds(now) }
+        val workoutBonus = (250.0 * workoutSeconds / 3600.0).toInt()
 
         CalendarDaySummary(
             date = date,
@@ -260,6 +262,7 @@ internal fun buildCalendarDays(
             meals = foods.filter { it.timestampEpoch >= start && it.timestampEpoch < end },
             fasts = fasts.filter { it.overlapsDay(start, end, now) },
             workouts = dayWorkouts,
+            workoutSeconds = workoutSeconds,
             weights = weights.filter { it.timestampEpoch >= start && it.timestampEpoch < end },
             journal = journals.firstOrNull { it.dateEpochDay == date.toEpochDay() },
         )
@@ -268,5 +271,5 @@ internal fun buildCalendarDays(
 
 internal fun FastSession.overlapsDay(startOfDay: Long, endOfDay: Long, now: Long): Boolean {
     val fastEnd = endEpoch ?: now
-    return startEpoch < endOfDay && fastEnd >= startOfDay
+    return startEpoch < endOfDay && fastEnd > startOfDay
 }
