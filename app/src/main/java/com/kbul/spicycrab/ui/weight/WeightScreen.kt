@@ -258,7 +258,8 @@ private fun LogWeightSheet(
                     val value = weightText.replace(',', '.').toDoubleOrNull() ?: return@Button
                     onSave(value, note.trim(), timestamp)
                 },
-                enabled = weightText.replace(',', '.').toDoubleOrNull() != null,
+                enabled = weightText.replace(',', '.').toDoubleOrNull()
+                    ?.let { it.isFinite() && it > 0.0 } == true,
                 modifier = Modifier.fillMaxWidth().height(56.dp),
             ) { Text(stringResource(R.string.common_save)) }
             OutlinedButton(

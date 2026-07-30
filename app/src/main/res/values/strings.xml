@@ -63,6 +63,8 @@
     <string name="fast_edit_end_label">End (blank = still active)</string>
     <string name="fast_edit_error_start_format">Start time format invalid.</string>
     <string name="fast_edit_error_end_before_start">End must be after start.</string>
+    <string name="fast_edit_error_future">Fast times cannot be in the future.</string>
+    <string name="fast_edit_error_active_exists">End the current fast before restoring another active fast.</string>
     <string name="fast_edit_delete">Delete fast</string>
 
     <!-- Home -->
@@ -129,6 +131,7 @@
 
     <!-- Capture / Analyze -->
     <string name="capture_permission_required">Camera permission is required.</string>
+    <string name="capture_error">Could not capture a photo. Check the camera and try again.</string>
     <string name="capture_tap">Tap to capture</string>
     <string name="analyze_describe_title">Describe meal</string>
     <string name="analyze_review_title">Review meal</string>
@@ -155,6 +158,8 @@
     <string name="error_save_failed">Save failed</string>
     <string name="error_reanalysis_failed">Re-analysis failed</string>
     <string name="error_no_api_key">Set your OpenRouter API key in Settings.</string>
+    <string name="error_ai_disabled">AI features are disabled in Settings.</string>
+    <string name="error_invalid_nutrition">Enter a name, positive calories, and non-negative nutrition values.</string>
     <string name="analysis_detail_prompt">Add details like portion size, cooking oil, sauces, and hidden ingredients, then re-analyze.</string>
 
     <!-- Workout -->
@@ -217,6 +222,8 @@
     <string name="settings_section_data">Data</string>
     <string name="settings_export_folder_set">Auto-backup folder set. SoloForge-backup.json is rewritten there on every change.</string>
     <string name="settings_export_folder_none">No auto-backup folder selected. Pick a synced folder (e.g. Google Drive) for continuous off-device backup.</string>
+    <string name="settings_auto_backup_last_success">Last automatic backup: %1$s</string>
+    <string name="settings_auto_backup_failed">Automatic backup failed. Check folder access and available storage.</string>
     <string name="settings_pick_folder">Pick folder</string>
     <string name="settings_save_photo">Save photo locally with each entry</string>
     <string name="settings_export_backup">Export backup</string>
@@ -257,6 +264,7 @@
         <item quantity="other">Merged %d new entries.</item>
     </plurals>
     <string name="settings_msg_import_failed">Import failed: %1$s</string>
+    <string name="settings_msg_import_completed_warning">Data was imported, but some settings or background tasks could not be refreshed.</string>
 
     <!-- Notifications -->
     <string name="channel_active_fast">Active fast timer</string>

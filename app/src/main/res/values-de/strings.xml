@@ -61,6 +61,8 @@
     <string name="fast_edit_end_label">Ende (leer = noch aktiv)</string>
     <string name="fast_edit_error_start_format">Startzeit hat ein ungültiges Format.</string>
     <string name="fast_edit_error_end_before_start">Ende muss nach dem Start liegen.</string>
+    <string name="fast_edit_error_future">Fastenzeiten dürfen nicht in der Zukunft liegen.</string>
+    <string name="fast_edit_error_active_exists">Beende das aktuelle Fasten, bevor du ein anderes aktives Fasten wiederherstellst.</string>
     <string name="fast_edit_delete">Fasten löschen</string>
 
     <!-- Home -->
@@ -127,6 +129,7 @@
 
     <!-- Capture / Analyze -->
     <string name="capture_permission_required">Kamera-Berechtigung wird benötigt.</string>
+    <string name="capture_error">Das Foto konnte nicht aufgenommen werden. Prüfe die Kamera und versuche es erneut.</string>
     <string name="capture_tap">Zum Aufnehmen tippen</string>
     <string name="analyze_describe_title">Mahlzeit beschreiben</string>
     <string name="analyze_review_title">Mahlzeit prüfen</string>
@@ -153,6 +156,8 @@
     <string name="error_save_failed">Speichern fehlgeschlagen</string>
     <string name="error_reanalysis_failed">Erneute Analyse fehlgeschlagen</string>
     <string name="error_no_api_key">Hinterlege deinen OpenRouter-API-Schlüssel in den Einstellungen.</string>
+    <string name="error_ai_disabled">KI-Funktionen sind in den Einstellungen deaktiviert.</string>
+    <string name="error_invalid_nutrition">Gib einen Namen, positive Kalorien und nicht negative Nährwerte ein.</string>
     <string name="analysis_detail_prompt">Ergänze Details wie Portionsgröße, Speiseöl, Soßen und versteckte Zutaten und analysiere dann erneut.</string>
 
     <!-- Workout -->
@@ -215,6 +220,8 @@
     <string name="settings_section_data">Daten</string>
     <string name="settings_export_folder_set">Auto-Backup-Ordner festgelegt. SoloForge-backup.json wird dort bei jeder Änderung neu geschrieben.</string>
     <string name="settings_export_folder_none">Kein Auto-Backup-Ordner gewählt. Wähle einen synchronisierten Ordner (z. B. Google Drive) für kontinuierliche externe Sicherung.</string>
+    <string name="settings_auto_backup_last_success">Letzte automatische Sicherung: %1$s</string>
+    <string name="settings_auto_backup_failed">Automatische Sicherung fehlgeschlagen. Prüfe den Ordnerzugriff und den verfügbaren Speicher.</string>
     <string name="settings_pick_folder">Ordner wählen</string>
     <string name="settings_save_photo">Foto lokal zu jedem Eintrag speichern</string>
     <string name="settings_export_backup">Backup exportieren</string>
@@ -255,6 +262,7 @@
         <item quantity="other">%d neue Einträge zusammengeführt.</item>
     </plurals>
     <string name="settings_msg_import_failed">Import fehlgeschlagen: %1$s</string>
+    <string name="settings_msg_import_completed_warning">Die Daten wurden importiert, aber einige Einstellungen oder Hintergrundaufgaben konnten nicht aktualisiert werden.</string>
 
     <!-- Notifications -->
     <string name="channel_active_fast">Aktiver Fasten-Timer</string>

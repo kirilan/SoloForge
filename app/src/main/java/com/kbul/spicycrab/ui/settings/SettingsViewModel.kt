@@ -12,6 +12,7 @@ import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.data.prefs.SecureKeyStore
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.health.HealthConnectRepository
+import com.kbul.spicycrab.domain.fasting.FastingRepository
 import com.kbul.spicycrab.notifications.ReminderScheduler
 import java.time.DayOfWeek
 import java.time.LocalTime
@@ -30,6 +31,7 @@ class SettingsViewModel @Inject constructor(
     private val settings: SettingsRepo,
     private val keyStore: SecureKeyStore,
     private val reminderScheduler: ReminderScheduler,
+    private val fastingRepository: FastingRepository,
     private val backupManager: BackupManager,
     private val healthConnect: HealthConnectRepository,
     @ApplicationContext private val context: Context,
@@ -60,6 +62,7 @@ class SettingsViewModel @Inject constructor(
 
     private val _exportMessage = MutableStateFlow<String?>(null)
     val exportMessage: StateFlow<String?> = _exportMessage.asStateFlow()
+    val autoBackupStatus = backupManager.autoBackupStatus
 
     val state: StateFlow<AppSettings?> = settings.settings
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
@@ -116,12 +119,12 @@ class SettingsViewModel @Inject constructor(
 
     fun setAlmostThereEnabled(enabled: Boolean) = viewModelScope.launch {
         settings.setAlmostThereEnabled(enabled)
-        if (!enabled) reminderScheduler.cancelAlmostThere()
+        fastingRepository.syncReminders()
     }
 
     fun setEatingWindowClosingEnabled(enabled: Boolean) = viewModelScope.launch {
         settings.setEatingWindowClosingEnabled(enabled)
-        if (!enabled) reminderScheduler.cancelEatingWindowClosing()
+        fastingRepository.syncReminders()
     }
 
     fun setShowFastingTab(value: Boolean) = viewModelScope.launch { settings.setShowFastingTab(value) }
@@ -142,8 +145,11 @@ class SettingsViewModel @Inject constructor(
         viewModelScope.launch {
             _exportMessage.value = backupManager.importFrom(uri, merge).fold(
                 onSuccess = { summary ->
-                    if (summary.replaced) context.getString(R.string.settings_msg_backup_restored, summary.added)
-                    else context.resources.getQuantityString(R.plurals.settings_msg_merged, summary.added, summary.added)
+                    when {
+                        summary.warning -> context.getString(R.string.settings_msg_import_completed_warning)
+                        summary.replaced -> context.getString(R.string.settings_msg_backup_restored, summary.added)
+                        else -> context.resources.getQuantityString(R.plurals.settings_msg_merged, summary.added, summary.added)
+                    }
                 },
                 onFailure = { context.getString(R.string.settings_msg_import_failed, it.message) },
             )

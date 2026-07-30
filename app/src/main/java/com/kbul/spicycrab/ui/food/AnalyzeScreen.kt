@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.domain.nutrition.NutritionEstimate
+import com.kbul.spicycrab.domain.nutrition.hasValidNutrition
 import java.io.File
 
 @Composable
@@ -105,6 +106,7 @@ fun AnalyzeScreen(
                 ) { Text(stringResource(R.string.analyze_discard)) }
                 Button(
                     onClick = onSave,
+                    enabled = est.hasValidNutrition(),
                     modifier = Modifier.weight(1f).height(56.dp),
                 ) { Text(stringResource(R.string.common_save)) }
             }

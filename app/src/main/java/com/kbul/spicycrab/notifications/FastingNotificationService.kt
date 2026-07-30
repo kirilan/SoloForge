@@ -15,16 +15,25 @@ import androidx.core.app.NotificationCompat
 import androidx.core.content.ContextCompat
 import com.kbul.spicycrab.MainActivity
 import com.kbul.spicycrab.R
+import com.kbul.spicycrab.data.db.dao.FastSessionDao
+import com.kbul.spicycrab.domain.fasting.FastingMode
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FastingNotificationService : Service() {
 
+    @Inject lateinit var dao: FastSessionDao
+
     private var tickerJob: Job? = null
-    private val scope = CoroutineScope(Dispatchers.Default)
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private var startEpoch: Long = 0L
     private var targetSeconds: Long = 0L
@@ -40,14 +49,39 @@ class FastingNotificationService : Service() {
                 stopSelf()
                 return START_NOT_STICKY
             }
+            else -> restoreActiveFast()
         }
         return START_STICKY
     }
 
+    private fun restoreActiveFast() {
+        scope.launch {
+            val active = dao.getActive()
+            if (active == null) {
+                stopForeground(STOP_FOREGROUND_REMOVE)
+                stopSelf()
+                return@launch
+            }
+            startFast(
+                startEpoch = active.startEpoch,
+                targetSeconds = active.targetSeconds,
+                modeDisplay = FastingMode.fromName(active.modeName).displayName,
+            )
+        }
+    }
+
     private fun startFast(intent: Intent) {
-        startEpoch = intent.getLongExtra(EXTRA_START_EPOCH, System.currentTimeMillis())
-        targetSeconds = intent.getLongExtra(EXTRA_TARGET_SECONDS, 0L)
-        modeName = intent.getStringExtra(EXTRA_MODE_DISPLAY) ?: ""
+        startFast(
+            startEpoch = intent.getLongExtra(EXTRA_START_EPOCH, System.currentTimeMillis()),
+            targetSeconds = intent.getLongExtra(EXTRA_TARGET_SECONDS, 0L),
+            modeDisplay = intent.getStringExtra(EXTRA_MODE_DISPLAY) ?: "",
+        )
+    }
+
+    private fun startFast(startEpoch: Long, targetSeconds: Long, modeDisplay: String) {
+        this.startEpoch = startEpoch
+        this.targetSeconds = targetSeconds
+        modeName = modeDisplay
 
         val notification = buildNotification()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
@@ -108,6 +142,7 @@ class FastingNotificationService : Service() {
 
     override fun onDestroy() {
         tickerJob?.cancel()
+        scope.cancel()
         super.onDestroy()
     }
 

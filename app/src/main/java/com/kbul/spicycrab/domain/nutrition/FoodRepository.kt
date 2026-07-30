@@ -11,6 +11,7 @@ import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.network.OpenRouterClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.CancellationException
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,10 +44,13 @@ class FoodRepository @Inject constructor(
         analyzeWithChain(null, description)
 
     private suspend fun analyzeWithChain(base64: String?, comment: String): Result<NutritionEstimate> {
+        if (!settings.current().aiFeaturesEnabled) {
+            return Result.failure(IllegalStateException(context.getString(R.string.error_ai_disabled)))
+        }
         val key = keyStore.getOpenRouterKey()
             ?: return Result.failure(IllegalStateException(context.getString(R.string.error_no_api_key)))
 
-        return runCatching {
+        val result = runCatching {
             val first = analyzeWithModel(key, FoodAnalysisModels.DEFAULT, base64, comment)
             if (!first.needsEscalation()) return@runCatching first
 
@@ -72,6 +76,8 @@ class FoodRepository @Inject constructor(
                 third
             }
         }
+        result.exceptionOrNull()?.let { if (it is CancellationException) throw it }
+        return result
     }
 
     suspend fun save(
@@ -79,6 +85,7 @@ class FoodRepository @Inject constructor(
         comment: String,
         imageFile: File?,
     ): FoodEntry {
+        require(estimate.hasValidNutrition()) { context.getString(R.string.error_invalid_nutrition) }
         val s = settings.current()
         val savedImagePath = if (s.savePhotoLocally && imageFile != null) {
             val dest = File(context.filesDir, "food_${System.currentTimeMillis()}.jpg")
@@ -102,10 +109,13 @@ class FoodRepository @Inject constructor(
             confidence = estimate.confidence,
             imagePath = savedImagePath,
         )
-        return entry.copy(id = dao.insert(entry))
+        return runCatching { entry.copy(id = dao.insert(entry)) }
+            .onFailure { FoodPhotoFiles.deleteOwned(context, savedImagePath) }
+            .getOrThrow()
     }
 
     suspend fun addManual(draft: FoodEntry): FoodEntry {
+        require(draft.hasValidNutrition()) { context.getString(R.string.error_invalid_nutrition) }
         val now = System.currentTimeMillis()
         return insertEntry(
             draft.copy(
@@ -121,6 +131,7 @@ class FoodRepository @Inject constructor(
     fun observePresets(): Flow<List<MealPreset>> = presetDao.observeAll()
 
     suspend fun saveAsPreset(source: FoodEntry, name: String): MealPreset {
+        require(source.hasValidNutrition()) { context.getString(R.string.error_invalid_nutrition) }
         val preset = MealPreset(
             name = name.ifBlank { source.itemName }.trim(),
             grams = source.grams,
@@ -138,6 +149,7 @@ class FoodRepository @Inject constructor(
     suspend fun deletePreset(preset: MealPreset) = presetDao.delete(preset)
 
     suspend fun logPreset(preset: MealPreset): FoodEntry {
+        require(preset.hasValidNutrition()) { context.getString(R.string.error_invalid_nutrition) }
         val now = System.currentTimeMillis()
         return insertEntry(
             FoodEntry(
@@ -162,12 +174,16 @@ class FoodRepository @Inject constructor(
         entry.copy(id = dao.insert(entry))
 
     suspend fun update(updated: FoodEntry): FoodEntry {
+        require(updated.hasValidNutrition()) { context.getString(R.string.error_invalid_nutrition) }
         val bumped = updated.copy(lastModifiedEpoch = System.currentTimeMillis())
         dao.update(bumped)
         return bumped
     }
 
-    suspend fun delete(entry: FoodEntry) = dao.delete(entry)
+    suspend fun delete(entry: FoodEntry) {
+        dao.delete(entry)
+        FoodPhotoFiles.deleteOwned(context, entry.imagePath)
+    }
 
     fun todayTotals(entries: List<FoodEntry>): NutritionEstimate = NutritionEstimate(
         itemName = "today",
@@ -189,7 +205,9 @@ class FoodRepository @Inject constructor(
         base64: String?,
         comment: String,
     ): NutritionEstimate =
-        client.analyzeFood(key, model, base64, comment).getOrThrow().let { dto ->
+        if (!settings.current().aiFeaturesEnabled) {
+            throw IllegalStateException(context.getString(R.string.error_ai_disabled))
+        } else client.analyzeFood(key, model, base64, comment).getOrThrow().let { dto ->
             NutritionEstimate(
                 itemName = dto.itemName,
                 grams = dto.estimatedGrams,
@@ -208,16 +226,17 @@ class FoodRepository @Inject constructor(
 internal fun NutritionEstimate.needsEscalation(): Boolean {
     if (confidence.equals("low", ignoreCase = true)) return true
     val text = "$itemName $notes".lowercase()
-    return listOf(
-        "mixed meal",
-        "mixed",
-        "multiple",
-        "assorted",
-        "unclear",
-        "hidden",
-        "sauce",
-        "dressing",
-        "oil",
-        "portion",
-    ).any { it in text }
+    return ESCALATION_PATTERNS.any { it.containsMatchIn(text) }
 }
+
+private val ESCALATION_PATTERNS = listOf(
+    Regex("""\bmixed(?:\s+meal)?\b"""),
+    Regex("""\bmultiple\b"""),
+    Regex("""\bassorted\b"""),
+    Regex("""\bunclear\b"""),
+    Regex("""\bhidden\b"""),
+    Regex("""\bsauces?\b"""),
+    Regex("""\bdressings?\b"""),
+    Regex("""\boils?\b"""),
+    Regex("""\bportions?\b"""),
+)

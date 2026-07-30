@@ -28,6 +28,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.domain.nutrition.hasValidNutrition
 import com.kbul.spicycrab.ui.common.DateTimeField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,7 +41,7 @@ fun ManualFoodSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var draft by remember { mutableStateOf(emptyDraft()) }
 
-    val canSave = draft.itemName.isNotBlank() && draft.kcal > 0.0
+    val canSave = draft.hasValidNutrition()
 
     ModalBottomSheet(onDismissRequest = onDismiss, sheetState = sheetState) {
         Column(

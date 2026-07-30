@@ -11,6 +11,8 @@ import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.data.prefs.AppSettings
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.data.prefs.SettingsRepo
+import com.kbul.spicycrab.domain.workout.WorkoutStateHolder
+import com.kbul.spicycrab.domain.health.HealthConnectRepository
 import com.kbul.spicycrab.notifications.ReminderScheduler
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -29,6 +31,7 @@ class BackupMergeTest {
     fun setUp() {
         val context = InstrumentationRegistry.getInstrumentation().targetContext
         db = Room.inMemoryDatabaseBuilder(context, AppDatabase::class.java).build()
+        val settings = SettingsRepo(context)
         manager = BackupManager(
             context = context,
             db = db,
@@ -38,8 +41,15 @@ class BackupMergeTest {
             workoutDao = db.workoutSessionDao(),
             presetDao = db.mealPresetDao(),
             journalDao = db.journalEntryDao(),
-            settingsRepo = SettingsRepo(context),
+            settingsRepo = settings,
             reminderScheduler = ReminderScheduler(context),
+            workoutStateHolder = WorkoutStateHolder(),
+            healthConnect = HealthConnectRepository(
+                context = context,
+                settings = settings,
+                weightDao = db.weightEntryDao(),
+                workoutDao = db.workoutSessionDao(),
+            ),
         )
     }
 
@@ -115,7 +125,7 @@ class BackupMergeTest {
             settings = defaultSettings(),
             fasts = emptyList(),
             foods = emptyList(),
-            weights = listOf(WeightEntry(timestampEpoch = 2, lastModifiedEpoch = 2, weightKg = 90.0, note = "new")),
+            weights = listOf(WeightEntry(id = 42, timestampEpoch = 2, lastModifiedEpoch = 2, weightKg = 90.0, note = "new")),
             workouts = emptyList(),
             presets = emptyList(),
             journal = emptyList(),
@@ -126,6 +136,30 @@ class BackupMergeTest {
         val weights = db.weightEntryDao().observeAll().first()
         check(weights.size == 1)
         check(weights.single().weightKg == 90.0)
+        check(weights.single().id == 42L)
+    }
+
+    @Test
+    fun malformedBackupCannotCreateMultipleActiveFasts() = runBlocking {
+        val backup = BackupFile(
+            exportedAtEpoch = 0,
+            settings = defaultSettings(),
+            fasts = listOf(
+                fast(startEpoch = 1_000, endEpoch = null),
+                fast(startEpoch = 2_000, endEpoch = null),
+            ),
+            foods = emptyList(),
+            weights = emptyList(),
+            workouts = emptyList(),
+            presets = emptyList(),
+            journal = emptyList(),
+        )
+
+        manager.replaceWith(backup)
+
+        val fasts = db.fastSessionDao().observeAll().first()
+        check(fasts.count { it.endEpoch == null } == 1)
+        check(fasts.single().startEpoch == 2_000L)
     }
 
     private fun fast(startEpoch: Long, endEpoch: Long?) = FastSession(

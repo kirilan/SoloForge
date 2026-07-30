@@ -2,23 +2,18 @@ package com.kbul.spicycrab.notifications
 
 import android.content.Context
 import androidx.work.Data
-import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import com.kbul.spicycrab.R
+import java.time.ZonedDateTime
 import com.kbul.spicycrab.domain.fasting.FastingMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.random.Random
 
 @Singleton
 class ReminderScheduler @Inject constructor(
@@ -32,11 +27,9 @@ class ReminderScheduler @Inject constructor(
         val delay = fireAt - System.currentTimeMillis()
         if (delay <= 0) return
 
-        val message = context.resources.getStringArray(R.array.fasting_encouragements).random()
         val data = Data.Builder()
-            .putString(FastingReminderWorker.KEY_TITLE, context.getString(R.string.reminder_almost_there_title))
-            .putString(FastingReminderWorker.KEY_MESSAGE, message)
-            .putInt(FastingReminderWorker.KEY_NOTIFICATION_ID, NOTIF_ID_ALMOST_THERE)
+            .putString(FastingReminderWorker.KEY_KIND, FastingReminderWorker.KIND_ALMOST_THERE)
+            .putLong(FastingReminderWorker.KEY_REFERENCE_EPOCH, fastStartEpoch)
             .build()
 
         val req = OneTimeWorkRequestBuilder<FastingReminderWorker>()
@@ -59,12 +52,8 @@ class ReminderScheduler @Inject constructor(
         if (delay <= 0) return
 
         val data = Data.Builder()
-            .putString(FastingReminderWorker.KEY_TITLE, context.getString(R.string.reminder_window_title))
-            .putString(
-                FastingReminderWorker.KEY_MESSAGE,
-                context.getString(R.string.reminder_window_message)
-            )
-            .putInt(FastingReminderWorker.KEY_NOTIFICATION_ID, NOTIF_ID_WINDOW_CLOSING)
+            .putString(FastingReminderWorker.KEY_KIND, FastingReminderWorker.KIND_EATING_WINDOW)
+            .putLong(FastingReminderWorker.KEY_REFERENCE_EPOCH, fastEndEpoch)
             .build()
 
         val req = OneTimeWorkRequestBuilder<FastingReminderWorker>()
@@ -81,20 +70,35 @@ class ReminderScheduler @Inject constructor(
     }
 
     fun scheduleWeeklyWeighIn(dayOfWeek: DayOfWeek, time: LocalTime) {
-        val zone = ZoneId.systemDefault()
-        val now = LocalDateTime.now(zone)
-        var first = LocalDate.now(zone).with(dayOfWeek).atTime(time)
-        if (!first.isAfter(now)) first = first.plusWeeks(1)
-        val initialDelay = java.time.Duration.between(now, first).toMillis()
+        enqueueWeeklyWeighIn(dayOfWeek, time, ExistingWorkPolicy.REPLACE)
+    }
 
-        val req = PeriodicWorkRequestBuilder<WeighInWorker>(7, TimeUnit.DAYS)
-            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+    fun scheduleNextWeeklyWeighIn(dayOfWeek: DayOfWeek, time: LocalTime) {
+        enqueueWeeklyWeighIn(dayOfWeek, time, ExistingWorkPolicy.APPEND_OR_REPLACE)
+    }
+
+    private fun enqueueWeeklyWeighIn(
+        dayOfWeek: DayOfWeek,
+        time: LocalTime,
+        policy: ExistingWorkPolicy,
+    ) {
+        val zone = ZoneId.systemDefault()
+        val now = ZonedDateTime.now(zone)
+        var first = now.toLocalDate().with(dayOfWeek).atTime(time).atZone(zone)
+        if (!first.isAfter(now)) first = first.plusWeeks(1)
+        val initialDelay = java.time.Duration.between(now.toInstant(), first.toInstant()).toMillis()
+
+        val data = Data.Builder()
+            .putInt(WeighInWorker.KEY_DAY_OF_WEEK, dayOfWeek.value)
+            .putInt(WeighInWorker.KEY_HOUR, time.hour)
+            .putInt(WeighInWorker.KEY_MINUTE, time.minute)
             .build()
-        wm.enqueueUniquePeriodicWork(
-            WORK_NAME_WEEKLY_WEIGH_IN,
-            ExistingPeriodicWorkPolicy.UPDATE,
-            req,
-        )
+        val req = OneTimeWorkRequestBuilder<WeighInWorker>()
+            .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+            .setInputData(data)
+            .addTag(TAG_WEEKLY_WEIGH_IN)
+            .build()
+        wm.enqueueUniqueWork(WORK_NAME_WEEKLY_WEIGH_IN, policy, req)
     }
 
     fun cancelWeeklyWeighIn() {
@@ -107,7 +111,6 @@ class ReminderScheduler @Inject constructor(
         private const val WORK_NAME_WEEKLY_WEIGH_IN = "weekly_weigh_in"
         private const val TAG_ALMOST_THERE = "tag_almost_there"
         private const val TAG_WINDOW_CLOSING = "tag_window_closing"
-        private const val NOTIF_ID_ALMOST_THERE = 2001
-        private const val NOTIF_ID_WINDOW_CLOSING = 2002
+        private const val TAG_WEEKLY_WEIGH_IN = "tag_weekly_weigh_in"
     }
 }

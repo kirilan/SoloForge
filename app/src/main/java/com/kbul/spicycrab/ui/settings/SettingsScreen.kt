@@ -41,6 +41,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import com.kbul.spicycrab.BuildConfig
 import com.kbul.spicycrab.R
+import com.kbul.spicycrab.data.backup.AutoBackupStatus
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.domain.fasting.FastingMode
 
@@ -49,6 +50,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val settings by viewModel.state.collectAsStateWithLifecycle()
     val hasKey by viewModel.hasKey.collectAsStateWithLifecycle()
     val exportMessage by viewModel.exportMessage.collectAsStateWithLifecycle()
+    val autoBackupStatus by viewModel.autoBackupStatus.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val s = settings ?: return
 
@@ -103,7 +105,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         }
 
         SectionCard(stringResource(R.string.settings_section_data)) {
-            ExportFolderRow(s.exportFolderUri, viewModel::setExportFolder)
+            ExportFolderRow(s.exportFolderUri, autoBackupStatus, viewModel::setExportFolder)
             SwitchRow(stringResource(R.string.settings_save_photo), s.savePhotoLocally, viewModel::setSavePhotoLocally)
             BackupButtons(
                 onExport = viewModel::exportBackup,
@@ -256,7 +258,11 @@ private fun NumField(label: String, value: Int, onChange: (Int) -> Unit) {
 }
 
 @Composable
-private fun ExportFolderRow(currentUri: String?, onSet: (String?) -> Unit) {
+private fun ExportFolderRow(
+    currentUri: String?,
+    status: AutoBackupStatus,
+    onSet: (String?) -> Unit,
+) {
     val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         ActivityResultContracts.OpenDocumentTree()
@@ -264,7 +270,7 @@ private fun ExportFolderRow(currentUri: String?, onSet: (String?) -> Unit) {
         if (uri != null) {
             val flags = Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             runCatching { context.contentResolver.takePersistableUriPermission(uri, flags) }
-            onSet(uri.toString())
+                .onSuccess { onSet(uri.toString()) }
         }
     }
 
@@ -272,6 +278,22 @@ private fun ExportFolderRow(currentUri: String?, onSet: (String?) -> Unit) {
         stringResource(if (currentUri != null) R.string.settings_export_folder_set else R.string.settings_export_folder_none),
         style = MaterialTheme.typography.bodyMedium,
     )
+    if (currentUri != null && status.failed) {
+        Text(
+            stringResource(R.string.settings_auto_backup_failed),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.error,
+        )
+    } else if (currentUri != null && status.lastSuccessEpoch > 0L) {
+        Text(
+            stringResource(
+                R.string.settings_auto_backup_last_success,
+                java.text.DateFormat.getDateTimeInstance().format(java.util.Date(status.lastSuccessEpoch)),
+            ),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
         Button(
             onClick = { launcher.launch(null) },

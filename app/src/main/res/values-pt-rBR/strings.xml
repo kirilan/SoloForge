@@ -61,6 +61,8 @@
     <string name="fast_edit_end_label">Fim (vazio = ainda ativo)</string>
     <string name="fast_edit_error_start_format">Formato da hora de início inválido.</string>
     <string name="fast_edit_error_end_before_start">O fim deve ser depois do início.</string>
+    <string name="fast_edit_error_future">Os horários do jejum não podem estar no futuro.</string>
+    <string name="fast_edit_error_active_exists">Encerre o jejum atual antes de restaurar outro jejum ativo.</string>
     <string name="fast_edit_delete">Excluir jejum</string>
 
     <!-- Home -->
@@ -128,6 +130,7 @@
 
     <!-- Capture / Analyze -->
     <string name="capture_permission_required">É necessária a permissão da câmera.</string>
+    <string name="capture_error">Não foi possível tirar a foto. Verifique a câmera e tente novamente.</string>
     <string name="capture_tap">Toque para capturar</string>
     <string name="analyze_describe_title">Descrever refeição</string>
     <string name="analyze_review_title">Revisar refeição</string>
@@ -154,6 +157,8 @@
     <string name="error_save_failed">Falha ao salvar</string>
     <string name="error_reanalysis_failed">Falha na nova análise</string>
     <string name="error_no_api_key">Defina sua chave de API do OpenRouter nos Ajustes.</string>
+    <string name="error_ai_disabled">Os recursos de IA estão desativados nos Ajustes.</string>
+    <string name="error_invalid_nutrition">Informe um nome, calorias positivas e valores nutricionais não negativos.</string>
     <string name="analysis_detail_prompt">Adicione detalhes como tamanho da porção, óleo de cozinha, molhos e ingredientes ocultos e reanalise.</string>
 
     <!-- Workout -->
@@ -217,6 +222,8 @@
     <string name="settings_section_data">Dados</string>
     <string name="settings_export_folder_set">Pasta de backup automático definida. SoloForge-backup.json é reescrito lá a cada alteração.</string>
     <string name="settings_export_folder_none">Nenhuma pasta de backup automático selecionada. Escolha uma pasta sincronizada (ex.: Google Drive) para backup contínuo fora do aparelho.</string>
+    <string name="settings_auto_backup_last_success">Último backup automático: %1$s</string>
+    <string name="settings_auto_backup_failed">O backup automático falhou. Verifique o acesso à pasta e o espaço disponível.</string>
     <string name="settings_pick_folder">Escolher pasta</string>
     <string name="settings_save_photo">Salvar a foto localmente com cada registro</string>
     <string name="settings_export_backup">Exportar backup</string>
@@ -258,6 +265,7 @@
         <item quantity="other">%d novos registros mesclados.</item>
     </plurals>
     <string name="settings_msg_import_failed">Falha na importação: %1$s</string>
+    <string name="settings_msg_import_completed_warning">Os dados foram importados, mas algumas configurações ou tarefas em segundo plano não puderam ser atualizadas.</string>
 
     <!-- Notifications -->
     <string name="channel_active_fast">Cronômetro de jejum ativo</string>

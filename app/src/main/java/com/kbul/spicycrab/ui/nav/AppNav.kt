@@ -1,5 +1,10 @@
 package com.kbul.spicycrab.ui.nav
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Surface
 import androidx.compose.material.icons.Icons
@@ -15,10 +20,12 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.kbul.spicycrab.R
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -36,6 +43,7 @@ import com.kbul.spicycrab.ui.onboarding.OpenSourceIntroScreen
 import com.kbul.spicycrab.ui.settings.SettingsScreen
 import com.kbul.spicycrab.ui.weight.WeightScreen
 import com.kbul.spicycrab.ui.workout.WorkoutScreen
+import androidx.core.content.ContextCompat
 
 enum class TopLevelDest(val route: String, @StringRes val labelRes: Int, val icon: ImageVector) {
     Home("home", R.string.nav_home, Icons.Outlined.Home),
@@ -53,6 +61,21 @@ fun AppNav(viewModel: AppNavViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
+    val context = LocalContext.current
+    val notificationPermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) {}
+
+    LaunchedEffect(onboardingComplete) {
+        if (
+            onboardingComplete == true &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+                PackageManager.PERMISSION_GRANTED
+        ) {
+            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
 
     if (onboardingComplete != true) {
         Surface {

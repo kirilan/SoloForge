@@ -61,6 +61,8 @@
     <string name="fast_edit_end_label">Fin (vacío = aún activo)</string>
     <string name="fast_edit_error_start_format">El formato de la hora de inicio no es válido.</string>
     <string name="fast_edit_error_end_before_start">El fin debe ser posterior al inicio.</string>
+    <string name="fast_edit_error_future">Las horas del ayuno no pueden estar en el futuro.</string>
+    <string name="fast_edit_error_active_exists">Finaliza el ayuno actual antes de restaurar otro ayuno activo.</string>
     <string name="fast_edit_delete">Eliminar ayuno</string>
 
     <!-- Home -->
@@ -127,6 +129,7 @@
 
     <!-- Capture / Analyze -->
     <string name="capture_permission_required">Se necesita permiso de cámara.</string>
+    <string name="capture_error">No se pudo tomar la foto. Comprueba la cámara e inténtalo de nuevo.</string>
     <string name="capture_tap">Toca para capturar</string>
     <string name="analyze_describe_title">Describir comida</string>
     <string name="analyze_review_title">Revisar comida</string>
@@ -153,6 +156,8 @@
     <string name="error_save_failed">Error al guardar</string>
     <string name="error_reanalysis_failed">Error al reanalizar</string>
     <string name="error_no_api_key">Configura tu clave de API de OpenRouter en Ajustes.</string>
+    <string name="error_ai_disabled">Las funciones de IA están desactivadas en Ajustes.</string>
+    <string name="error_invalid_nutrition">Introduce un nombre, calorías positivas y valores nutricionales no negativos.</string>
     <string name="analysis_detail_prompt">Añade detalles como el tamaño de la porción, aceite, salsas e ingredientes ocultos, y vuelve a analizar.</string>
 
     <!-- Workout -->
@@ -215,6 +220,8 @@
     <string name="settings_section_data">Datos</string>
     <string name="settings_export_folder_set">Carpeta de copia automática configurada. SoloForge-backup.json se reescribe ahí con cada cambio.</string>
     <string name="settings_export_folder_none">No hay carpeta de copia automática. Elige una carpeta sincronizada (p. ej. Google Drive) para una copia continua fuera del dispositivo.</string>
+    <string name="settings_auto_backup_last_success">Última copia automática: %1$s</string>
+    <string name="settings_auto_backup_failed">La copia automática falló. Comprueba el acceso a la carpeta y el espacio disponible.</string>
     <string name="settings_pick_folder">Elegir carpeta</string>
     <string name="settings_save_photo">Guardar la foto localmente con cada registro</string>
     <string name="settings_export_backup">Exportar copia</string>
@@ -255,6 +262,7 @@
         <item quantity="other">%d registros nuevos combinados.</item>
     </plurals>
     <string name="settings_msg_import_failed">Error al importar: %1$s</string>
+    <string name="settings_msg_import_completed_warning">Los datos se importaron, pero no se pudieron actualizar algunos ajustes o tareas en segundo plano.</string>
 
     <!-- Notifications -->
     <string name="channel_active_fast">Cronómetro de ayuno activo</string>

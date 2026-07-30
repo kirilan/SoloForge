@@ -1,7 +1,6 @@
 package com.kbul.spicycrab.notifications
 
 import android.Manifest
-import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
@@ -10,22 +9,59 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.ContextCompat
-import androidx.core.content.getSystemService
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.kbul.spicycrab.MainActivity
 import com.kbul.spicycrab.R
+import com.kbul.spicycrab.data.db.dao.FastSessionDao
+import com.kbul.spicycrab.data.prefs.SettingsRepo
+import androidx.hilt.work.HiltWorker
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 
-class FastingReminderWorker(
-    context: Context,
-    params: WorkerParameters,
+@HiltWorker
+class FastingReminderWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
+    private val dao: FastSessionDao,
+    private val settings: SettingsRepo,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
-        val title = inputData.getString(KEY_TITLE) ?: return Result.success()
-        val message = inputData.getString(KEY_MESSAGE) ?: return Result.success()
-        val notificationId = inputData.getInt(KEY_NOTIFICATION_ID, NOTIF_ID_DEFAULT)
-        showNotification(title, message, notificationId)
+        val kind = inputData.getString(KEY_KIND) ?: return Result.success()
+        val referenceEpoch = inputData.getLong(KEY_REFERENCE_EPOCH, Long.MIN_VALUE)
+        if (referenceEpoch == Long.MIN_VALUE) return Result.success()
+        val currentSettings = settings.current()
+        val notification = when (kind) {
+            KIND_ALMOST_THERE -> {
+                val active = dao.getActive()
+                if (!currentSettings.almostThereEnabled || active?.startEpoch != referenceEpoch) {
+                    return Result.success()
+                }
+                Triple(
+                    applicationContext.getString(R.string.reminder_almost_there_title),
+                    applicationContext.resources.getStringArray(R.array.fasting_encouragements).random(),
+                    NOTIF_ID_ALMOST_THERE,
+                )
+            }
+            KIND_EATING_WINDOW -> {
+                val latestEnd = dao.getMostRecentlyCompleted()?.endEpoch
+                if (
+                    !currentSettings.eatingWindowClosingEnabled ||
+                    dao.getActive() != null ||
+                    latestEnd != referenceEpoch
+                ) {
+                    return Result.success()
+                }
+                Triple(
+                    applicationContext.getString(R.string.reminder_window_title),
+                    applicationContext.getString(R.string.reminder_window_message),
+                    NOTIF_ID_WINDOW_CLOSING,
+                )
+            }
+            else -> return Result.success()
+        }
+        showNotification(notification.first, notification.second, notification.third)
         return Result.success()
     }
 
@@ -62,9 +98,11 @@ class FastingReminderWorker(
     }
 
     companion object {
-        const val KEY_TITLE = "title"
-        const val KEY_MESSAGE = "message"
-        const val KEY_NOTIFICATION_ID = "notification_id"
-        const val NOTIF_ID_DEFAULT = 1000
+        const val KEY_KIND = "kind"
+        const val KEY_REFERENCE_EPOCH = "reference_epoch"
+        const val KIND_ALMOST_THERE = "almost_there"
+        const val KIND_EATING_WINDOW = "eating_window"
+        private const val NOTIF_ID_ALMOST_THERE = 2001
+        private const val NOTIF_ID_WINDOW_CLOSING = 2002
     }
 }

@@ -31,6 +31,11 @@ class NeedsEscalationTest {
         assertTrue(estimate(itemName = "ASSORTED sushi").needsEscalation())
     }
 
+    @Test
+    fun boiledFoodDoesNotEscalateBecauseItContainsOilLetters() {
+        assertFalse(estimate(itemName = "Boiled egg", notes = "plain").needsEscalation())
+    }
+
     private fun estimate(
         itemName: String = "Plain rice",
         confidence: String = "high",

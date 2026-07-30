@@ -80,9 +80,16 @@ class SettingsRepo @Inject constructor(
     suspend fun setHealthLastSync(epoch: Long) = update { it[KEY_HEALTH_LAST_SYNC] = epoch }
 
     // HC change token is device-specific operational state — not observed by UI, not backed up.
-    suspend fun healthChangeToken(): String? = context.settingsDataStore.data.first()[KEY_HEALTH_TOKEN]
-    suspend fun setHealthChangeToken(token: String?) = update {
-        if (token == null) it.remove(KEY_HEALTH_TOKEN) else it[KEY_HEALTH_TOKEN] = token
+    suspend fun healthChangeCursor(): Pair<String, String>? {
+        val prefs = context.settingsDataStore.data.first()
+        val token = prefs[KEY_HEALTH_TOKEN] ?: return null
+        val typeKey = prefs[KEY_HEALTH_TOKEN_TYPES] ?: return null
+        return token to typeKey
+    }
+
+    suspend fun setHealthChangeCursor(token: String, typeKey: String) = update {
+        it[KEY_HEALTH_TOKEN] = token
+        it[KEY_HEALTH_TOKEN_TYPES] = typeKey
     }
 
     suspend fun setWeighInEnabled(value: Boolean) = update { it[KEY_WEIGH_ENABLED] = value }
@@ -185,5 +192,6 @@ class SettingsRepo @Inject constructor(
         val KEY_HEALTH_EXPORT = booleanPreferencesKey("health_export_enabled")
         val KEY_HEALTH_LAST_SYNC = longPreferencesKey("health_last_sync")
         val KEY_HEALTH_TOKEN = stringPreferencesKey("health_change_token")
+        val KEY_HEALTH_TOKEN_TYPES = stringPreferencesKey("health_change_token_types")
     }
 }

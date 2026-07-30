@@ -10,7 +10,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
    - Cancellation is automatic when the user takes the opposite action
 2. **AI calorie counter** — user supplies their OpenRouter key, then either snaps a photo (with optional comment) or types a description ("100 g watermelon"); gets structured macros back, edits if needed, saves locally. Model choice is automatic through the escalation chain in `FoodAnalysisModels`. Non-AI paths: manual entry and one-tap meal presets ("Quick add"). The `ai_features_enabled` setting (default on) hides every AI entry point.
 3. **Weight tracking** — manual entries, line chart, edit/delete, weekly weigh-in reminder. Food and weight entries have editable date/time (backdating allowed, future dates blocked).
-4. **Workout timer** — simple, interval, and exercise/rest timers with local workout logging and dashboard calorie bonus.
+4. **Workout timer** — simple, interval, and exercise/rest timers with local workout logging and dashboard calorie bonus. Active phase, pause state, and accumulated exercise/rest time persist in Room across process or service death.
 5. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
 6. **FOSS/privacy branding** — first-run intro and Settings/About emphasize GPL-3.0, no backend, no accounts, no analytics, and local-first data ownership without adding persistent dashboard clutter.
 
@@ -19,7 +19,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 - **Kotlin** + **Jetpack Compose** + **Material 3** (dynamic color)
 - **Min SDK 26**, **compile SDK 36**, **target SDK 36**
 - **Hilt** for DI; **Room** for SQLite; **DataStore** for prefs; **EncryptedSharedPreferences** for the API key
-- **WorkManager** for one-shot reminder workers; **foreground service** for the active-fast live notification
+- **WorkManager** for one-shot reminder workers (including a self-rescheduling weekly weigh-in); **foreground services** for active-fast and active-workout notifications
 - **CameraX** for capture; **Ktor + kotlinx.serialization** for OpenRouter; **Coil** for image rendering
 - Charts are hand-rolled Compose (`WeightChart`) — no chart library.
 - **AGP 8.13.2**, **Gradle 9.0**, **Kotlin 2.0.21**, **KSP** (not kapt)
@@ -71,9 +71,14 @@ app/src/main/java/com/kbul/spicycrab/
 - **Single-activity** Compose architecture with bottom nav. Sub-flows (Capture → Analyze) live in a sealed `UiMode` inside the feature ViewModel, **not** as nav routes.
 - **ViewModels** use `StateFlow` (not LiveData), exposed as `stateIn(viewModelScope, WhileSubscribed(5_000), initial)`.
 - **DI**: every repository / DAO / network client is `@Singleton` and constructor-injected via Hilt.
-- **Source of truth for the active fast = the row in Room** (start timestamp). UI ticks every 1s and computes elapsed; killing the app never breaks the timer.
-- **Reminders** are *state-driven*, not time-of-day-driven. Schedule when a fast starts/ends; cancel on the opposite event.
-- **Backup** is one versioned JSON file (`BackupFile`, kotlinx.serialization) holding all Room tables + settings, never the API key. Manual export/import lives in Settings; import offers **merge** (union deduped on natural keys — timestamps, preset name, journal date; local wins on conflict, journal concatenates, one active fast survives; importing the same file twice is a no-op) or **replace**. When an auto-backup folder is set (`ACTION_OPEN_DOCUMENT_TREE`, persisted URI permission), `BackupManager` rewrites `SoloForge-backup.json` there on every data change, debounced — that folder synced to Drive/Dropbox is the continuous off-device backup. CSV export was removed in 0.3.0.
+- **Source of truth for active fasts and workouts = their rows in Room.** UI ticks from persisted timestamps, and `MainActivity` reconciles their foreground services on start so force-stop plus relaunch restores live notifications.
+- **At most one fast may be active.** All fast mutations are serialized and reject future timestamps or restoring a historical fast while another is active; backup merge and replace enforce the same invariant.
+- **Source of truth for the active workout = the row in Room**, including current phase, phase start, and accumulated exercise/rest seconds. `WorkoutStateHolder` is only the live in-process mirror.
+- **AI off is a hard privacy boundary.** Disabling it closes and cancels active analysis flows, deletes owned capture-cache files, and the repository checks the setting before every OpenRouter request.
+- **Notification permission is requested centrally after onboarding.** Feature screens must not own their own notification-permission prompt.
+- **Reminders** are *state-driven*, not time-of-day-driven. Settings changes resynchronize scheduled work, and workers re-check current Room/settings state before notifying or rescheduling.
+- **Backup** is one versioned JSON file (`BackupFile`, kotlinx.serialization) holding all Room tables + settings, never the API key or saved food photos. Imported photo paths are cleared; deleting a food entry deletes its owned photo. Manual export/import lives in Settings; import offers **merge** (union deduped on natural keys — timestamps, preset name, journal date; local wins on conflict, journal concatenates, one active fast survives; importing the same file twice is a no-op) or **replace**. When an auto-backup folder is set (`ACTION_OPEN_DOCUMENT_TREE`, persisted URI permission), `BackupManager` stages and rotates `SoloForge-backup.json` on every data change so an interrupted write cannot destroy the last good copy; writes are debounced and report the latest success/failure in Settings — that folder synced to Drive/Dropbox is the continuous off-device backup. CSV export was removed in 0.3.0.
+- **Health Connect initial import anchors a change token before reading history**, then consumes changes from that token so records changed during the initial read cannot be missed.
 - **Android system backup is disabled** (`allowBackup=false`). Device migration should use explicit export/import flows, not silent Android cloud backup.
 - **API key** is the only secret; it's in EncryptedSharedPreferences and excluded from auto-backup (`backup_rules.xml` / `data_extraction_rules.xml`).
 - **All user-visible strings live in `res/values/strings.xml`** (`screen_element` naming, e.g. `fasting_start`). Compose uses `stringResource`/`pluralStringResource`; services, workers, and repositories use `context.getString`. Shipped locales: en, de, es, fr, pt-rBR, ru, tr (`locales_config.xml` + `localeFilters` in `app/build.gradle.kts` must list the same set). OpenRouter prompts (`VisionPrompts.kt`) stay English — they're model input, not UI.

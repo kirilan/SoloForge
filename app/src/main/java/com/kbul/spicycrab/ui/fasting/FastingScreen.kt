@@ -1,9 +1,5 @@
 package com.kbul.spicycrab.ui.fasting
 
-import android.Manifest
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -25,7 +21,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -46,16 +41,6 @@ fun FastingScreen(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val editing by viewModel.editing.collectAsStateWithLifecycle()
-    val notifPermLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { /* user's choice respected silently */ }
-
-    LaunchedEffect(Unit) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
-
     val active = state.active
     val now = state.nowMillis
 
@@ -140,6 +125,7 @@ fun FastingScreen(
     editing?.let { session ->
         EditFastSheet(
             session = session,
+            activeSessionId = state.active?.id,
             onSave = viewModel::saveEdit,
             onDelete = viewModel::deleteSession,
             onDismiss = viewModel::dismissEdit,

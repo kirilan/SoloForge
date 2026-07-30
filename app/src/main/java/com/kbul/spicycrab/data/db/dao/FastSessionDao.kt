@@ -30,6 +30,12 @@ interface FastSessionDao {
     @Query("SELECT * FROM fast_sessions ORDER BY startEpoch DESC LIMIT 1")
     suspend fun getMostRecent(): FastSession?
 
+    @Query("SELECT * FROM fast_sessions WHERE id = :id LIMIT 1")
+    suspend fun getById(id: Long): FastSession?
+
+    @Query("SELECT * FROM fast_sessions WHERE completed = 1 ORDER BY endEpoch DESC LIMIT 1")
+    suspend fun getMostRecentlyCompleted(): FastSession?
+
     @Query("SELECT * FROM fast_sessions ORDER BY startEpoch DESC")
     fun observeAll(): Flow<List<FastSession>>
 

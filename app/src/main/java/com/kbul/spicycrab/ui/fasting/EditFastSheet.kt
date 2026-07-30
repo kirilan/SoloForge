@@ -34,16 +34,15 @@ import com.kbul.spicycrab.data.db.entities.FastSession
 import com.kbul.spicycrab.domain.fasting.FastingMode
 import java.time.Instant
 import java.time.LocalDateTime
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 private val FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm")
-private val ZONE: ZoneId = ZoneId.systemDefault()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditFastSheet(
     session: FastSession,
+    activeSessionId: Long?,
     onSave: (FastSession) -> Unit,
     onDelete: (FastSession) -> Unit,
     onDismiss: () -> Unit,
@@ -104,14 +103,21 @@ fun EditFastSheet(
                 ) { Text(stringResource(R.string.common_cancel)) }
                 val errStartFormat = stringResource(R.string.fast_edit_error_start_format)
                 val errEndBeforeStart = stringResource(R.string.fast_edit_error_end_before_start)
+                val errFuture = stringResource(R.string.fast_edit_error_future)
+                val errActiveExists = stringResource(R.string.fast_edit_error_active_exists)
                 Button(
                     onClick = {
                         val startEpoch = parseEpoch(startText)
                         val endEpoch = if (endText.isBlank()) null else parseEpoch(endText)
                         when {
                             startEpoch == null -> error = errStartFormat
+                            startEpoch > System.currentTimeMillis() ||
+                                endEpoch?.let { it > System.currentTimeMillis() } == true ->
+                                error = errFuture
                             endEpoch != null && endEpoch < startEpoch ->
                                 error = errEndBeforeStart
+                            endEpoch == null && activeSessionId != null && activeSessionId != session.id ->
+                                error = errActiveExists
                             else -> onSave(
                                 session.copy(
                                     modeName = modeName,
@@ -133,8 +139,11 @@ fun EditFastSheet(
 }
 
 private fun formatEpoch(epoch: Long): String =
-    FORMAT.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), ZONE))
+    FORMAT.format(LocalDateTime.ofInstant(Instant.ofEpochMilli(epoch), java.time.ZoneId.systemDefault()))
 
 private fun parseEpoch(text: String): Long? = runCatching {
-    LocalDateTime.parse(text.trim(), FORMAT).atZone(ZONE).toInstant().toEpochMilli()
+    LocalDateTime.parse(text.trim(), FORMAT)
+        .atZone(java.time.ZoneId.systemDefault())
+        .toInstant()
+        .toEpochMilli()
 }.getOrNull()

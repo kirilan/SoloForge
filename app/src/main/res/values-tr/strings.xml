@@ -61,6 +61,8 @@
     <string name="fast_edit_end_label">Bitiş (boş = hâlâ sürüyor)</string>
     <string name="fast_edit_error_start_format">Başlangıç saati biçimi geçersiz.</string>
     <string name="fast_edit_error_end_before_start">Bitiş, başlangıçtan sonra olmalı.</string>
+    <string name="fast_edit_error_future">Oruç saatleri gelecekte olamaz.</string>
+    <string name="fast_edit_error_active_exists">Başka bir etkin orucu geri yüklemeden önce mevcut orucu bitirin.</string>
     <string name="fast_edit_delete">Orucu sil</string>
 
     <!-- Home -->
@@ -127,6 +129,7 @@
 
     <!-- Capture / Analyze -->
     <string name="capture_permission_required">Kamera izni gerekli.</string>
+    <string name="capture_error">Fotoğraf çekilemedi. Kamerayı kontrol edip tekrar deneyin.</string>
     <string name="capture_tap">Çekmek için dokunun</string>
     <string name="analyze_describe_title">Öğünü tarif et</string>
     <string name="analyze_review_title">Öğünü gözden geçir</string>
@@ -153,6 +156,8 @@
     <string name="error_save_failed">Kaydetme başarısız</string>
     <string name="error_reanalysis_failed">Yeniden analiz başarısız</string>
     <string name="error_no_api_key">Ayarlar\'dan OpenRouter API anahtarınızı girin.</string>
+    <string name="error_ai_disabled">Yapay zekâ özellikleri Ayarlar\'da devre dışı.</string>
+    <string name="error_invalid_nutrition">Bir ad, pozitif kalori ve negatif olmayan besin değerleri girin.</string>
     <string name="analysis_detail_prompt">Porsiyon boyutu, pişirme yağı, soslar ve gizli malzemeler gibi ayrıntılar ekleyip yeniden analiz edin.</string>
 
     <!-- Workout -->
@@ -215,6 +220,8 @@
     <string name="settings_section_data">Veriler</string>
     <string name="settings_export_folder_set">Otomatik yedek klasörü ayarlandı. SoloForge-backup.json her değişiklikte oraya yeniden yazılır.</string>
     <string name="settings_export_folder_none">Otomatik yedek klasörü seçilmedi. Cihaz dışı sürekli yedekleme için eşitlenen bir klasör (örn. Google Drive) seçin.</string>
+    <string name="settings_auto_backup_last_success">Son otomatik yedekleme: %1$s</string>
+    <string name="settings_auto_backup_failed">Otomatik yedekleme başarısız oldu. Klasör erişimini ve kullanılabilir alanı kontrol edin.</string>
     <string name="settings_pick_folder">Klasör seç</string>
     <string name="settings_save_photo">Her kayıtla fotoğrafı yerel olarak sakla</string>
     <string name="settings_export_backup">Yedeği dışa aktar</string>
@@ -255,6 +262,7 @@
         <item quantity="other">%d yeni kayıt birleştirildi.</item>
     </plurals>
     <string name="settings_msg_import_failed">İçe aktarma başarısız: %1$s</string>
+    <string name="settings_msg_import_completed_warning">Veriler içe aktarıldı ancak bazı ayarlar veya arka plan görevleri yenilenemedi.</string>
 
     <!-- Notifications -->
     <string name="channel_active_fast">Etkin oruç sayacı</string>

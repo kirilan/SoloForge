@@ -18,6 +18,7 @@ import com.kbul.spicycrab.data.db.dao.WeightEntryDao
 import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
 import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
+import com.kbul.spicycrab.data.prefs.AppSettings
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.workout.WorkoutMode
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -65,10 +66,39 @@ class HealthConnectRepository @Inject constructor(
         if (!s.healthImportEnabled && !s.healthExportEnabled) return
         syncMutex.withLock {
             val granted = runCatching { grantedPermissions() }.getOrElse { return }
-            if (s.healthImportEnabled) runCatching { import(granted) }
-            if (s.healthExportEnabled) runCatching { export(granted) }
-            settings.setHealthLastSync(System.currentTimeMillis())
+            val (importEnabled, exportEnabled) = reconcileEnabledSettings(s, granted)
+            if (!importEnabled && !exportEnabled) return@withLock
+            val importSucceeded = !importEnabled ||
+                granted.any { it in importPermissions } && runCatching { import(granted) }.isSuccess
+            val exportSucceeded = !exportEnabled ||
+                granted.any { it in exportPermissions } && runCatching { export(granted) }.isSuccess
+            if (importSucceeded && exportSucceeded) {
+                settings.setHealthLastSync(System.currentTimeMillis())
+            }
         }
+    }
+
+    suspend fun reconcileEnabledSettings() {
+        if (!isAvailable()) return
+        val granted = runCatching { grantedPermissions() }.getOrElse { return }
+        reconcileEnabledSettings(settings.settings.first(), granted)
+    }
+
+    private suspend fun reconcileEnabledSettings(
+        current: AppSettings,
+        granted: Set<String>,
+    ): Pair<Boolean, Boolean> {
+        var importEnabled = current.healthImportEnabled
+        var exportEnabled = current.healthExportEnabled
+        if (importEnabled && granted.none { it in importPermissions }) {
+            settings.setHealthImportEnabled(false)
+            importEnabled = false
+        }
+        if (exportEnabled && granted.none { it in exportPermissions }) {
+            settings.setHealthExportEnabled(false)
+            exportEnabled = false
+        }
+        return importEnabled to exportEnabled
     }
 
     /** Removes our exported copy when a locally-created row is deleted. Imported rows are one-way: never propagated. */
@@ -93,15 +123,19 @@ class HealthConnectRepository @Inject constructor(
             if (HealthPermission.getReadPermission(ExerciseSessionRecord::class) in granted) add(ExerciseSessionRecord::class)
         }
         if (types.isEmpty()) return
-        val token = settings.healthChangeToken()
-        val consumed = token != null && runCatching { consumeChanges(token) }.getOrDefault(false)
-        if (!consumed) initialImport(types)
+        val typeKey = changeTypeKey(types)
+        val cursor = settings.healthChangeCursor()
+        val consumed = cursor != null &&
+            cursor.second == typeKey &&
+            runCatching { consumeChanges(cursor.first, typeKey) }.getOrDefault(false)
+        if (!consumed) initialImport(types, typeKey)
     }
 
-    /** First import (or expired/invalid token): last 30 days, then start a fresh change token. */
-    private suspend fun initialImport(types: Set<KClass<out Record>>) {
+    /** First import (or expired/invalid token): anchor changes, read history, then catch up. */
+    private suspend fun initialImport(types: Set<KClass<out Record>>, typeKey: String) {
         val since = Instant.now().minus(30, ChronoUnit.DAYS)
         val client = client()
+        val startToken = client.getChangesToken(ChangesTokenRequest(types))
         if (WeightRecord::class in types) {
             client.readRecords(ReadRecordsRequest(WeightRecord::class, TimeRangeFilter.after(since)))
                 .records.forEach { upsertWeight(it) }
@@ -110,11 +144,13 @@ class HealthConnectRepository @Inject constructor(
             client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class, TimeRangeFilter.after(since)))
                 .records.forEach { upsertWorkout(it) }
         }
-        settings.setHealthChangeToken(client.getChangesToken(ChangesTokenRequest(types)))
+        check(consumeChanges(startToken, typeKey)) {
+            "Health Connect change token expired during initial import"
+        }
     }
 
     /** Returns false when the token expired and a full re-import is needed. */
-    private suspend fun consumeChanges(startToken: String): Boolean {
+    private suspend fun consumeChanges(startToken: String, typeKey: String): Boolean {
         val client = client()
         var token = startToken
         while (true) {
@@ -135,11 +171,16 @@ class HealthConnectRepository @Inject constructor(
             }
             token = response.nextChangesToken
             if (!response.hasMore) {
-                settings.setHealthChangeToken(token)
+                settings.setHealthChangeCursor(token, typeKey)
                 return true
             }
         }
     }
+
+    private fun changeTypeKey(types: Set<KClass<out Record>>): String = buildList {
+        if (WeightRecord::class in types) add("weight")
+        if (ExerciseSessionRecord::class in types) add("exercise")
+    }.sorted().joinToString(",")
 
     private suspend fun upsertWeight(record: WeightRecord) {
         if (record.metadata.dataOrigin.packageName == context.packageName) return

@@ -76,8 +76,9 @@ class FastingViewModel @Inject constructor(
 
     fun saveEdit(updated: FastSession) {
         viewModelScope.launch {
-            repository.updateSession(updated)
-            _editing.value = null
+            if (repository.updateSession(updated)) {
+                _editing.value = null
+            }
         }
     }
 

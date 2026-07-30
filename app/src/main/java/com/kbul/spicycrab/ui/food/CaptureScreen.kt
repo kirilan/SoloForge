@@ -87,6 +87,8 @@ private fun CameraContent(onCaptured: (File) -> Unit, onCancel: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val executor = remember { ContextCompat.getMainExecutor(context) }
     val imageCapture = remember { ImageCapture.Builder().build() }
+    var captureError by remember { mutableStateOf(false) }
+    var isCapturing by remember { mutableStateOf(false) }
 
     Box(Modifier.fillMaxSize().background(Color.Black)) {
         AndroidView(
@@ -97,19 +99,19 @@ private fun CameraContent(onCaptured: (File) -> Unit, onCancel: () -> Unit) {
                 }
                 val providerFuture = ProcessCameraProvider.getInstance(ctx)
                 providerFuture.addListener({
-                    val provider = providerFuture.get()
-                    val preview = Preview.Builder().build().apply {
-                        surfaceProvider = previewView.surfaceProvider
-                    }
-                    provider.unbindAll()
                     runCatching {
+                        val provider = providerFuture.get()
+                        val preview = Preview.Builder().build().apply {
+                            surfaceProvider = previewView.surfaceProvider
+                        }
+                        provider.unbindAll()
                         provider.bindToLifecycle(
                             lifecycleOwner,
                             CameraSelector.DEFAULT_BACK_CAMERA,
                             preview,
                             imageCapture,
                         )
-                    }
+                    }.onFailure { captureError = true }
                 }, executor)
                 previewView
             },
@@ -125,8 +127,32 @@ private fun CameraContent(onCaptured: (File) -> Unit, onCancel: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
+            if (captureError) {
+                Text(
+                    stringResource(R.string.capture_error),
+                    color = MaterialTheme.colorScheme.errorContainer,
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+            }
             Button(
-                onClick = { takePhoto(context, imageCapture, executor, onCaptured) },
+                onClick = {
+                    captureError = false
+                    isCapturing = true
+                    takePhoto(
+                        context = context,
+                        imageCapture = imageCapture,
+                        executor = executor,
+                        onCaptured = {
+                            isCapturing = false
+                            onCaptured(it)
+                        },
+                        onError = {
+                            isCapturing = false
+                            captureError = true
+                        },
+                    )
+                },
+                enabled = !isCapturing,
                 modifier = Modifier.size(72.dp),
                 colors = ButtonDefaults.buttonColors(containerColor = Color.White),
             ) {}
@@ -141,6 +167,7 @@ private fun takePhoto(
     imageCapture: ImageCapture,
     executor: Executor,
     onCaptured: (File) -> Unit,
+    onError: () -> Unit,
 ) {
     val photoFile = File(context.cacheDir, "capture_${System.currentTimeMillis()}.jpg")
     val output = ImageCapture.OutputFileOptions.Builder(photoFile).build()
@@ -153,7 +180,8 @@ private fun takePhoto(
                 onCaptured(photoFile)
             }
             override fun onError(exception: ImageCaptureException) {
-                // Surface to user via a toast in a future iteration; for now, just bail.
+                runCatching { photoFile.delete() }
+                onError()
             }
         },
     )

@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FoodEntry
+import com.kbul.spicycrab.domain.nutrition.hasValidNutrition
 import com.kbul.spicycrab.ui.common.DateTimeField
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -102,6 +103,12 @@ fun EditFoodSheet(
             NumField(stringResource(R.string.label_fat_g), draft.fatG) { draft = draft.copy(fatG = it) }
             NumField(stringResource(R.string.label_fiber_g), draft.fiberG) { draft = draft.copy(fiberG = it) }
 
+            state.saveError?.let {
+                ElevatedCard(Modifier.fillMaxWidth()) {
+                    Text(it, Modifier.padding(12.dp), color = MaterialTheme.colorScheme.error)
+                }
+            }
+
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 OutlinedButton(
                     onClick = onDismiss,
@@ -109,14 +116,14 @@ fun EditFoodSheet(
                 ) { Text(stringResource(R.string.common_cancel)) }
                 Button(
                     onClick = { onSave(draft) },
-                    enabled = !state.isReanalyzing,
+                    enabled = !state.isReanalyzing && draft.hasValidNutrition(),
                     modifier = Modifier.weight(1f).height(56.dp),
                 ) { Text(stringResource(R.string.common_save)) }
             }
             var presetSaved by remember(draft.itemName) { mutableStateOf(false) }
             OutlinedButton(
                 onClick = { onSaveAsPreset(draft); presetSaved = true },
-                enabled = draft.itemName.isNotBlank() && !presetSaved,
+                enabled = draft.hasValidNutrition() && !presetSaved,
                 modifier = Modifier.fillMaxWidth().height(48.dp),
             ) { Text(stringResource(if (presetSaved) R.string.preset_saved else R.string.preset_save)) }
 

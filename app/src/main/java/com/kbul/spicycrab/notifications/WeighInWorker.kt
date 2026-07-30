@@ -13,13 +13,40 @@ import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import com.kbul.spicycrab.MainActivity
 import com.kbul.spicycrab.R
+import com.kbul.spicycrab.data.prefs.SettingsRepo
+import androidx.hilt.work.HiltWorker
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
+import java.time.DayOfWeek
+import java.time.LocalTime
 
-class WeighInWorker(
-    context: Context,
-    params: WorkerParameters,
+@HiltWorker
+class WeighInWorker @AssistedInject constructor(
+    @Assisted context: Context,
+    @Assisted params: WorkerParameters,
+    private val settings: SettingsRepo,
+    private val reminderScheduler: ReminderScheduler,
 ) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
+        val day = inputData.getInt(KEY_DAY_OF_WEEK, DayOfWeek.MONDAY.value)
+            .coerceIn(DayOfWeek.MONDAY.value, DayOfWeek.SUNDAY.value)
+        val hour = inputData.getInt(KEY_HOUR, 8).coerceIn(0, 23)
+        val minute = inputData.getInt(KEY_MINUTE, 0).coerceIn(0, 59)
+        val current = settings.current()
+        if (
+            !current.weighInEnabled ||
+            current.weighInDayOfWeek != day ||
+            current.weighInHour != hour ||
+            current.weighInMinute != minute
+        ) {
+            return Result.success()
+        }
+        reminderScheduler.scheduleNextWeeklyWeighIn(
+            DayOfWeek.of(day),
+            LocalTime.of(hour, minute),
+        )
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val granted = ContextCompat.checkSelfPermission(
                 applicationContext,
@@ -51,5 +78,8 @@ class WeighInWorker(
 
     companion object {
         const val NOTIF_ID = 3001
+        const val KEY_DAY_OF_WEEK = "day_of_week"
+        const val KEY_HOUR = "hour"
+        const val KEY_MINUTE = "minute"
     }
 }
