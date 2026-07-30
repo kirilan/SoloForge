@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-enum class WeightRange(@StringRes val labelRes: Int, val days: Int?) {
+enum class WeightRange(@param:StringRes val labelRes: Int, val days: Int?) {
     SEVEN(R.string.weight_range_7d, 7), THIRTY(R.string.weight_range_30d, 30), ALL(R.string.weight_range_all, null)
 }
 

@@ -50,7 +50,7 @@ data class EditingState(
 class FoodViewModel @Inject constructor(
     private val repository: FoodRepository,
     private val settings: SettingsRepo,
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
     private var analysisJob: Job? = null
     private var reanalysisJob: Job? = null

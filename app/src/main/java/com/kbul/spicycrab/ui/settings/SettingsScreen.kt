@@ -28,13 +28,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -367,12 +368,13 @@ private fun WeighInTimeRow(
     minute: Int,
     onChange: (Int, Int, Int) -> Unit,
 ) {
+    val locale = LocalLocale.current.platformLocale
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text(stringResource(R.string.settings_day), style = MaterialTheme.typography.bodyMedium)
         Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
             java.time.DayOfWeek.entries.forEach { dow ->
                 val day = dow.value
-                val label = dow.getDisplayName(java.time.format.TextStyle.SHORT, java.util.Locale.getDefault())
+                val label = dow.getDisplayName(java.time.format.TextStyle.SHORT, locale)
                 androidx.compose.material3.FilterChip(
                     selected = dayOfWeek == day,
                     onClick = { onChange(day, hour, minute) },

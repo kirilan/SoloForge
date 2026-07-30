@@ -29,7 +29,7 @@ class FoodRepository @Inject constructor(
     private val client: OpenRouterClient,
     private val keyStore: SecureKeyStore,
     private val settings: SettingsRepo,
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
 
     fun observeAll(): Flow<List<FoodEntry>> = dao.observeAll()

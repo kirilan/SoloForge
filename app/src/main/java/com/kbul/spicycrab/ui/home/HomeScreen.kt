@@ -41,12 +41,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.kbul.spicycrab.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.kbul.spicycrab.data.db.entities.FoodEntry
 import com.kbul.spicycrab.data.db.entities.WeightEntry
@@ -63,7 +64,6 @@ import com.kbul.spicycrab.ui.weight.WeightChart
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.TextStyle
-import java.util.Locale
 
 @Composable
 fun HomeScreen(
@@ -139,6 +139,7 @@ private fun ProgressCalendarTile(
     toDisplayWeight: (Double) -> Double,
     onSaveJournal: (LocalDate, String) -> Unit,
 ) {
+    val locale = LocalLocale.current.platformLocale
     var expanded by rememberSaveable { mutableStateOf(false) }
 
     ElevatedCard(Modifier.fillMaxWidth()) {
@@ -162,7 +163,7 @@ private fun ProgressCalendarTile(
                         Text("<")
                     }
                     Text(
-                        state.calendarMonth.month.getDisplayName(TextStyle.FULL, Locale.getDefault()) +
+                        state.calendarMonth.month.getDisplayName(TextStyle.FULL, locale) +
                             " ${state.calendarMonth.year}",
                         style = MaterialTheme.typography.titleMedium,
                     )
@@ -176,7 +177,7 @@ private fun ProgressCalendarTile(
                 Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     DayOfWeek.entries.forEach { day ->
                         Text(
-                            day.getDisplayName(TextStyle.SHORT, Locale.getDefault()).take(2),
+                            day.getDisplayName(TextStyle.SHORT, locale).take(2),
                             modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -219,6 +220,7 @@ private fun CompactDaySelector(
     onNextDay: () -> Unit,
     onExpand: () -> Unit,
 ) {
+    val locale = LocalLocale.current.platformLocale
     Row(
         Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -238,12 +240,12 @@ private fun CompactDaySelector(
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(
-                selectedDate.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()),
+                selectedDate.dayOfWeek.getDisplayName(TextStyle.FULL, locale),
                 style = MaterialTheme.typography.labelLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             Text(
-                selectedDate.month.getDisplayName(TextStyle.SHORT, Locale.getDefault()) +
+                selectedDate.month.getDisplayName(TextStyle.SHORT, locale) +
                     " ${selectedDate.dayOfMonth}, ${selectedDate.year}",
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
@@ -352,11 +354,12 @@ private fun SelectedDayDetails(
 ) {
     if (day == null) return
 
+    val locale = LocalLocale.current.platformLocale
     val unit = if (useKg) "kg" else "lb"
     Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
         Text(
-            day.date.dayOfWeek.getDisplayName(TextStyle.FULL, Locale.getDefault()) +
-                ", ${day.date.month.getDisplayName(TextStyle.SHORT, Locale.getDefault())} ${day.date.dayOfMonth}",
+            day.date.dayOfWeek.getDisplayName(TextStyle.FULL, locale) +
+                ", ${day.date.month.getDisplayName(TextStyle.SHORT, locale)} ${day.date.dayOfMonth}",
             style = MaterialTheme.typography.titleMedium,
         )
 

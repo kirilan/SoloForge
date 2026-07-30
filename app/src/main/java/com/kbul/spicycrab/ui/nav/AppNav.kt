@@ -28,7 +28,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.kbul.spicycrab.R
-import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavHostController
@@ -45,7 +45,7 @@ import com.kbul.spicycrab.ui.weight.WeightScreen
 import com.kbul.spicycrab.ui.workout.WorkoutScreen
 import androidx.core.content.ContextCompat
 
-enum class TopLevelDest(val route: String, @StringRes val labelRes: Int, val icon: ImageVector) {
+enum class TopLevelDest(val route: String, @param:StringRes val labelRes: Int, val icon: ImageVector) {
     Home("home", R.string.nav_home, Icons.Outlined.Home),
     Fasting("fasting", R.string.nav_fast, Icons.Outlined.AccessTime),
     Food("food", R.string.nav_food, Icons.Outlined.Restaurant),

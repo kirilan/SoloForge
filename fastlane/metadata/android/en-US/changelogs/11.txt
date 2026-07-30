@@ -1,0 +1,1 @@
+Active workouts now recover after the app process is stopped, reminders and live notifications are more reliable, and backup, food, fasting, and Health Connect edge cases have been hardened. This release also upgrades the Android build toolchain for continued platform compatibility.

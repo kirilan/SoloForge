@@ -26,7 +26,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 - **WorkManager** for one-shot reminder workers (including a self-rescheduling weekly weigh-in); **foreground services** for active-fast and active-workout notifications
 - **CameraX** for capture; **Ktor + kotlinx.serialization** for OpenRouter; **Coil** for image rendering
 - Charts are hand-rolled Compose (`WeightChart`); no chart library is used.
-- **AGP 8.13.2**, **Gradle 9.0**, **Kotlin 2.0.21**, **KSP** (not kapt)
+- **AGP 9.3.1**, **Gradle 9.5**, **Kotlin 2.3.21** with AGP built-in Kotlin, **KSP 2.3.10** (not kapt)
 
 ## Project layout
 

@@ -34,7 +34,7 @@ import kotlinx.coroutines.sync.withLock
 /** The only file that imports Health Connect types. Availability, permissions, and sync. */
 @Singleton
 class HealthConnectRepository @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val settings: SettingsRepo,
     private val weightDao: WeightEntryDao,
     private val workoutDao: WorkoutSessionDao,

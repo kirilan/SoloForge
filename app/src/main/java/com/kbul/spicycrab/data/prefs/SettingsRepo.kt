@@ -54,7 +54,7 @@ data class AppSettings(
 
 @Singleton
 class SettingsRepo @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
 
     val settings: Flow<AppSettings> = context.settingsDataStore.data.map { it.toAppSettings() }

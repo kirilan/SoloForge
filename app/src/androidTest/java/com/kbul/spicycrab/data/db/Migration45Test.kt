@@ -41,6 +41,6 @@ class Migration45Test {
 private fun SupportSQLiteDatabase.insertWeight(id: Long, timestamp: Long, weightKg: Double, note: String) {
     execSQL(
         "INSERT INTO weight_entries (id, timestampEpoch, weightKg, note) VALUES (?, ?, ?, ?)",
-        arrayOf(id, timestamp, weightKg, note),
+        arrayOf<Any>(id, timestamp, weightKg, note),
     )
 }

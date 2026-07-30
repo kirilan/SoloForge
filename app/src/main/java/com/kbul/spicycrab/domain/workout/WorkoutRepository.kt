@@ -19,7 +19,7 @@ class WorkoutRepository @Inject constructor(
     private val dao: WorkoutSessionDao,
     private val stateHolder: WorkoutStateHolder,
     private val healthConnect: HealthConnectRepository,
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
     private val startMutex = Mutex()
 

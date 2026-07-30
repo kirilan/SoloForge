@@ -3,7 +3,7 @@ package com.kbul.spicycrab.domain.workout
 import androidx.annotation.StringRes
 import com.kbul.spicycrab.R
 
-enum class WorkoutMode(@StringRes val labelRes: Int) {
+enum class WorkoutMode(@param:StringRes val labelRes: Int) {
     SIMPLE(R.string.workout_mode_simple),
     INTERVAL(R.string.workout_mode_interval),
     EXERCISE_REST(R.string.workout_mode_exercise_rest);

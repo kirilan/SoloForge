@@ -34,7 +34,7 @@ class SettingsViewModel @Inject constructor(
     private val fastingRepository: FastingRepository,
     private val backupManager: BackupManager,
     private val healthConnect: HealthConnectRepository,
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) : ViewModel() {
 
     val healthConnectAvailable: Boolean = healthConnect.isAvailable()

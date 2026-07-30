@@ -80,7 +80,7 @@ data class AutoBackupStatus(
 
 @Singleton
 class BackupManager @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val db: AppDatabase,
     private val fastDao: FastSessionDao,
     private val foodDao: FoodEntryDao,

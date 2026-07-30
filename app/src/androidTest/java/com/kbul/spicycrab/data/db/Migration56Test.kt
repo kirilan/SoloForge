@@ -52,6 +52,6 @@ private fun SupportSQLiteDatabase.insertFood(id: Long, name: String, kcal: Doubl
         "INSERT INTO food_entries (id, timestampEpoch, lastModifiedEpoch, itemName, grams, kcal, " +
             "proteinG, carbsG, fatG, fiberG, comment, modelUsed, confidence, imagePath) " +
             "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-        arrayOf(id, 1_000L, 1_000L, name, 300.0, kcal, 40.0, 50.0, 12.0, 5.0, "", "manual", "user", null),
+        arrayOf<Any?>(id, 1_000L, 1_000L, name, 300.0, kcal, 40.0, 50.0, 12.0, 5.0, "", "manual", "user", null),
     )
 }

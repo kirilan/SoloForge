@@ -19,7 +19,7 @@ class FastingRepository @Inject constructor(
     private val dao: FastSessionDao,
     private val reminderScheduler: ReminderScheduler,
     private val settings: SettingsRepo,
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
     private val startMutex = Mutex()
 
