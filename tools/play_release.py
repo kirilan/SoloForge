@@ -32,6 +32,7 @@ REPO = Path(__file__).resolve().parent.parent
 GRADLE = REPO / "app" / "build.gradle.kts"
 AAB = REPO / "app" / "build" / "outputs" / "bundle" / "release" / "app-release.aab"
 CHANGELOGS = REPO / "fastlane" / "metadata" / "android" / "en-US" / "changelogs"
+MAX_NOTES_CHARS = 500
 
 
 def version_code() -> int:
@@ -87,6 +88,9 @@ def main():
     if not notes_file.is_file():
         sys.exit(f"No changelog at {notes_file}")
     notes = notes_file.read_text(encoding="utf-8").strip()
+    # Play rejects this at commit time, after the AAB has already uploaded. 0.6.0 hit it at 547.
+    if len(notes) > MAX_NOTES_CHARS:
+        sys.exit(f"{notes_file.name} is {len(notes)} chars; Play's limit is {MAX_NOTES_CHARS}.")
 
     edit = check(session.post(f"{base}/edits"), "Creating edit")["id"]
     print(f"Edit {edit}")
