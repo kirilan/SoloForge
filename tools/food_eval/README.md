@@ -116,6 +116,21 @@ The prompt is parsed straight out of `VisionPrompts.kt`, and image prep mirrors
 `ImageUtils` (EXIF-rotate, long edge 1024, JPEG 85), so a run here is what the
 phone would have sent.
 
+## Screening a new candidate
+
+Five photos first, always:
+
+```bash
+python tools/food_eval/run_eval.py --model vendor/new-model --tag photo --limit 5
+```
+
+That is a latency and schema gate, not an accuracy measurement — too few cases carry ground
+truth for MAPE to mean anything at that size. It costs cents and takes a minute, and it has
+already rejected three models that answer a food photo in 27–55s. The client times out at 60s
+and the user is standing there holding a plate; a correct answer that late is a broken feature.
+
+Only run the full set on something that survives the screen.
+
 ## When to run it
 
 Before changing any model id, prompt, temperature, image preprocessing, or

@@ -4,6 +4,9 @@ Status: **CLOSED 2026-08-09.** Phases 1–2 shipped in v0.6.0; the model swap is
 open-weight question is settled, not parked. No further testing is planned — the eval harness
 stays for the next time a model id, prompt, or schema changes, which is what it was built for.
 
+Nine models across five vendors have now been measured against the shipped one and none
+displaced it — see "Full candidate sweep" at the end before proposing another.
+
 Shipped models, and they stay until new evidence says otherwise:
 `DEFAULT = google/gemini-3.1-flash-lite`, `ON_DEMAND_RETRY = google/gemini-3.1-pro-preview`.
 
@@ -256,6 +259,39 @@ Two things this settles, on a small sample:
   it.
 
 Three cases decide nothing on their own; the bad-angle bucket is still one photo deep.
+
+### Full candidate sweep (2026-08-09, 44 cases, after the plan closed)
+
+Nine models, five vendors, same cases, same prompt, one run each. Latency is measured from the
+same runs; the app's client times out at 60s and the user is waiting with a plate in hand.
+
+| model | kcal MAPE | action match | photo latency (median) | $/M in | outcome |
+|---|---|---|---|---|---|
+| **google/gemini-3.1-flash-lite** | 23.3% | 0.935 | **2.2s** | **0.25** | **kept** |
+| google/gemini-3.6-flash | 21.9% | 0.968 | 6.4s | 1.50 | 6× price, 3× latency, no real accuracy gain |
+| minimax/minimax-m3 | 27.2% | 0.839 | 8.8s | 0.30 | worse and slower |
+| openai/gpt-5.6-luna | 38.5% | 0.774 | — | 0.10 | multi-component 74.6%; over-asks |
+| qwen/qwen3-vl-30b-a3b | 35.9% | 0.786 | — | 0.13 | multi-component 61.8% |
+| qwen/qwen3-vl-8b | 53.0% | 0.643 | — | 0.12 | calls sharp photos blurry |
+| stepfun/step-3.7-flash | — | — | 27.3s (max 48.2s) | 0.20 | latency |
+| moonshotai/kimi-k3 | — | — | 29.2s | 3.00 | latency + 12× price |
+| xiaomi/mimo-v2.5 | — | — | ~55s | 0.14 | latency |
+
+**Nothing displaced the shipped model.** The only more accurate candidate, `gemini-3.6-flash`,
+wins by 1.4 pp of MAPE — inside run-to-run noise, since two flash-lite runs on the same day
+measured 22.9% and 23.3% — while costing 6× per token and tripling the wait.
+
+Two method notes worth keeping:
+
+- **Latency is a first-class metric now.** Three of nine candidates answer a food photo in
+  27–55s. The eval previously scored content only, so any of them could have posted a
+  respectable MAPE while being unusable in front of a waiting user.
+- **Screen new candidates on 5 photos before a full run** (`--tag photo --limit 5`). That caught
+  all three slow models in five calls each, for cents, instead of half an hour apiece. Accuracy
+  from a screen that size is noise — it is a latency and schema gate, nothing more.
+
+Everything above is single-run at temperature 0.2. Treat gaps under ~2 pp as no difference;
+latency and price differences are real.
 
 ## Sources
 
