@@ -159,13 +159,22 @@ def score(cases: list[dict], key: str, model: str, prompt: str, pause: float) ->
     rows = []
     for index, case in enumerate(cases, 1):
         print(f"[{index}/{len(cases)}] {case['id']}", flush=True)
-        row = {"id": case["id"], "tags": case.get("tags", []), "expected": case.get("expected", {})}
+        row = {
+            "id": case["id"],
+            "tags": case.get("tags", []),
+            "expected": case.get("expected", {}),
+            "image_case": bool(case.get("image")),
+        }
+        started = time.monotonic()
         try:
             dto = analyze(key, model, prompt, case)
         except Exception as exc:  # a failed call is a data point, not a crash
             row["error"] = f"{type(exc).__name__}: {exc}"
+            row["seconds"] = round(time.monotonic() - started, 1)
             rows.append(row)
             continue
+        # The user is standing there holding a plate; a correct answer at 55s is a broken feature.
+        row["seconds"] = round(time.monotonic() - started, 1)
         row["response"] = dto
         row["schema_errors"] = schema_errors(dto)
         row["action"] = routed_action(dto, bool(case.get("image")))
@@ -176,6 +185,7 @@ def score(cases: list[dict], key: str, model: str, prompt: str, pause: float) ->
 
 
 def summarize(rows: list[dict]) -> dict:
+    timed = sorted(r["seconds"] for r in rows if "seconds" in r)
     ok = [r for r in rows if "response" in r and not r["schema_errors"]]
     truthed = [r for r in ok if "kcal" in r["expected"]]
     summary = {
@@ -183,6 +193,12 @@ def summarize(rows: list[dict]) -> dict:
         "call_failures": sum("error" in r for r in rows),
         "valid_schema_rate": round(len(ok) / len(rows), 3) if rows else 0.0,
     }
+    if timed:
+        photo = sorted(r["seconds"] for r in rows if r.get("image_case") and "seconds" in r)
+        summary["seconds_median"] = timed[len(timed) // 2]
+        summary["seconds_max"] = timed[-1]
+        if photo:
+            summary["seconds_median_photo"] = photo[len(photo) // 2]
     if truthed:
         errors = [abs(r["response"]["calories"] - r["expected"]["kcal"]) for r in truthed]
         summary["kcal_mae"] = round(sum(errors) / len(truthed), 1)
