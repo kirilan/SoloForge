@@ -54,6 +54,21 @@ visible in frame. That is not a phone photo of dinner. Two consequences:
   obstructed cases need your own photos; until then `retry_image` routing is
   unexercised.
 
+## Adding your own photos
+
+Drop images in `images/`, describe them in `truth.csv`, and rerun the builder — those rows are
+merged into `cases.json` alongside the dataset cases. This is the only way to get `bad-angle`
+cases, and the only source of real phone-camera conditions.
+
+```
+filename,tags,comment,kcal,protein_g,carbs_g,fat_g,action
+dessert-plate-blurry.jpg,bad-angle phone,,,,,,retry_image
+```
+
+Numbers may be blank — a row with only an `action` still scores routing, which is often the
+more useful measurement. **Crop people out before adding a photo:** the eval sends the full
+frame to OpenRouter, and a face in the background is not part of what you are testing.
+
 ## Adding your own cases
 
 Top the sample up to ~40 cases, spread across the tags the script filters on:

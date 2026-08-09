@@ -112,6 +112,34 @@ def fetch_image(dish_id: str) -> Path | None:
     return dest
 
 
+def own_photo_cases() -> list[dict]:
+    """Rows from truth.csv — your own photos, the only source of bad-angle cases."""
+    path = HERE / "truth.csv"
+    if not path.exists():
+        return []
+    cases = []
+    with path.open(encoding="utf-8") as handle:
+        for row in csv.DictReader(l for l in handle if not l.startswith("#")):
+            name = (row.get("filename") or "").strip()
+            if not name or not (HERE / "images" / name).exists():
+                continue
+            expected = {
+                key: float(row[key])
+                for key in ("kcal", "protein_g", "carbs_g", "fat_g")
+                if (row.get(key) or "").strip()
+            }
+            if (row.get("action") or "").strip():
+                expected["action"] = row["action"].strip()
+            cases.append({
+                "id": f"own-{Path(name).stem}",
+                "tags": (row.get("tags") or "photo").split() + ["photo"],
+                "image": f"images/{name}",
+                "comment": (row.get("comment") or "").strip(),
+                "expected": expected,
+            })
+    return cases
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dishes", type=int, default=24)
@@ -135,6 +163,7 @@ def main() -> None:
         picked += [(name, d) for d in rng.sample(group, min(want, len(group)))]
 
     cases = [c for c in json.loads(SAMPLE.read_text(encoding="utf-8")) if not c.get("image")]
+    cases += own_photo_cases()
     skipped = 0
     for name, dish in picked:
         image = fetch_image(dish["id"])

@@ -204,13 +204,12 @@ measurement one.
 measured gap on our prompt is 53% vs 23% — worse than advertised, not better. Two specific
 findings beyond the headline:
 
-- **Qwen blames the photo.** It raised `image_quality` on 14 of 41 cases ("image is blurry"),
+- **Qwen-8B blames the photo.** It raised `image_quality` on 14 of 41 cases ("image is blurry"),
   Gemini on none, which is what wrecks the action match rate: eight cases routed to
   `retry_image` where the honest answer was `ask_user`. In the app that is the worst possible
   failure — it tells the user to retake a photo that was fine, instead of asking for the detail
-  that would actually help. **Confounded:** Nutrition5k images are 640×480, so "blurry" is
-  partly fair comment. Only real phone photos at 1024 px can separate model defect from dataset
-  artifact.
+  that would actually help. **Confound resolved (see phone photos below): it is the model, not
+  the dataset.**
 - **Qwen underestimates fatty food badly** — median bias −368 kcal on the oils bucket, against
   −50 for Gemini. Exactly the dishes where a calorie counter being wrong matters.
 
@@ -218,7 +217,31 @@ Not evidence of anything: the text-only bucket. Both models recite canonical ref
 for "100 g watermelon" to the digit, so that bucket tests JSON validity, not estimation.
 
 Schema and routing (phases 1–2) are validated by this run: 82/82 responses parsed, no invalid
-enums, no items/total mismatches, from two different model families.
+enums, no items/total mismatches, from two different model families. What it did **not** catch:
+a trailing comma in a nested `items[]` array, which reached a user's phone. Both models tested
+emit clean JSON, so `valid_schema_rate: 1.00` described those models, not the format.
+
+### Phone photos (2026-08-09, 3 cases, own camera)
+
+Three real photos, cropped to the plate, added via `truth.csv`: one genuinely soft-focus
+dessert plate, one mildly soft fried-fish plate, one sharp spaghetti plate.
+
+| | action match | called the sharp photos blurry |
+|---|---|---|
+| gemini-3.1-flash-lite | 3/3 | no |
+| qwen3-vl-8b | 1/3 | **yes, both** |
+| qwen3-vl-30b-a3b | 3/3 | no |
+
+Two things this settles, on a small sample:
+
+- **`retry_image` works end to end on a real photo.** Gemini raised `image_quality` on the
+  blurry dessert plate and routed to retry. Before this the shipped path had unit tests and
+  nothing else.
+- **The 8B's false-blur behaviour is not a dataset artifact.** At full phone resolution it
+  still called two perfectly sharp photos blurry. The confound recorded above is closed against
+  it.
+
+Three cases decide nothing on their own; the bad-angle bucket is still one photo deep.
 
 ## Sources
 
