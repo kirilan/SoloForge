@@ -88,6 +88,21 @@ class OpenRouterClientTest {
     }
 
     @Test
+    fun trailingCommasFromTheModelStillParse() = runBlocking {
+        val sloppy = """
+            {"item_name":"Chicken plate","estimated_grams":420.0,"calories":650.0,
+             "protein_g":45.0,"carbs_g":60.0,"fat_g":22.0,"fiber_g":4.0,
+             "items":[{"name":"Chicken","estimated_grams":180.0,"calories":300.0,"fiber_g":0.0,},
+                      {"name":"Rice","estimated_grams":240.0,"calories":350.0,"fiber_g":4.0,},],
+             "confidence":"medium","recommended_action":"accept","notes":"",}
+        """.trimIndent()
+        val dto = clientReturning(chatResponseWith(sloppy))
+            .analyzeFood("key", "model", null, "plate").getOrThrow()
+        assertEquals(2, dto.items.size)
+        assertEquals(650.0, dto.calories, 0.0)
+    }
+
+    @Test
     fun httpErrorBecomesFailureWithStatus() = runBlocking {
         val result = clientReturning("""{"error":{"message":"invalid key"}}""", HttpStatusCode.Unauthorized)
             .analyzeFood("bad", "model", null, "x")

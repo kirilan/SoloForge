@@ -15,6 +15,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.add
@@ -33,7 +34,14 @@ class OpenRouterClient internal constructor(engine: HttpClientEngine) {
 
     @Inject constructor() : this(OkHttp.create())
 
-    private val json = Json { ignoreUnknownKeys = true; isLenient = true }
+    // Models emit a stray comma before a closing brace often enough to matter, and more so
+    // since the response gained a nested items[] array. Rejecting the whole meal over it is worse.
+    @OptIn(ExperimentalSerializationApi::class)
+    private val json = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+        allowTrailingComma = true
+    }
 
     private val client = HttpClient(engine) {
         install(ContentNegotiation) { json(this@OpenRouterClient.json) }
