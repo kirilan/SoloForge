@@ -66,6 +66,7 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
             state = analyze,
             onCommentChange = viewModel::onCommentChange,
             onAnalyze = viewModel::analyze,
+            onRetryStronger = viewModel::retryWithStrongerModel,
             onSave = viewModel::saveEntry,
             onCancel = viewModel::cancelAnalyze,
             onEstimateUpdate = { updated -> viewModel.updateEstimate { updated } },

@@ -1,11 +1,12 @@
 package com.kbul.spicycrab.domain.workout
 
 import android.content.Context
-import androidx.core.content.ContextCompat
 import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
 import com.kbul.spicycrab.domain.health.HealthConnectRepository
 import com.kbul.spicycrab.notifications.WorkoutNotificationService
+import com.kbul.spicycrab.notifications.tryStartForegroundService
+import com.kbul.spicycrab.notifications.tryStartService
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -24,17 +25,17 @@ class WorkoutRepository @Inject constructor(
     private val startMutex = Mutex()
 
     fun observeAll(): Flow<List<WorkoutSession>> = dao.observeAll()
+    // Read-only: the service owns the holder. Writing the reconciled value back from here raced
+    // with it — a Room emission from before an insert still carries null, which would wipe the
+    // state the service had just set, leaving its notification and wakelock reading an empty state.
     fun observeActive(): Flow<ActiveWorkoutState?> =
         combine(stateHolder.state, dao.observeActive()) { memory, dbActive ->
-            reconcileActiveWorkoutState(memory, dbActive).also { reconciled ->
-                if (reconciled != memory) stateHolder.set(reconciled)
-            }
+            reconcileActiveWorkoutState(memory, dbActive)
         }
 
     suspend fun resumeActiveNotification() {
         if (dao.getActive() == null) return
-        ContextCompat.startForegroundService(
-            context,
+        context.tryStartForegroundService(
             WorkoutNotificationService.restoreIntent(context),
         )
     }
@@ -62,27 +63,26 @@ class WorkoutRepository @Inject constructor(
         )
         val id = dao.insert(draft)
         val saved = draft.copy(id = id)
-        ContextCompat.startForegroundService(
-            context,
+        context.tryStartForegroundService(
             WorkoutNotificationService.startIntent(context, id, mode, intervalSeconds, now),
         )
         saved
     }
 
     fun togglePhase() {
-        context.startService(WorkoutNotificationService.togglePhaseIntent(context))
+        context.tryStartService(WorkoutNotificationService.togglePhaseIntent(context))
     }
 
     fun togglePause() {
-        context.startService(WorkoutNotificationService.togglePauseIntent(context))
+        context.tryStartService(WorkoutNotificationService.togglePauseIntent(context))
     }
 
     fun pause() {
-        context.startService(WorkoutNotificationService.pauseIntent(context))
+        context.tryStartService(WorkoutNotificationService.pauseIntent(context))
     }
 
     suspend fun stop() {
-        context.startService(WorkoutNotificationService.stopIntent(context))
+        context.tryStartService(WorkoutNotificationService.stopIntent(context))
     }
 
     suspend fun update(updated: WorkoutSession) {

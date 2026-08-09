@@ -159,6 +159,15 @@
     <string name="error_ai_disabled">Las funciones de IA están desactivadas en Ajustes.</string>
     <string name="error_invalid_nutrition">Introduce un nombre, calorías positivas y valores nutricionales no negativos.</string>
     <string name="analysis_detail_prompt">Añade detalles como el tamaño de la porción, aceite, salsas e ingredientes ocultos, y vuelve a analizar.</string>
+    <string name="analysis_uncertain_title">Esta estimación es incierta</string>
+    <string name="analysis_hint_image_quality">La foto es difícil de leer: repítela más cerca y con mejor luz.</string>
+    <string name="analysis_hint_identity">El plato es difícil de identificar: nómbralo en la descripción.</string>
+    <string name="analysis_hint_portion">El tamaño de la porción es una suposición: añade el peso o la ración.</string>
+    <string name="analysis_hint_preparation">Se desconoce la preparación: indica si es frito, a la parrilla o hervido.</string>
+    <string name="analysis_hint_hidden">Puede haber aceite, salsa o relleno ocultos: descríbelos si los conoces.</string>
+    <string name="analysis_retry_wont_help">Un modelo más potente no puede ver lo que la foto no muestra. Los detalles ayudan más.</string>
+    <string name="analysis_retry_stronger">Reintentar con un modelo más potente</string>
+    <string name="analysis_retry_disclosure">Envía una solicitud más a %1$s (modelo propietario) a través de OpenRouter con tu clave.</string>
 
     <!-- Workout -->
     <string name="workout_mode_simple">Simple</string>
@@ -274,7 +283,7 @@
     <string name="channel_weight_reminders">Recordatorios de peso</string>
     <string name="channel_weight_reminders_desc">Recordatorio semanal de pesaje</string>
     <string name="notif_fasting_title">Ayuno · %1$s</string>
-    <string name="notif_fasting_text">%1$s transcurrido · %2$s restante</string>
+    <string name="notif_fasting_target">Objetivo a las %1$s</string>
     <string name="notif_workout_title">Ejercicio · %1$s</string>
     <string name="notif_workout_title_plain">Ejercicio</string>
     <string name="notif_workout_active">Activo</string>

@@ -27,8 +27,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kbul.spicycrab.R
+import com.kbul.spicycrab.domain.nutrition.AnalysisAction
+import com.kbul.spicycrab.domain.nutrition.FoodAnalysisModels
 import com.kbul.spicycrab.domain.nutrition.NutritionEstimate
+import com.kbul.spicycrab.domain.nutrition.UncertaintyReason
 import com.kbul.spicycrab.domain.nutrition.hasValidNutrition
+import com.kbul.spicycrab.domain.nutrition.routedAction
+import com.kbul.spicycrab.domain.nutrition.strongerModelCanHelp
 import java.io.File
 
 @Composable
@@ -37,6 +42,7 @@ fun AnalyzeScreen(
     state: AnalyzeState,
     onCommentChange: (String) -> Unit,
     onAnalyze: () -> Unit,
+    onRetryStronger: () -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
     onEstimateUpdate: (NutritionEstimate) -> Unit,
@@ -95,6 +101,9 @@ fun AnalyzeScreen(
             }
         }
         state.estimate?.let { est ->
+            if (!state.isLoading && est.routedAction(hasImage = !textOnly) != AnalysisAction.ACCEPT) {
+                UncertaintyCard(est, textOnly, onRetryStronger)
+            }
             EstimateForm(est, onEstimateUpdate)
             Row(
                 Modifier.fillMaxWidth(),
@@ -152,18 +161,54 @@ private fun EstimateForm(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            if (est.detailPrompt.isNotBlank()) {
-                ElevatedCard(Modifier.fillMaxWidth()) {
-                    Text(
-                        est.detailPrompt,
-                        Modifier.padding(12.dp),
-                        color = MaterialTheme.colorScheme.error,
-                        style = MaterialTheme.typography.bodyMedium,
-                    )
-                }
-            }
         }
     }
+}
+
+@Composable
+private fun UncertaintyCard(
+    est: NutritionEstimate,
+    textOnly: Boolean,
+    onRetryStronger: () -> Unit,
+) {
+    ElevatedCard(Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(
+                stringResource(R.string.analysis_uncertain_title),
+                style = MaterialTheme.typography.titleMedium,
+            )
+            val hints = est.uncertaintyReasons.map { stringResource(it.hintRes(textOnly)) }
+                .ifEmpty { listOf(stringResource(R.string.analysis_detail_prompt)) }
+            hints.forEach {
+                Text("• $it", style = MaterialTheme.typography.bodyMedium)
+            }
+            if (!est.strongerModelCanHelp()) {
+                Text(
+                    stringResource(R.string.analysis_retry_wont_help),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            OutlinedButton(
+                onClick = onRetryStronger,
+                modifier = Modifier.fillMaxWidth().height(48.dp),
+            ) { Text(stringResource(R.string.analysis_retry_stronger)) }
+            Text(
+                stringResource(R.string.analysis_retry_disclosure, FoodAnalysisModels.ON_DEMAND_RETRY),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+private fun UncertaintyReason.hintRes(textOnly: Boolean): Int = when (this) {
+    UncertaintyReason.IMAGE_QUALITY ->
+        if (textOnly) R.string.analysis_hint_identity else R.string.analysis_hint_image_quality
+    UncertaintyReason.IDENTITY_AMBIGUOUS -> R.string.analysis_hint_identity
+    UncertaintyReason.PORTION_UNKNOWN -> R.string.analysis_hint_portion
+    UncertaintyReason.PREPARATION_UNKNOWN -> R.string.analysis_hint_preparation
+    UncertaintyReason.HIDDEN_INGREDIENTS -> R.string.analysis_hint_hidden
 }
 
 @Composable

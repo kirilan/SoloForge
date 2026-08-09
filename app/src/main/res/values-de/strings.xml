@@ -159,6 +159,15 @@
     <string name="error_ai_disabled">KI-Funktionen sind in den Einstellungen deaktiviert.</string>
     <string name="error_invalid_nutrition">Gib einen Namen, positive Kalorien und nicht negative Nährwerte ein.</string>
     <string name="analysis_detail_prompt">Ergänze Details wie Portionsgröße, Speiseöl, Soßen und versteckte Zutaten und analysiere dann erneut.</string>
+    <string name="analysis_uncertain_title">Diese Schätzung ist unsicher</string>
+    <string name="analysis_hint_image_quality">Das Foto ist schwer zu erkennen – mach es näher und bei besserem Licht neu.</string>
+    <string name="analysis_hint_identity">Das Gericht ist schwer zu erkennen – benenne es in der Beschreibung.</string>
+    <string name="analysis_hint_portion">Die Portionsgröße ist geschätzt – ergänze Gewicht oder Portionsangabe.</string>
+    <string name="analysis_hint_preparation">Die Zubereitung ist unbekannt – gib an, ob gebraten, gegrillt oder gekocht.</string>
+    <string name="analysis_hint_hidden">Öl, Soße oder Füllung könnten verborgen sein – beschreibe sie, wenn du sie kennst.</string>
+    <string name="analysis_retry_wont_help">Ein stärkeres Modell sieht nicht, was das Foto nicht zeigt. Details helfen mehr.</string>
+    <string name="analysis_retry_stronger">Mit stärkerem Modell wiederholen</string>
+    <string name="analysis_retry_disclosure">Sendet eine weitere Anfrage an %1$s (proprietäres Modell) über OpenRouter mit deinem Schlüssel.</string>
 
     <!-- Workout -->
     <string name="workout_mode_simple">Einfach</string>
@@ -274,7 +283,7 @@
     <string name="channel_weight_reminders">Gewichts-Erinnerungen</string>
     <string name="channel_weight_reminders_desc">Wöchentliche Wiege-Erinnerung</string>
     <string name="notif_fasting_title">Fasten · %1$s</string>
-    <string name="notif_fasting_text">%1$s vergangen · %2$s übrig</string>
+    <string name="notif_fasting_target">Ziel um %1$s</string>
     <string name="notif_workout_title">Training · %1$s</string>
     <string name="notif_workout_title_plain">Training</string>
     <string name="notif_workout_active">Aktiv</string>

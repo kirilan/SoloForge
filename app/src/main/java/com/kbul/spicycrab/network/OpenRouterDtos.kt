@@ -47,4 +47,18 @@ data class NutritionEstimateDto(
     @SerialName("fiber_g") val fiberG: Double = 0.0,
     val confidence: String = "medium",
     val notes: String = "",
+    val items: List<FoodItemDto> = emptyList(),
+    @SerialName("uncertainty_reasons") val uncertaintyReasons: List<String> = emptyList(),
+    @SerialName("recommended_action") val recommendedAction: String = "accept",
+)
+
+@Serializable
+data class FoodItemDto(
+    val name: String,
+    @SerialName("estimated_grams") val estimatedGrams: Double,
+    val calories: Double,
+    @SerialName("protein_g") val proteinG: Double = 0.0,
+    @SerialName("carbs_g") val carbsG: Double = 0.0,
+    @SerialName("fat_g") val fatG: Double = 0.0,
+    @SerialName("fiber_g") val fiberG: Double = 0.0,
 )

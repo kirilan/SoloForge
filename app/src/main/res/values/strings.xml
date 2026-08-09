@@ -161,6 +161,15 @@
     <string name="error_ai_disabled">AI features are disabled in Settings.</string>
     <string name="error_invalid_nutrition">Enter a name, positive calories, and non-negative nutrition values.</string>
     <string name="analysis_detail_prompt">Add details like portion size, cooking oil, sauces, and hidden ingredients, then re-analyze.</string>
+    <string name="analysis_uncertain_title">This estimate is uncertain</string>
+    <string name="analysis_hint_image_quality">The photo is hard to read — retake it closer, in better light.</string>
+    <string name="analysis_hint_identity">The dish is hard to identify — name it in the description.</string>
+    <string name="analysis_hint_portion">Portion size is a guess — add the weight or serving size.</string>
+    <string name="analysis_hint_preparation">Cooking method is unknown — say whether it was fried, grilled, or boiled.</string>
+    <string name="analysis_hint_hidden">Oil, sauce, or filling may be hidden — describe it if you know.</string>
+    <string name="analysis_retry_wont_help">A stronger model cannot see what the photo does not show. Details help more.</string>
+    <string name="analysis_retry_stronger">Retry with a stronger model</string>
+    <string name="analysis_retry_disclosure">Sends one more request to %1$s (proprietary model) through OpenRouter with your key.</string>
 
     <!-- Workout -->
     <string name="workout_mode_simple">Simple</string>
@@ -276,7 +285,7 @@
     <string name="channel_weight_reminders">Weight reminders</string>
     <string name="channel_weight_reminders_desc">Weekly weigh-in reminder</string>
     <string name="notif_fasting_title">Fasting · %1$s</string>
-    <string name="notif_fasting_text">%1$s elapsed · %2$s left</string>
+    <string name="notif_fasting_target">Goal at %1$s</string>
     <string name="notif_workout_title">Workout · %1$s</string>
     <string name="notif_workout_title_plain">Workout</string>
     <string name="notif_workout_active">Active</string>

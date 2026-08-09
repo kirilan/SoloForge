@@ -8,6 +8,7 @@ import com.kbul.spicycrab.data.db.entities.FoodEntry
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.kbul.spicycrab.data.db.entities.MealPreset
 import com.kbul.spicycrab.data.prefs.SettingsRepo
+import com.kbul.spicycrab.domain.nutrition.FoodAnalysisModels
 import com.kbul.spicycrab.domain.nutrition.FoodRepository
 import com.kbul.spicycrab.domain.nutrition.FoodPhotoFiles
 import com.kbul.spicycrab.domain.nutrition.NutritionEstimate
@@ -113,7 +114,12 @@ class FoodViewModel @Inject constructor(
         _analyze.value = _analyze.value.copy(comment = value)
     }
 
-    fun analyze() {
+    fun analyze() = runAnalysis(FoodAnalysisModels.DEFAULT)
+
+    /** Only ever reached from the explicit retry button — never automatic escalation. */
+    fun retryWithStrongerModel() = runAnalysis(FoodAnalysisModels.ON_DEMAND_RETRY)
+
+    private fun runAnalysis(model: String) {
         if (!aiEnabled.value) {
             closeAiFlows()
             return
@@ -126,7 +132,11 @@ class FoodViewModel @Inject constructor(
         _analyze.value = _analyze.value.copy(isLoading = true, error = null)
         analysisJob?.cancel()
         analysisJob = viewModelScope.launch {
-            val result = if (file != null) repository.analyze(file, comment) else repository.analyzeText(comment)
+            val result = if (file != null) {
+                repository.analyze(file, comment, model)
+            } else {
+                repository.analyzeText(comment, model)
+            }
             _analyze.value = result.fold(
                 onSuccess = { _analyze.value.copy(isLoading = false, estimate = it) },
                 onFailure = { _analyze.value.copy(isLoading = false, error = it.message ?: context.getString(R.string.error_analysis_failed)) },

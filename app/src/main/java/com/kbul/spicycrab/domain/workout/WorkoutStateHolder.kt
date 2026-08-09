@@ -32,6 +32,13 @@ fun ActiveWorkoutState.activeSeconds(nowMs: Long): Long {
     return accumulatedExerciseSeconds + accumulatedRestSeconds + phaseAdds
 }
 
+/**
+ * Wall-clock instant the notification chronometer counts up from to show the active time, or null
+ * while paused — a chronometer cannot be stopped, so a paused workout must not use one at all.
+ */
+fun ActiveWorkoutState.chronometerBase(nowMs: Long): Long? =
+    if (phase == WorkoutPhase.PAUSED) null else nowMs - activeSeconds(nowMs) * 1000L
+
 fun WorkoutSession.toActiveWorkoutState(nowMs: Long = System.currentTimeMillis()): ActiveWorkoutState? {
     if (endEpoch != null) return null
     val mode = WorkoutMode.fromName(modeName)

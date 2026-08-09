@@ -160,6 +160,15 @@
     <string name="error_ai_disabled">Os recursos de IA estão desativados nos Ajustes.</string>
     <string name="error_invalid_nutrition">Informe um nome, calorias positivas e valores nutricionais não negativos.</string>
     <string name="analysis_detail_prompt">Adicione detalhes como tamanho da porção, óleo de cozinha, molhos e ingredientes ocultos e reanalise.</string>
+    <string name="analysis_uncertain_title">Esta estimativa é incerta</string>
+    <string name="analysis_hint_image_quality">A foto está difícil de ler — refaça mais perto e com melhor luz.</string>
+    <string name="analysis_hint_identity">O prato é difícil de identificar — informe o nome na descrição.</string>
+    <string name="analysis_hint_portion">O tamanho da porção é um palpite — adicione o peso ou a porção.</string>
+    <string name="analysis_hint_preparation">O preparo é desconhecido — diga se foi frito, grelhado ou cozido.</string>
+    <string name="analysis_hint_hidden">Óleo, molho ou recheio podem estar ocultos — descreva-os se souber.</string>
+    <string name="analysis_retry_wont_help">Um modelo mais forte não vê o que a foto não mostra. Detalhes ajudam mais.</string>
+    <string name="analysis_retry_stronger">Tentar com um modelo mais forte</string>
+    <string name="analysis_retry_disclosure">Envia mais uma solicitação para %1$s (modelo proprietário) via OpenRouter com sua chave.</string>
 
     <!-- Workout -->
     <string name="workout_mode_simple">Simples</string>
@@ -277,7 +286,7 @@
     <string name="channel_weight_reminders">Lembretes de peso</string>
     <string name="channel_weight_reminders_desc">Lembrete semanal de pesagem</string>
     <string name="notif_fasting_title">Jejum · %1$s</string>
-    <string name="notif_fasting_text">%1$s decorrido · %2$s restante</string>
+    <string name="notif_fasting_target">Meta às %1$s</string>
     <string name="notif_workout_title">Treino · %1$s</string>
     <string name="notif_workout_title_plain">Treino</string>
     <string name="notif_workout_active">Ativo</string>

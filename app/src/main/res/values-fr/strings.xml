@@ -160,6 +160,15 @@
     <string name="error_ai_disabled">Les fonctions d\'IA sont désactivées dans les réglages.</string>
     <string name="error_invalid_nutrition">Saisissez un nom, des calories positives et des valeurs nutritionnelles non négatives.</string>
     <string name="analysis_detail_prompt">Ajoutez des détails comme la taille de la portion, l\'huile de cuisson, les sauces et les ingrédients cachés, puis réanalysez.</string>
+    <string name="analysis_uncertain_title">Cette estimation est incertaine</string>
+    <string name="analysis_hint_image_quality">La photo est difficile à lire : reprenez-la de plus près, avec plus de lumière.</string>
+    <string name="analysis_hint_identity">Le plat est difficile à identifier : nommez-le dans la description.</string>
+    <string name="analysis_hint_portion">La portion est une estimation : ajoutez le poids ou la taille de la portion.</string>
+    <string name="analysis_hint_preparation">La cuisson est inconnue : précisez si c\'est frit, grillé ou bouilli.</string>
+    <string name="analysis_hint_hidden">De l\'huile, une sauce ou une garniture peuvent être cachées : décrivez-les si vous les connaissez.</string>
+    <string name="analysis_retry_wont_help">Un modèle plus puissant ne voit pas ce que la photo ne montre pas. Les détails aident davantage.</string>
+    <string name="analysis_retry_stronger">Réessayer avec un modèle plus puissant</string>
+    <string name="analysis_retry_disclosure">Envoie une requête supplémentaire à %1$s (modèle propriétaire) via OpenRouter avec votre clé.</string>
 
     <!-- Workout -->
     <string name="workout_mode_simple">Simple</string>
@@ -277,7 +286,7 @@
     <string name="channel_weight_reminders">Rappels de poids</string>
     <string name="channel_weight_reminders_desc">Rappel de pesée hebdomadaire</string>
     <string name="notif_fasting_title">Jeûne · %1$s</string>
-    <string name="notif_fasting_text">%1$s écoulé · %2$s restant</string>
+    <string name="notif_fasting_target">Objectif à %1$s</string>
     <string name="notif_workout_title">Séance · %1$s</string>
     <string name="notif_workout_title_plain">Séance</string>
     <string name="notif_workout_active">Active</string>

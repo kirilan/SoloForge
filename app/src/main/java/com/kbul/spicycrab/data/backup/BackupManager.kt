@@ -2,7 +2,6 @@ package com.kbul.spicycrab.data.backup
 
 import android.content.Context
 import android.net.Uri
-import androidx.core.content.ContextCompat
 import androidx.documentfile.provider.DocumentFile
 import androidx.room.withTransaction
 import com.kbul.spicycrab.data.db.AppDatabase
@@ -25,6 +24,8 @@ import com.kbul.spicycrab.domain.health.HealthConnectRepository
 import com.kbul.spicycrab.domain.nutrition.FoodPhotoFiles
 import com.kbul.spicycrab.domain.workout.WorkoutStateHolder
 import com.kbul.spicycrab.notifications.FastingNotificationService
+import com.kbul.spicycrab.notifications.tryStartForegroundService
+import com.kbul.spicycrab.notifications.tryStartService
 import com.kbul.spicycrab.notifications.ReminderScheduler
 import com.kbul.spicycrab.notifications.WorkoutNotificationService
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -314,7 +315,7 @@ class BackupManager @Inject constructor(
         reminderScheduler.cancelEatingWindowClosing()
         val active = fastDao.getActive()
         if (active == null) {
-            context.startService(FastingNotificationService.stopIntent(context))
+            context.tryStartService(FastingNotificationService.stopIntent(context))
             val settings = settingsRepo.current()
             if (settings.eatingWindowClosingEnabled) {
                 val mostRecent = fastDao.getMostRecentlyCompleted()
@@ -328,8 +329,7 @@ class BackupManager @Inject constructor(
             }
         } else {
             val mode = FastingMode.fromName(active.modeName)
-            ContextCompat.startForegroundService(
-                context,
+            context.tryStartForegroundService(
                 FastingNotificationService.startIntent(context, active.startEpoch, active.targetSeconds, mode.displayName),
             )
             if (settingsRepo.current().almostThereEnabled) {
@@ -352,7 +352,7 @@ class BackupManager @Inject constructor(
 
     private fun discardActiveWorkout() {
         workoutStateHolder.set(null)
-        context.startService(WorkoutNotificationService.discardIntent(context))
+        context.tryStartService(WorkoutNotificationService.discardIntent(context))
     }
 
     private companion object {

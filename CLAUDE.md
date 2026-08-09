@@ -19,7 +19,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 - **Kotlin** + **Jetpack Compose** + **Material 3** (dynamic color)
 - **Min SDK 26**, **compile SDK 36**, **target SDK 36**
 - **Hilt** for DI; **Room** for SQLite; **DataStore** for prefs; **EncryptedSharedPreferences** for the API key
-- **WorkManager** for one-shot reminder workers (including a self-rescheduling weekly weigh-in); **foreground services** for active-fast and active-workout notifications
+- **WorkManager** for one-shot reminder workers (including a self-rescheduling weekly weigh-in); **foreground services** for active-fast and active-workout notifications, whose elapsed times are rendered by the system notification chronometer (never by an in-process ticker — see the conventions below)
 - **CameraX** for capture; **Ktor + kotlinx.serialization** for OpenRouter; **Coil** for image rendering
 - Charts are hand-rolled Compose (`WeightChart`) — no chart library.
 - **AGP 9.3.1**, **Gradle 9.5**, **Kotlin 2.3.21** with AGP built-in Kotlin, **KSP 2.3.10** (not kapt)
@@ -75,6 +75,17 @@ app/src/main/java/com/kbul/spicycrab/
 - **At most one fast may be active.** All fast mutations are serialized and reject future timestamps or restoring a historical fast while another is active; backup merge and replace enforce the same invariant.
 - **Source of truth for the active workout = the row in Room**, including current phase, phase start, and accumulated exercise/rest seconds. `WorkoutStateHolder` is only the live in-process mirror.
 - **AI off is a hard privacy boundary.** Disabling it closes and cancels active analysis flows, deletes owned capture-cache files, and the repository checks the setting before every OpenRouter request.
+- **Nothing in this app may keep time with a `delay()` loop.** A foreground service keeps the
+  process alive, not the CPU awake, so an in-process ticker silently stops in Doze — that was
+  issue #13, where the fasting notification froze at the last moment the app was on screen.
+  Ongoing timers use `setUsesChronometer` and let SystemUI render them; a boot receiver restores
+  the services after a reboot. The one exception is interval workout beeps, which need audio at an
+  exact instant and therefore hold a `PARTIAL_WAKE_LOCK` — only while an interval is actually
+  running, released on pause/stop/destroy, and capped with a timeout.
+- **Foreground services are always started through `tryStartForegroundService` / `tryStartForeground`**
+  (`notifications/ServiceStart.kt`). Android 12+ rejects background service starts, and the app can
+  reach the background between the request and the service running; losing the notification is
+  recoverable (`MainActivity.onStart` reconciles), crashing mid-backup-import is not.
 - **Notification permission is requested centrally after onboarding.** Feature screens must not own their own notification-permission prompt.
 - **Reminders** are *state-driven*, not time-of-day-driven. Settings changes resynchronize scheduled work, and workers re-check current Room/settings state before notifying or rescheduling.
 - **Backup** is one versioned JSON file (`BackupFile`, kotlinx.serialization) holding all Room tables + settings, never the API key or saved food photos. Imported photo paths are cleared; deleting a food entry deletes its owned photo. Manual export/import lives in Settings; import offers **merge** (union deduped on natural keys — timestamps, preset name, journal date; local wins on conflict, journal concatenates, one active fast survives; importing the same file twice is a no-op) or **replace**. When an auto-backup folder is set (`ACTION_OPEN_DOCUMENT_TREE`, persisted URI permission), `BackupManager` stages and rotates `SoloForge-backup.json` on every data change so an interrupted write cannot destroy the last good copy; writes are debounced and report the latest success/failure in Settings — that folder synced to Drive/Dropbox is the continuous off-device backup. CSV export was removed in 0.3.0.
@@ -86,15 +97,31 @@ app/src/main/java/com/kbul/spicycrab/
 - **No comments unless the *why* is non-obvious.** Prefer well-named functions to docstrings.
 - **No barebones fallbacks or "in case X fails" code paths** unless the failure is at a real boundary (network, file I/O, missing key).
 
-## Food analysis model chain
+## Food analysis models
 
 ```
-google/gemini-3.1-flash-lite  # default
-openai/gpt-5.4-mini           # used when the default result is low confidence or suggests mixed/hidden ingredients
-google/gemini-3.1-pro-preview # used only if uncertainty remains
+google/gemini-3.1-flash-lite   # every analysis starts here
+google/gemini-3.1-pro-preview  # ONLY when the user taps "Retry with a stronger model"
 ```
 
-Users do not choose the model. If confidence is still low after the full chain, the UI prompts the user to add more details such as portion size, cooking oil, sauces, and hidden ingredients before re-analyzing.
+**There is no automatic escalation chain.** One request per analysis; the second model is
+reached only by an explicit user tap, and is labelled in the UI as a proprietary model called
+through OpenRouter with the user's key. Users still do not pick from a model list.
+
+**Routing never reads model prose.** The response carries `items[]`, enumerated
+`uncertainty_reasons` (`image_quality`, `identity_ambiguous`, `portion_unknown`,
+`preparation_unknown`, `hidden_ingredients`), and a `recommended_action`. `AnalysisPolicy`
+turns those into `accept` / `ask_user` / `retry_image` — plus its own coherence checks, since a
+response whose items don't sum to the meal, or whose calories contradict its macros, is treated
+as uncertain no matter what it claims. Each reason maps to a specific hint; when the reason is
+`portion_unknown` or `hidden_ingredients` the UI says outright that a stronger model can't see
+what the photo doesn't show.
+
+Before changing any model id, prompt, temperature, image preprocessing, or schema, run
+`tools/food_eval/` (see its README) — it replays the app's exact request against a local case
+set. A 2026-08-09 run is why the default is still Gemini: `qwen/qwen3-vl-8b-instruct` measured
+53% kcal MAPE against Gemini's 23% and falsely blamed image quality on a third of cases.
+`AnalysisPolicy.closeEnough` and the script's copy of it must be changed together.
 
 ## Build & run
 

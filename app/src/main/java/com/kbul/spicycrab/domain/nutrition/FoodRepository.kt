@@ -18,8 +18,9 @@ import javax.inject.Singleton
 
 object FoodAnalysisModels {
     const val DEFAULT = "google/gemini-3.1-flash-lite"
-    const val ESCALATION = "openai/gpt-5.4-mini"
-    const val PREMIUM = "google/gemini-3.1-pro-preview"
+
+    /** Never called automatically — only when the user taps retry. */
+    const val ON_DEMAND_RETRY = "google/gemini-3.1-pro-preview"
 }
 
 @Singleton
@@ -34,48 +35,33 @@ class FoodRepository @Inject constructor(
 
     fun observeAll(): Flow<List<FoodEntry>> = dao.observeAll()
 
-    suspend fun analyze(imageFile: File, comment: String): Result<NutritionEstimate> {
+    suspend fun analyze(
+        imageFile: File,
+        comment: String,
+        model: String = FoodAnalysisModels.DEFAULT,
+    ): Result<NutritionEstimate> {
         val base64 = runCatching { ImageUtils.fileToBase64Jpeg(imageFile) }
             .getOrElse { return Result.failure(it) }
-        return analyzeWithChain(base64, comment)
+        return analyzeOnce(base64, comment, model)
     }
 
-    suspend fun analyzeText(description: String): Result<NutritionEstimate> =
-        analyzeWithChain(null, description)
+    suspend fun analyzeText(
+        description: String,
+        model: String = FoodAnalysisModels.DEFAULT,
+    ): Result<NutritionEstimate> = analyzeOnce(null, description, model)
 
-    private suspend fun analyzeWithChain(base64: String?, comment: String): Result<NutritionEstimate> {
+    private suspend fun analyzeOnce(
+        base64: String?,
+        comment: String,
+        model: String,
+    ): Result<NutritionEstimate> {
         if (!settings.current().aiFeaturesEnabled) {
             return Result.failure(IllegalStateException(context.getString(R.string.error_ai_disabled)))
         }
         val key = keyStore.getOpenRouterKey()
             ?: return Result.failure(IllegalStateException(context.getString(R.string.error_no_api_key)))
 
-        val result = runCatching {
-            val first = analyzeWithModel(key, FoodAnalysisModels.DEFAULT, base64, comment)
-            if (!first.needsEscalation()) return@runCatching first
-
-            val second = analyzeWithModel(key, FoodAnalysisModels.ESCALATION, base64, comment)
-            if (!second.needsEscalation()) {
-                return@runCatching second.copy(modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${second.modelUsed}")
-            }
-
-            val third = runCatching { analyzeWithModel(key, FoodAnalysisModels.PREMIUM, base64, comment) }
-                .getOrElse {
-                    return@runCatching second.copy(
-                        modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${FoodAnalysisModels.ESCALATION}",
-                        detailPrompt = context.getString(R.string.analysis_detail_prompt),
-                    )
-                }
-                .copy(modelUsed = "${FoodAnalysisModels.DEFAULT} -> ${FoodAnalysisModels.ESCALATION} -> ${FoodAnalysisModels.PREMIUM}")
-
-            if (third.confidence.equals("low", ignoreCase = true)) {
-                third.copy(
-                    detailPrompt = context.getString(R.string.analysis_detail_prompt),
-                )
-            } else {
-                third
-            }
-        }
+        val result = runCatching { analyzeWithModel(key, model, base64, comment) }
         result.exceptionOrNull()?.let { if (it is CancellationException) throw it }
         return result
     }
@@ -219,24 +205,19 @@ class FoodRepository @Inject constructor(
                 confidence = dto.confidence,
                 notes = dto.notes,
                 modelUsed = model,
+                items = dto.items.map {
+                    EstimateItem(
+                        name = it.name,
+                        grams = it.estimatedGrams,
+                        kcal = it.calories,
+                        proteinG = it.proteinG,
+                        carbsG = it.carbsG,
+                        fatG = it.fatG,
+                        fiberG = it.fiberG,
+                    )
+                },
+                uncertaintyReasons = dto.uncertaintyReasons.mapNotNull(UncertaintyReason::parse),
+                reportedAction = AnalysisAction.parse(dto.recommendedAction),
             )
         }
 }
-
-internal fun NutritionEstimate.needsEscalation(): Boolean {
-    if (confidence.equals("low", ignoreCase = true)) return true
-    val text = "$itemName $notes".lowercase()
-    return ESCALATION_PATTERNS.any { it.containsMatchIn(text) }
-}
-
-private val ESCALATION_PATTERNS = listOf(
-    Regex("""\bmixed(?:\s+meal)?\b"""),
-    Regex("""\bmultiple\b"""),
-    Regex("""\bassorted\b"""),
-    Regex("""\bunclear\b"""),
-    Regex("""\bhidden\b"""),
-    Regex("""\bsauces?\b"""),
-    Regex("""\bdressings?\b"""),
-    Regex("""\boils?\b"""),
-    Regex("""\bportions?\b"""),
-)

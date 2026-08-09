@@ -1,11 +1,12 @@
 package com.kbul.spicycrab.domain.fasting
 
 import android.content.Context
-import androidx.core.content.ContextCompat
 import com.kbul.spicycrab.data.db.dao.FastSessionDao
 import com.kbul.spicycrab.data.db.entities.FastSession
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.notifications.FastingNotificationService
+import com.kbul.spicycrab.notifications.tryStartForegroundService
+import com.kbul.spicycrab.notifications.tryStartService
 import com.kbul.spicycrab.notifications.ReminderScheduler
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -31,8 +32,7 @@ class FastingRepository @Inject constructor(
     suspend fun resumeActiveNotification() {
         val active = dao.getActive() ?: return
         val mode = FastingMode.fromName(active.modeName)
-        ContextCompat.startForegroundService(
-            context,
+        context.tryStartForegroundService(
             FastingNotificationService.startIntent(
                 context,
                 active.startEpoch,
@@ -56,8 +56,7 @@ class FastingRepository @Inject constructor(
         val id = dao.insert(session)
         val saved = session.copy(id = id)
 
-        ContextCompat.startForegroundService(
-            context,
+        context.tryStartForegroundService(
             FastingNotificationService.startIntent(context, now, mode.fastSeconds, mode.displayName),
         )
         syncReminders()
@@ -72,7 +71,7 @@ class FastingRepository @Inject constructor(
         val completed = elapsed >= current.targetSeconds
         dao.update(current.copy(endEpoch = now, completed = completed))
 
-        context.startService(FastingNotificationService.stopIntent(context))
+        context.tryStartService(FastingNotificationService.stopIntent(context))
         syncReminders()
     }
 
@@ -100,15 +99,14 @@ class FastingRepository @Inject constructor(
         )
 
         if (end == null) {
-            ContextCompat.startForegroundService(
-                context,
+            context.tryStartForegroundService(
                 FastingNotificationService.startIntent(
                     context, updated.startEpoch, mode.fastSeconds, mode.displayName,
                 ),
             )
         } else {
             if (wasActive) {
-                context.startService(FastingNotificationService.stopIntent(context))
+                context.tryStartService(FastingNotificationService.stopIntent(context))
             }
         }
         syncReminders()
@@ -118,7 +116,7 @@ class FastingRepository @Inject constructor(
     suspend fun deleteSession(session: FastSession) = startMutex.withLock {
         val existing = dao.getById(session.id) ?: return@withLock
         if (existing.endEpoch == null) {
-            context.startService(FastingNotificationService.stopIntent(context))
+            context.tryStartService(FastingNotificationService.stopIntent(context))
         }
         dao.delete(existing)
         syncReminders()

@@ -8,11 +8,11 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.content.pm.ServiceInfo
 import android.media.AudioManager
 import android.media.ToneGenerator
 import android.os.Build
 import android.os.IBinder
+import android.os.PowerManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
@@ -26,6 +26,7 @@ import com.kbul.spicycrab.domain.workout.WorkoutMode
 import com.kbul.spicycrab.domain.workout.WorkoutPhase
 import com.kbul.spicycrab.domain.workout.WorkoutStateHolder
 import com.kbul.spicycrab.domain.workout.activeSeconds
+import com.kbul.spicycrab.domain.workout.chronometerBase
 import com.kbul.spicycrab.domain.workout.currentPhaseElapsedSeconds
 import com.kbul.spicycrab.domain.workout.toActiveWorkoutState
 import dagger.hilt.android.AndroidEntryPoint
@@ -48,8 +49,8 @@ class WorkoutNotificationService : Service() {
 
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
     private val persistenceMutex = Mutex()
-    private var tickerJob: Job? = null
     private var beepJob: Job? = null
+    private var wakeLock: PowerManager.WakeLock? = null
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -85,21 +86,20 @@ class WorkoutNotificationService : Service() {
             WorkoutMode.EXERCISE_REST -> WorkoutPhase.PAUSED
         }
 
-        stateHolder.set(
-            ActiveWorkoutState(
-                sessionId = sessionId,
-                mode = mode,
-                startEpoch = startEpoch,
-                intervalSeconds = intervalSec,
-                phase = initialPhase,
-                phaseStartEpoch = startEpoch,
-                accumulatedExerciseSeconds = 0L,
-                accumulatedRestSeconds = 0L,
-            )
+        val state = ActiveWorkoutState(
+            sessionId = sessionId,
+            mode = mode,
+            startEpoch = startEpoch,
+            intervalSeconds = intervalSec,
+            phase = initialPhase,
+            phaseStartEpoch = startEpoch,
+            accumulatedExerciseSeconds = 0L,
+            accumulatedRestSeconds = 0L,
         )
+        stateHolder.set(state)
 
-        startForegroundNotification()
-        startTicker()
+        startForegroundNotification(state)
+        updateWakeLock(state)
         if (mode == WorkoutMode.INTERVAL && intervalSec > 0) {
             intervalBeep()  // confirmation beep so user knows audio works
             startBeepLoop()
@@ -196,6 +196,8 @@ class WorkoutNotificationService : Service() {
 
     private fun setStateAndPersist(state: ActiveWorkoutState) {
         stateHolder.set(state)
+        updateWakeLock(state)
+        notifyTick(state)
         scope.launch {
             persistenceMutex.withLock {
                 val existing = dao.getById(state.sessionId)
@@ -222,8 +224,8 @@ class WorkoutNotificationService : Service() {
                 return@launch
             }
             stateHolder.set(restored)
-            startForegroundNotification()
-            startTicker()
+            startForegroundNotification(restored)
+            updateWakeLock(restored)
             if (restored.mode == WorkoutMode.INTERVAL && restored.intervalSeconds > 0) {
                 startBeepLoop()
             }
@@ -232,29 +234,44 @@ class WorkoutNotificationService : Service() {
 
     private fun finishService() {
         stateHolder.set(null)
-        tickerJob?.cancel()
-        tickerJob = null
         beepJob?.cancel()
         beepJob = null
+        releaseWakeLock()
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
 
-    private fun startTicker() {
-        tickerJob?.cancel()
-        tickerJob = scope.launch {
-            while (stateHolder.current() != null) {
-                runCatching { notifyTick() }
-                delay(1_000L)
-            }
+    // Interval beeps have to land at an exact second while the screen is off, and nothing but a
+    // wakelock can deliver that: allow-while-idle alarms are throttled to ~9 minutes in Doze, and
+    // exact alarms need a permission Play only grants to alarm-clock apps.
+    private fun updateWakeLock(cur: ActiveWorkoutState?) {
+        val needed = cur != null &&
+            cur.mode == WorkoutMode.INTERVAL &&
+            cur.intervalSeconds > 0 &&
+            cur.phase == WorkoutPhase.EXERCISE
+        if (needed) acquireWakeLock() else releaseWakeLock()
+    }
+
+    private fun acquireWakeLock() {
+        if (wakeLock?.isHeld == true) return
+        val pm = getSystemService(PowerManager::class.java) ?: return
+        wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG).apply {
+            setReferenceCounted(false)
+            // ponytail: hard cap, so a lock we somehow fail to release can't drain the battery
+            acquire(MAX_WAKE_LOCK_MS)
         }
     }
 
+    private fun releaseWakeLock() {
+        wakeLock?.takeIf { it.isHeld }?.release()
+        wakeLock = null
+    }
+
     @SuppressLint("MissingPermission")
-    private fun notifyTick() {
+    private fun notifyTick(cur: ActiveWorkoutState?) {
         if (!canPostNotifications()) return
         androidx.core.app.NotificationManagerCompat.from(this)
-            .notify(NOTIF_ID, buildNotification())
+            .notify(NOTIF_ID, buildNotification(cur))
     }
 
     private fun startBeepLoop() {
@@ -322,37 +339,38 @@ class WorkoutNotificationService : Service() {
         }
     }
 
-    private fun startForegroundNotification() {
-        val notification = buildNotification()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(
-                NOTIF_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
-            )
-        } else {
-            startForeground(NOTIF_ID, notification)
-        }
+    private fun startForegroundNotification(cur: ActiveWorkoutState?) {
+        if (!tryStartForeground(NOTIF_ID, buildNotification(cur))) stopSelf()
     }
 
-    private fun buildNotification(): Notification {
-        val cur = stateHolder.current()
+    // While the workout runs, SystemUI owns the clock: a chronometer based on the accumulated
+    // active time keeps counting through deep sleep, where a ticker of ours would not. Paused time
+    // must not count, so a paused workout drops the chronometer and shows a frozen total instead.
+    // The state is passed in, never read from the shared holder: the UI's reconciliation writes to
+    // that holder from another thread, and a build that lost the race would render the empty
+    // fallback and — with no ticker to repaint it — stay wrong for the whole workout.
+    private fun buildNotification(cur: ActiveWorkoutState?): Notification {
         val title = if (cur != null) {
             getString(R.string.notif_workout_title, getString(cur.mode.labelRes))
         } else {
             getString(R.string.notif_workout_title_plain)
         }
-        val text = if (cur != null) {
-            val totalSec = cur.activeSeconds(System.currentTimeMillis())
-            val phaseLabel = getString(
-                when (cur.phase) {
+        val phaseLabel = cur?.let {
+            getString(
+                when (it.phase) {
                     WorkoutPhase.EXERCISE -> R.string.workout_working
                     WorkoutPhase.REST -> R.string.workout_resting
                     WorkoutPhase.PAUSED -> R.string.workout_paused
                 }
             )
-            "${formatHms(totalSec)} · $phaseLabel"
-        } else getString(R.string.notif_workout_active)
+        }
+        val now = System.currentTimeMillis()
+        val chronometerBase = cur?.chronometerBase(now)
+        val text = when {
+            cur == null -> getString(R.string.notif_workout_active)
+            chronometerBase != null -> phaseLabel!!
+            else -> "${formatHms(cur.activeSeconds(now))} · $phaseLabel"
+        }
 
         val openIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -366,6 +384,9 @@ class WorkoutNotificationService : Service() {
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(text)
+            .setWhen(chronometerBase ?: now)
+            .setShowWhen(chronometerBase != null)
+            .setUsesChronometer(chronometerBase != null)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -374,14 +395,16 @@ class WorkoutNotificationService : Service() {
     }
 
     override fun onDestroy() {
-        tickerJob?.cancel()
         beepJob?.cancel()
+        releaseWakeLock()
         scope.cancel()
         super.onDestroy()
     }
 
     companion object {
         private const val NOTIF_ID = 1002
+        private const val WAKE_LOCK_TAG = "SoloForge:interval-beeps"
+        private const val MAX_WAKE_LOCK_MS = 4 * 60 * 60 * 1000L
         const val ACTION_START = "com.kbul.spicycrab.action.START_WORKOUT"
         const val ACTION_RESTORE = "com.kbul.spicycrab.action.RESTORE_WORKOUT"
         const val ACTION_TOGGLE_PHASE = "com.kbul.spicycrab.action.TOGGLE_PHASE"

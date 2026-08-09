@@ -161,6 +161,15 @@
     <string name="error_ai_disabled">Функции ИИ отключены в настройках.</string>
     <string name="error_invalid_nutrition">Укажите название, положительное число калорий и неотрицательные значения пищевой ценности.</string>
     <string name="analysis_detail_prompt">Добавьте детали — размер порции, масло, соусы, скрытые ингредиенты — и повторите анализ.</string>
+    <string name="analysis_uncertain_title">Эта оценка ненадёжна</string>
+    <string name="analysis_hint_image_quality">Фото плохо читается — снимите ближе и при лучшем освещении.</string>
+    <string name="analysis_hint_identity">Блюдо трудно распознать — укажите его название в описании.</string>
+    <string name="analysis_hint_portion">Размер порции — это догадка; укажите вес или размер порции.</string>
+    <string name="analysis_hint_preparation">Способ приготовления неизвестен — укажите: жареное, на гриле или варёное.</string>
+    <string name="analysis_hint_hidden">Масло, соус или начинка могут быть незаметны — опишите их, если знаете.</string>
+    <string name="analysis_retry_wont_help">Более сильная модель не увидит того, чего нет на фото. Детали помогут больше.</string>
+    <string name="analysis_retry_stronger">Повторить с более сильной моделью</string>
+    <string name="analysis_retry_disclosure">Отправит ещё один запрос в %1$s (проприетарная модель) через OpenRouter с вашим ключом.</string>
 
     <!-- Workout -->
     <string name="workout_mode_simple">Простой</string>
@@ -280,7 +289,7 @@
     <string name="channel_weight_reminders">Напоминания о весе</string>
     <string name="channel_weight_reminders_desc">Еженедельное напоминание о взвешивании</string>
     <string name="notif_fasting_title">Голодание · %1$s</string>
-    <string name="notif_fasting_text">Прошло %1$s · осталось %2$s</string>
+    <string name="notif_fasting_target">Цель в %1$s</string>
     <string name="notif_workout_title">Тренировка · %1$s</string>
     <string name="notif_workout_title_plain">Тренировка</string>
     <string name="notif_workout_active">Активна</string>

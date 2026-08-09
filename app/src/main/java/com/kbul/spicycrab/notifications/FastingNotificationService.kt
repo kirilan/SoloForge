@@ -1,18 +1,13 @@
 package com.kbul.spicycrab.notifications
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.PendingIntent
 import android.app.Service
-import android.Manifest
 import android.content.Context
 import android.content.Intent
-import android.content.pm.ServiceInfo
-import android.content.pm.PackageManager
-import android.os.Build
 import android.os.IBinder
+import android.text.format.DateFormat
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.kbul.spicycrab.MainActivity
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.dao.FastSessionDao
@@ -20,11 +15,10 @@ import com.kbul.spicycrab.domain.fasting.FastingMode
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.Date
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -32,7 +26,6 @@ class FastingNotificationService : Service() {
 
     @Inject lateinit var dao: FastSessionDao
 
-    private var tickerJob: Job? = null
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
     private var startEpoch: Long = 0L
@@ -83,43 +76,14 @@ class FastingNotificationService : Service() {
         this.targetSeconds = targetSeconds
         modeName = modeDisplay
 
-        val notification = buildNotification()
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(
-                NOTIF_ID,
-                notification,
-                ServiceInfo.FOREGROUND_SERVICE_TYPE_SPECIAL_USE,
-            )
-        } else {
-            startForeground(NOTIF_ID, notification)
-        }
-
-        tickerJob?.cancel()
-        tickerJob = scope.launch {
-            while (true) {
-                delay(30_000L)
-                runCatching { notifyTick() }
-            }
-        }
+        if (!tryStartForeground(NOTIF_ID, buildNotification())) stopSelf()
     }
 
-    @SuppressLint("MissingPermission")
-    private fun notifyTick() {
-        if (!canPostNotifications()) return
-        androidx.core.app.NotificationManagerCompat
-            .from(this)
-            .notify(NOTIF_ID, buildNotification())
-    }
-
-    private fun canPostNotifications(): Boolean =
-        Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
-            ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED
-
+    // The notification never needs repainting: SystemUI advances the chronometer itself, which is
+    // the only thing that keeps counting while the device is in deep sleep.
     private fun buildNotification(): Notification {
-        val now = System.currentTimeMillis()
-        val elapsedSec = ((now - startEpoch) / 1000L).coerceAtLeast(0L)
-        val remainingSec = (targetSeconds - elapsedSec).coerceAtLeast(0L)
-        val text = getString(R.string.notif_fasting_text, formatHms(elapsedSec), formatHms(remainingSec))
+        val targetEnd = startEpoch + targetSeconds * 1000L
+        val targetTime = DateFormat.getTimeFormat(this).format(Date(targetEnd))
 
         val openIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
@@ -132,7 +96,10 @@ class FastingNotificationService : Service() {
         return NotificationCompat.Builder(this, NotificationChannels.ACTIVE_FAST)
             .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(getString(R.string.notif_fasting_title, modeName))
-            .setContentText(text)
+            .setContentText(getString(R.string.notif_fasting_target, targetTime))
+            .setWhen(startEpoch)
+            .setShowWhen(true)
+            .setUsesChronometer(true)
             .setOngoing(true)
             .setOnlyAlertOnce(true)
             .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -141,7 +108,6 @@ class FastingNotificationService : Service() {
     }
 
     override fun onDestroy() {
-        tickerJob?.cancel()
         scope.cancel()
         super.onDestroy()
     }
@@ -168,12 +134,5 @@ class FastingNotificationService : Service() {
 
         fun stopIntent(context: Context): Intent =
             Intent(context, FastingNotificationService::class.java).apply { action = ACTION_STOP }
-
-        private fun formatHms(seconds: Long): String {
-            val h = seconds / 3600
-            val m = (seconds % 3600) / 60
-            val s = seconds % 60
-            return "%02d:%02d:%02d".format(h, m, s)
-        }
     }
 }

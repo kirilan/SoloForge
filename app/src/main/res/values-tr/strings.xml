@@ -159,6 +159,15 @@
     <string name="error_ai_disabled">Yapay zekâ özellikleri Ayarlar\'da devre dışı.</string>
     <string name="error_invalid_nutrition">Bir ad, pozitif kalori ve negatif olmayan besin değerleri girin.</string>
     <string name="analysis_detail_prompt">Porsiyon boyutu, pişirme yağı, soslar ve gizli malzemeler gibi ayrıntılar ekleyip yeniden analiz edin.</string>
+    <string name="analysis_uncertain_title">Bu tahmin belirsiz</string>
+    <string name="analysis_hint_image_quality">Fotoğraf zor okunuyor — daha yakından ve daha iyi ışıkta çekin.</string>
+    <string name="analysis_hint_identity">Yemeği tanımak zor — açıklamada adını yazın.</string>
+    <string name="analysis_hint_portion">Porsiyon boyutu tahmin — ağırlığı veya porsiyon ölçüsünü ekleyin.</string>
+    <string name="analysis_hint_preparation">Pişirme yöntemi bilinmiyor — kızartma, ızgara veya haşlama olduğunu belirtin.</string>
+    <string name="analysis_hint_hidden">Yağ, sos veya iç harç gizli olabilir — biliyorsanız tarif edin.</string>
+    <string name="analysis_retry_wont_help">Daha güçlü bir model, fotoğrafta olmayanı göremez. Ayrıntılar daha çok yardımcı olur.</string>
+    <string name="analysis_retry_stronger">Daha güçlü modelle yeniden dene</string>
+    <string name="analysis_retry_disclosure">%1$s (tescilli model) için OpenRouter üzerinden anahtarınızla bir istek daha gönderir.</string>
 
     <!-- Workout -->
     <string name="workout_mode_simple">Basit</string>
@@ -274,7 +283,7 @@
     <string name="channel_weight_reminders">Kilo hatırlatıcıları</string>
     <string name="channel_weight_reminders_desc">Haftalık tartılma hatırlatıcısı</string>
     <string name="notif_fasting_title">Oruç · %1$s</string>
-    <string name="notif_fasting_text">%1$s geçti · %2$s kaldı</string>
+    <string name="notif_fasting_target">Hedef %1$s</string>
     <string name="notif_workout_title">Antrenman · %1$s</string>
     <string name="notif_workout_title_plain">Antrenman</string>
     <string name="notif_workout_active">Etkin</string>

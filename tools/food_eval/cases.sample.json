@@ -1,0 +1,100 @@
+[
+  {
+    "id": "text-watermelon-100g",
+    "tags": ["simple", "text"],
+    "comment": "100 g watermelon",
+    "expected": { "kcal": 30, "protein_g": 0.6, "carbs_g": 7.6, "fat_g": 0.2, "action": "accept" }
+  },
+  {
+    "id": "text-banana-medium",
+    "tags": ["simple", "text"],
+    "comment": "one medium banana, about 118 g",
+    "expected": { "kcal": 105, "protein_g": 1.3, "carbs_g": 27.0, "fat_g": 0.4, "action": "accept" }
+  },
+  {
+    "id": "text-boiled-eggs-2",
+    "tags": ["simple", "text"],
+    "comment": "two large hard-boiled eggs, no butter or oil",
+    "expected": { "kcal": 155, "protein_g": 12.6, "carbs_g": 1.1, "fat_g": 10.6, "action": "accept" }
+  },
+  {
+    "id": "text-white-rice-100g",
+    "tags": ["simple", "text"],
+    "comment": "100 g cooked white rice, plain",
+    "expected": { "kcal": 130, "protein_g": 2.7, "carbs_g": 28.0, "fat_g": 0.3, "action": "accept" }
+  },
+  {
+    "id": "text-chicken-breast-150g",
+    "tags": ["simple", "text"],
+    "comment": "150 g grilled skinless chicken breast, no oil",
+    "expected": { "kcal": 248, "protein_g": 46.5, "carbs_g": 0.0, "fat_g": 5.4, "action": "accept" }
+  },
+  {
+    "id": "text-almonds-30g",
+    "tags": ["simple", "text"],
+    "comment": "30 g raw almonds",
+    "expected": { "kcal": 173, "protein_g": 6.3, "carbs_g": 6.5, "fat_g": 14.9, "action": "accept" }
+  },
+  {
+    "id": "text-olive-oil-tbsp",
+    "tags": ["oils", "text"],
+    "comment": "one tablespoon of olive oil",
+    "expected": { "kcal": 119, "protein_g": 0.0, "carbs_g": 0.0, "fat_g": 13.5, "action": "accept" }
+  },
+  {
+    "id": "text-lentils-100g",
+    "tags": ["simple", "text"],
+    "comment": "100 g cooked brown lentils, no added fat",
+    "expected": { "kcal": 116, "protein_g": 9.0, "carbs_g": 20.1, "fat_g": 0.4, "action": "accept" }
+  },
+  {
+    "id": "text-spaghetti-100g",
+    "tags": ["simple", "text"],
+    "comment": "100 g cooked spaghetti, plain, no sauce",
+    "expected": { "kcal": 158, "protein_g": 5.8, "carbs_g": 30.9, "fat_g": 0.9, "action": "accept" }
+  },
+  {
+    "id": "text-cheddar-100g",
+    "tags": ["simple", "text"],
+    "comment": "100 g cheddar cheese",
+    "expected": { "kcal": 403, "protein_g": 24.9, "carbs_g": 1.3, "fat_g": 33.1, "action": "accept" }
+  },
+  {
+    "id": "text-multi-component-plate",
+    "tags": ["multi-component", "text"],
+    "comment": "150 g grilled salmon, 200 g boiled potatoes, 100 g steamed broccoli, no added fat",
+    "expected": { "kcal": 502, "protein_g": 49.0, "carbs_g": 46.0, "fat_g": 13.0, "action": "accept" }
+  },
+  {
+    "id": "text-vague-soup",
+    "tags": ["portion", "text"],
+    "comment": "a bowl of vegetable soup",
+    "expected": { "action": "ask_user" }
+  },
+  {
+    "id": "text-vague-pasta-sauce",
+    "tags": ["hidden", "text"],
+    "comment": "some pasta with sauce",
+    "expected": { "action": "ask_user" }
+  },
+  {
+    "id": "text-vague-salad",
+    "tags": ["hidden", "text"],
+    "comment": "chicken salad from the deli",
+    "expected": { "action": "ask_user" }
+  },
+  {
+    "id": "photo-example-simple",
+    "tags": ["simple", "photo"],
+    "image": "images/REPLACE-with-your-photo.jpg",
+    "comment": "",
+    "expected": { "kcal": 0, "protein_g": 0, "carbs_g": 0, "fat_g": 0, "action": "accept" }
+  },
+  {
+    "id": "photo-example-blurry",
+    "tags": ["bad-angle", "photo"],
+    "image": "images/REPLACE-with-a-blurry-photo.jpg",
+    "comment": "",
+    "expected": { "action": "retry_image" }
+  }
+]
