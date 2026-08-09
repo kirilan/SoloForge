@@ -36,8 +36,9 @@ that matters is not the model's, it's the user's ability to correct it, and that
 
 Parked candidates (all now need eval evidence before adoption, not just a benchmark citation):
 
-- `qwen/qwen3-vl-30b-a3b-instruct` — documented alternate; add only if the local eval shows a
-  real win specifically on visual-identity-ambiguity cases.
+- `qwen/qwen3-vl-30b-a3b-instruct` — **tested 2026-08-09, and it is the only credible open
+  candidate.** 36% MAPE, ties Gemini on hidden fat, same price as the 8B, Apache-2.0. Blocked
+  on multi-component plates, not on principle. Retest against phone photos before adopting.
 - `mistralai/mistral-small-2603` — text path only, and only if the eval shows Qwen-8B failing
   on text descriptions.
 - **Food-R1** — food-specialized Qwen3-VL-8B derivative with much stronger domain evidence
@@ -173,16 +174,31 @@ whether Food-R1 has landed on OpenRouter with a compatible license.
 
 Same case set, same prompt, same request shape, one run each.
 
-| | gemini-3.1-flash-lite | qwen3-vl-8b-instruct |
-|---|---|---|
-| valid schema rate | 1.00 | 1.00 |
-| kcal MAPE | 22.9% | 53.0% |
-| kcal MAE | 67.9 | 177.9 |
-| action match rate | 0.93 | 0.64 |
-| MAPE — text only | 1.1% | 4.5% |
-| MAPE — simple photo | 13.0% | 23.9% |
-| MAPE — multi-component | 32.8% | 74.9% |
-| MAPE — oils/hidden fat | 26.0% | 73.3% |
+| | gemini-3.1-flash-lite | qwen3-vl-8b-instruct | qwen3-vl-30b-a3b |
+|---|---|---|---|
+| valid schema rate | 1.00 | 1.00 | 1.00 |
+| kcal MAPE | 22.9% | 53.0% | 35.9% |
+| kcal MAE | 67.9 | 177.9 | 102.4 |
+| action match rate | 0.93 | 0.64 | 0.79 |
+| false `image_quality` | 0% | 34% | 7% |
+| MAPE — text only | 1.1% | 4.5% | 3.6% |
+| MAPE — simple photo | 13.0% | 23.9% | 21.2% |
+| MAPE — multi-component | 32.8% | 74.9% | 61.8% |
+| MAPE — oils/hidden fat | 26.0% | 73.3% | 24.6% |
+| oils median bias | −50 kcal | −368 kcal | −1 kcal |
+
+**The plan's reason for skipping the 30B was wrong.** It claimed the 30B improves on the 8B by
+only 1.89 pp, citing DiningBench. On our prompt and our cases it improves by **17 pp**, cuts
+false blur claims from 34% to 7%, and matches Gemini outright on hidden fat — the bucket that
+most affects a calorie counter. Pricing is a wash ($0.13/$0.52 per M vs $0.117/$0.455), and it
+is Apache-2.0 like the 8B. A benchmark delta did not survive contact with our own workload;
+that is the argument for the eval existing at all.
+
+Where it still loses: multi-component plates (61.8% vs 32.8%) — the common real case — and
+action match (0.79 vs 0.93). Overall it lands at 36% vs 23%, which is almost exactly the
+39%-vs-25% trade this plan originally accepted in principle before the 8B result soured it.
+The open-weight default is therefore a live option again, and a values call rather than a
+measurement one.
 
 **The swap is off on this evidence.** The public gap the plan accepted was 39% vs 25% MAPE; the
 measured gap on our prompt is 53% vs 23% — worse than advertised, not better. Two specific
