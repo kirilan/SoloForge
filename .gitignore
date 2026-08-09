@@ -15,7 +15,7 @@ keystore.properties
 *.jks
 *.keystore
 play-service-account*.json
-tools/__pycache__/
+__pycache__/
 tools/food_eval/cases.json
 tools/food_eval/images/
 tools/food_eval/results/
