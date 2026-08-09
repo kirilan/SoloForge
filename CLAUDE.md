@@ -94,6 +94,11 @@ app/src/main/java/com/kbul/spicycrab/
 - **API key** is the only secret; it's in EncryptedSharedPreferences and excluded from auto-backup (`backup_rules.xml` / `data_extraction_rules.xml`).
 - **All user-visible strings live in `res/values/strings.xml`** (`screen_element` naming, e.g. `fasting_start`). Compose uses `stringResource`/`pluralStringResource`; services, workers, and repositories use `context.getString`. Shipped locales: en, de, es, fr, pt-rBR, ru, tr (`locales_config.xml` + `localeFilters` in `app/build.gradle.kts` must list the same set). OpenRouter prompts (`VisionPrompts.kt`) stay English — they're model input, not UI.
 - **Every new string ships translated into all six locales in the same commit.** There is no translation platform: Weblate was never set up and is parked until there's demand for more languages, so translations are machine-produced and reviewed by eye. Product names (e.g. "Health Connect") stay untranslated. This is enforced, not remembered — lint's `MissingTranslation` is an error and CI runs `lintDebug`, so a half-translated string set fails the build. Don't downgrade that rule to get a build through; add the translations.
+- **Analysis errors are shown raw, on purpose.** A parse or HTTP failure surfaces the real
+  exception text ("trailing comma before the end of JSON object at path $.items[1].fiber_g"),
+  not a friendly paraphrase. There is no crash reporter and no telemetry by design, so a user's
+  bug report is the only diagnostic channel there is — a polished message would delete the only
+  evidence. Do not wrap these in a generic string.
 - **No comments unless the *why* is non-obvious.** Prefer well-named functions to docstrings.
 - **No barebones fallbacks or "in case X fails" code paths** unless the failure is at a real boundary (network, file I/O, missing key).
 
