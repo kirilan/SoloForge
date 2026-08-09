@@ -1,6 +1,8 @@
 # Food analysis model improvement plan
 
-Status: **phases 1–2 shipped 2026-08-09. The model swap is dropped, not deferred.**
+Status: **CLOSED 2026-08-09.** Phases 1–2 shipped in v0.6.0; the model swap is dropped and the
+open-weight question is settled, not parked. No further testing is planned — the eval harness
+stays for the next time a model id, prompt, or schema changes, which is what it was built for.
 
 Shipped models, and they stay until new evidence says otherwise:
 `DEFAULT = google/gemini-3.1-flash-lite`, `ON_DEMAND_RETRY = google/gemini-3.1-pro-preview`.
@@ -11,9 +13,14 @@ having. The open-weight default is not: the eval below measured Qwen3-VL-8B at m
 Gemini's calorie error on our own prompt. License alignment was never worth handing users
 double the error in a calorie counter, and that is the trade the measurement revealed.
 
-Reopen only with evidence, not intent: a Food-R1 landing on OpenRouter, a new open vision
-model, or phone-photo cases showing the 8B result was a dataset artifact. The eval harness
-makes re-testing an afternoon's work, so there is no cost to waiting.
+Decision, final: **Gemini stays the default.** Two open candidates were measured rather than
+argued about — the 8B failed outright, the 30B came close enough to be credible and still lost
+on multi-component plates, the common real case. Both cost a few cents to test and one of them
+overturned a benchmark claim this plan had treated as fact.
+
+If this is ever reopened, `qwen3-vl-30b-a3b` is the candidate of record and multi-component
+accuracy on real phone photos is the single measurement that decides it. Food-R1 remains worth
+a glance if it lands on OpenRouter with a compatible licence. Neither is scheduled work.
 
 ## Strategy (as shipped)
 
@@ -161,14 +168,20 @@ whether Food-R1 has landed on OpenRouter with a compatible license.
 - [x] Deterministic routing + uncertain-result card (tailored hints + user-tapped stronger-model
       retry), with tests. "Add details" is the existing re-analyze button, not a third control.
 - [x] `tools/food_eval/` script (`--selftest` runs the scoring offline).
-- [x] 41-case local set: 14 text cases + 27 Nutrition5k dish photos (CC BY 4.0, scale-measured
-      truth), built reproducibly by `build_n5k_cases.py`. Caveat recorded in the eval README:
-      rig-framed 640×480 overhead plates, so absolute accuracy is pessimistic and the
-      `bad-angle`/`retry_image` bucket stays unexercised until real phone photos are added.
-- [x] Baseline vs Qwen3-VL-8B eval run, result recorded — see "Eval result" below.
-- [ ] **Model swap: blocked by the eval.** Qwen-8B is not shippable as the default on this
-      evidence; see below before revisiting.
-- [ ] Strings in all locales; privacy/network verification; `CLAUDE.md` updated.
+- [x] 44-case local set: 14 text cases + 27 Nutrition5k dish photos (CC BY 4.0, scale-measured
+      truth) + 3 own phone photos via `truth.csv`, built reproducibly by `build_n5k_cases.py`.
+      The dataset images are rig-framed 640×480 overhead plates, so absolute accuracy from them
+      is pessimistic; the phone photos are the only real-conditions cases.
+- [x] Baseline vs Qwen3-VL-8B **and** Qwen3-VL-30B eval runs, results recorded below.
+- [x] **Model swap: decided against.** Gemini stays; neither open candidate earned the default.
+- [x] Strings in all locales (9 new strings × 7 locales, shipped in the same commit);
+      `CLAUDE.md` model section rewritten.
+- [x] Shipped in v0.6.0 to GitHub, F-Droid, and Google Play on 2026-08-09.
+
+Not done, and deliberately: **no network monitoring pass for 0.6.0.** The release changed model
+ids, prompt, and response schema — the endpoint, host, and the AI-enabled check in front of it
+are untouched, so there was no new outbound surface to verify. Do run it when the network layer
+itself changes.
 
 ## Eval result (2026-08-09, 41 cases)
 
@@ -197,12 +210,13 @@ that is the argument for the eval existing at all.
 Where it still loses: multi-component plates (61.8% vs 32.8%) — the common real case — and
 action match (0.79 vs 0.93). Overall it lands at 36% vs 23%, which is almost exactly the
 39%-vs-25% trade this plan originally accepted in principle before the 8B result soured it.
-The open-weight default is therefore a live option again, and a values call rather than a
-measurement one.
+The open-weight default was therefore a real option, not a foregone conclusion — and it was
+declined on 2026-08-09 because a calorie counter that doubles its error on an ordinary dinner
+plate is not a better default, only a differently-shaped one.
 
-**The swap is off on this evidence.** The public gap the plan accepted was 39% vs 25% MAPE; the
-measured gap on our prompt is 53% vs 23% — worse than advertised, not better. Two specific
-findings beyond the headline:
+**On the 8B specifically, the swap was never close.** The public gap the plan accepted was 39%
+vs 25% MAPE; the measured gap on our prompt is 53% vs 23% — worse than advertised, not better.
+Two specific findings beyond the headline:
 
 - **Qwen-8B blames the photo.** It raised `image_quality` on 14 of 41 cases ("image is blurry"),
   Gemini on none, which is what wrecks the action match rate: eight cases routed to
