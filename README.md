@@ -31,7 +31,7 @@ The only intentional outbound network request is a user-initiated OpenRouter cal
 
 - Intermittent fasting timer with 16:8, 18:6, 20:4, and 36 hour modes.
 - Smart fasting reminders driven by timer state instead of fixed daily spam.
-- AI-assisted food analysis (photo or text description) through an automatic OpenRouter model escalation chain, with an off switch in Settings.
+- AI-assisted food analysis (photo or text description) through OpenRouter — one request per analysis, with an off switch in Settings.
 - Manual meal entry and one-tap meal presets when the user does not want to use AI.
 - Editable food entries, including proportional macro recalculation by total grams.
 - Local nutrition tracking with calorie and macro goals.
@@ -41,8 +41,10 @@ The only intentional outbound network request is a user-initiated OpenRouter cal
   - simple session timer with pause/resume
   - interval timer with periodic audio cues
   - exercise/rest toggle timer
-- Home dashboard with daily fasting, nutrition, workout, weight, and calendar progress.
+- Home dashboard with daily fasting, nutrition, workout, weight, and calendar progress, plus a per-day journal note.
+- Optional Health Connect sync for weight and exercise (import and export toggled separately, both off by default).
 - Configurable bottom tabs.
+- Localized in English, German, Spanish, French, Brazilian Portuguese, Russian, and Turkish.
 - Local Room migrations with exported schemas and migration tests.
 
 ## Privacy Model
@@ -61,7 +63,9 @@ Solo Forge is designed around local ownership of fitness data.
 
 The app declares `INTERNET` only for food analysis through OpenRouter. That call happens only when the user starts an analysis; with AI features off, the app makes zero network calls.
 
-Food analysis starts with `google/gemini-3.1-flash-lite`, escalates to `openai/gpt-5.4-mini` when confidence is low or hidden/mixed ingredients are likely, and uses `google/gemini-3.1-pro-preview` only if uncertainty remains.
+Health Connect is opt-in and off by default. It is an on-device integration: weight and exercise records are read from and written to the local Health Connect store, never uploaded anywhere by Solo Forge.
+
+Every food analysis is a single request to `google/gemini-3.1-flash-lite`. There is no automatic escalation; `google/gemini-3.1-pro-preview` is used only when the user explicitly taps "Retry with a stronger model". Uncertain results are surfaced to the user by `AnalysisPolicy` instead of being silently re-sent to a bigger model.
 
 ## Tech Stack
 
@@ -86,8 +90,8 @@ Food analysis starts with `google/gemini-3.1-flash-lite`, escalates to `openai/g
 - JDK 17
 - Android emulator or physical Android device
 - Min SDK 26
-- Compile SDK 35
-- Target SDK 35
+- Compile SDK 36
+- Target SDK 36
 
 ## Build
 
@@ -111,7 +115,7 @@ adb install -r app/build/outputs/apk/debug/app-debug.apk
 
 ## Tests
 
-Run the unit tests (backup format, calendar math, food escalation, OpenRouter parsing):
+Run the unit tests (backup format, calendar math, streaks, analysis policy, workout state recovery, OpenRouter parsing):
 
 ```powershell
 .\gradlew.bat testDebugUnitTest
@@ -123,11 +127,13 @@ Run the connected Room migration tests with an emulator or device attached:
 .\gradlew.bat :app:connectedDebugAndroidTest
 ```
 
-Run lint:
+Run lint (`MissingTranslation` is an error — every new string ships in all seven locales):
 
 ```powershell
 .\gradlew.bat lintDebug
 ```
+
+Before changing a model id, prompt, temperature, image preprocessing, or the response schema, replay the request against the local case set with `tools/food_eval/` (see its README).
 
 ## F-Droid
 
@@ -157,6 +163,7 @@ app/src/main/java/com/kbul/spicycrab/
 ├── di/
 ├── domain/
 │   ├── fasting/
+│   ├── health/
 │   ├── nutrition/
 │   ├── weight/
 │   └── workout/
