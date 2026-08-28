@@ -18,6 +18,10 @@ cp tools/food_eval/cases.sample.json tools/food_eval/cases.json
 python tools/food_eval/run_eval.py --model google/gemini-3.1-flash-lite
 ```
 
+Instead of exporting the key every session, you can paste it into
+`tools/food_eval/openrouter.key` (gitignored; the environment variable wins when both
+are set). Like the app's own key, it must never end up in a commit.
+
 `cases.json`, `images/`, and `results/` are gitignored: personal photos and raw
 model output stay local. Only the sample set is committed.
 
@@ -130,6 +134,14 @@ already rejected three models that answer a food photo in 27–55s. The client t
 and the user is standing there holding a plate; a correct answer that late is a broken feature.
 
 Only run the full set on something that survives the screen.
+
+Reasoning models think by default, and that thinking is usually the latency. `--reasoning off`
+(or `low`/`medium`/`high`) sends OpenRouter's `reasoning` field so a candidate can be screened
+with thinking suppressed. Two rules: a flagged run is **not comparable** to the shipped
+configuration — screen with and without before drawing conclusions — and if a flagged run ever
+picks a winner, the app must ship the same field (`OpenRouterDtos.kt`) in the same change,
+because this eval only means anything while it sends exactly what the phone sends. Flagged
+results are named `<model>-reasoning-<level>-<stamp>.json` and record the field they sent.
 
 ## When to run it
 
