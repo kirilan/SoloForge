@@ -44,6 +44,7 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
     val editing by viewModel.editing.collectAsStateWithLifecycle()
     val manualOpen by viewModel.manualOpen.collectAsStateWithLifecycle()
     val aiEnabled by viewModel.aiEnabled.collectAsStateWithLifecycle()
+    val analysisConfig by viewModel.analysisConfig.collectAsStateWithLifecycle()
 
     when (val m = mode) {
         FoodUiMode.List -> FoodListContent(
@@ -66,6 +67,7 @@ fun FoodScreen(viewModel: FoodViewModel = hiltViewModel()) {
             state = analyze,
             onCommentChange = viewModel::onCommentChange,
             onAnalyze = viewModel::analyze,
+            escalationModelId = analysisConfig.escalationId,
             onRetryStronger = viewModel::retryWithStrongerModel,
             onSave = viewModel::saveEntry,
             onCancel = viewModel::cancelAnalyze,

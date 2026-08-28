@@ -518,8 +518,35 @@ is knowable (a labelled package, a weighed portion) would make the number mean s
    models, and completion tokens are what separate a thinking model from a fast one.
 3. **`--max-tokens N`** for getting under a key's credit reservation, as above.
 
+4. **`--no-temperature`** reproduces what the app sent before the 0.7.0 fix. It found the drift
+   below and has no other use.
+
 Still open: the bad-angle bucket is one borderline photo. Add 3–4 more before any
 `retry_image` number is quoted, the shipped model's included.
+
+#### The app was never running at the temperature the eval measured (2026-08-29)
+
+`ChatRequest.temperature` was a defaulted property and `encodeDefaults` is false, so the field
+was silently dropped from every request the app ever made while the eval sent `0.2`. Paired run
+of the default model, restricted to the 38 cases both configurations answered cleanly:
+
+| | kcal MAPE | accepts | prompt / completion tokens |
+|---|---|---|---|
+| temperature 0.2 | **19.4%** | 18/38 | 1662 / 261 |
+| no temperature (what shipped through 0.6.0) | **25.9%** | 15/38 | 1662 / 280 |
+
+**+6.5 pp**, three fewer direct answers, and three cases routed differently. Every model number
+in this document was therefore measured on a configuration users did not have. Fixed in 0.7.0
+(`temperature` is now non-defaulted, with a golden test); from 0.7.0 the recorded numbers
+describe the shipped app for the first time.
+
+The same run gives the first measured token counts: **1662 prompt + 261 completion** per
+analysis on the default model, which is where the cost labels come from.
+
+**Incomplete, and worth knowing:** the rest of the release re-eval did not finish — the key hit
+its monthly limit mid-run, with the affordable reservation falling from 63,782 tokens to 4,470
+as it went. `gemini-3.7-flash` and `gemini-3.1-pro-preview` did not complete a clean release run;
+their 0.7.0 labels come from the full runs earlier the same evening.
 
 ## Sources
 

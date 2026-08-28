@@ -93,7 +93,8 @@ def image_part(path: Path) -> dict:
 
 
 def analyze(
-    key: str, model: str, prompt: str, case: dict, reasoning: dict | None, max_tokens: int | None
+    key: str, model: str, prompt: str, case: dict, reasoning: dict | None, max_tokens: int | None,
+    send_temperature: bool = True,
 ) -> tuple[dict, float, dict]:
     """Returns the parsed response, the seconds the successful request took (excluding any 429
     backoff waits — those measure the key's rate limit, not the model), and the provider's own
@@ -110,8 +111,9 @@ def analyze(
             {"role": "user", "content": parts},
         ],
         "response_format": {"type": "json_object"},
-        "temperature": TEMPERATURE,
     }
+    if send_temperature:
+        body["temperature"] = TEMPERATURE
     if reasoning:
         body["reasoning"] = reasoning
     if max_tokens:
@@ -200,7 +202,7 @@ def routed_action(dto: dict, has_image: bool) -> str:
 
 def score(
     cases: list[dict], key: str, model: str, prompt: str, pause: float,
-    reasoning: dict | None, max_tokens: int | None
+    reasoning: dict | None, max_tokens: int | None, send_temperature: bool = True,
 ) -> list[dict]:
     rows = []
     for index, case in enumerate(cases, 1):
@@ -213,7 +215,7 @@ def score(
         }
         started = time.monotonic()
         try:
-            dto, seconds, meta = analyze(key, model, prompt, case, reasoning, max_tokens)
+            dto, seconds, meta = analyze(key, model, prompt, case, reasoning, max_tokens, send_temperature)
         except Exception as exc:  # a failed call is a data point, not a crash
             row["error"] = f"{type(exc).__name__}: {exc}"
             # includes any backoff waits, so it stays out of the latency summary
@@ -345,6 +347,12 @@ def main() -> None:
         "adopting a winner from a flagged run means shipping the same field in OpenRouterDtos.kt",
     )
     parser.add_argument(
+        "--no-temperature",
+        action="store_true",
+        help="omit the temperature field, reproducing what the app sent before the "
+        "encodeDefaults fix. Use to measure that drift, not to screen candidates",
+    )
+    parser.add_argument(
         "--max-tokens",
         type=int,
         help="cap the completion; NOT the app's request shape. Use only to get under a key's "
@@ -375,7 +383,8 @@ def main() -> None:
     if not cases:
         sys.exit("No cases selected.")
 
-    rows = score(cases, key, args.model, system_prompt(), args.pause, reasoning, args.max_tokens)
+    rows = score(cases, key, args.model, system_prompt(), args.pause, reasoning, args.max_tokens,
+                 not args.no_temperature)
     summary = summarize(rows)
 
     RESULTS.mkdir(exist_ok=True)
@@ -383,10 +392,13 @@ def main() -> None:
     suffix = f"-reasoning-{args.reasoning}" if args.reasoning else ""
     if args.max_tokens:
         suffix += f"-maxtok{args.max_tokens}"
+    if args.no_temperature:
+        suffix += "-notemp"
     out = RESULTS / f"{args.model.replace('/', '_')}{suffix}-{stamp}.json"
     out.write_text(
         json.dumps(
             {"model": args.model, "reasoning": reasoning, "max_tokens": args.max_tokens,
+             "temperature": None if args.no_temperature else TEMPERATURE,
              "summary": summary, "rows": rows},
             indent=2,
         ),

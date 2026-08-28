@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -18,6 +19,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,6 +37,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import java.util.Locale
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.material3.SnackbarHost
@@ -45,6 +48,8 @@ import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.backup.AutoBackupStatus
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.domain.fasting.FastingMode
+import com.kbul.spicycrab.domain.nutrition.AnalysisConfig
+import com.kbul.spicycrab.domain.nutrition.FoodAnalysisModels
 
 @Composable
 fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
@@ -91,6 +96,12 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     stringResource(R.string.settings_ai_chain_desc),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                AnalysisModelPicker(
+                    selectedToken = s.foodAnalysisModel,
+                    customModelId = s.foodAnalysisModelCustomId,
+                    onSelect = viewModel::setFoodAnalysisModel,
+                    onCustomIdChange = viewModel::setFoodAnalysisModelCustomId,
                 )
             } else {
                 Text(
@@ -456,6 +467,122 @@ private fun HealthConnectSection(
         ) { Text(stringResource(R.string.settings_health_manage)) }
     }
 }
+
+@Composable
+private fun AnalysisModelPicker(
+    selectedToken: String,
+    customModelId: String,
+    onSelect: (String) -> Unit,
+    onCustomIdChange: (String) -> Unit,
+) {
+    Text(
+        stringResource(R.string.settings_ai_model_title),
+        style = MaterialTheme.typography.titleSmall,
+    )
+    FoodAnalysisModels.OFFERED.forEach { config ->
+        ModelRow(
+            label = stringResource(config.labelRes()),
+            selected = selectedToken == config.token,
+            onSelect = { onSelect(config.token) },
+        ) {
+            Text(
+                stringResource(
+                    R.string.settings_ai_model_speed,
+                    formatSeconds(config.medianPhotoSeconds),
+                    config.answersDirectly,
+                    config.casesScored,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                stringResource(
+                    R.string.settings_ai_model_accuracy,
+                    formatOneDecimal(config.kcalErrorPercent),
+                    formatDollars(config.centsPerThousandAnalyses),
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                stringResource(
+                    if (config.openWeight) R.string.settings_ai_model_open_note
+                    else R.string.settings_ai_model_proprietary_note
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+
+    // The escape hatch. It deliberately shows a warning where the measured rows show numbers —
+    // the app must never print an accuracy figure it did not measure.
+    ModelRow(
+        label = stringResource(R.string.settings_ai_model_custom),
+        selected = selectedToken == FoodAnalysisModels.TOKEN_CUSTOM,
+        onSelect = { onSelect(FoodAnalysisModels.TOKEN_CUSTOM) },
+    ) {
+        Text(
+            stringResource(R.string.settings_ai_model_custom_warning),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        if (selectedToken == FoodAnalysisModels.TOKEN_CUSTOM) {
+            OutlinedTextField(
+                value = customModelId,
+                onValueChange = onCustomIdChange,
+                label = { Text(stringResource(R.string.settings_ai_model_custom_field)) },
+                placeholder = { Text("vendor/model-name") },
+                singleLine = true,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+    }
+
+    Text(
+        stringResource(R.string.settings_ai_model_measured_note),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+}
+
+@Composable
+private fun ModelRow(
+    label: String,
+    selected: Boolean,
+    onSelect: () -> Unit,
+    details: @Composable () -> Unit,
+) {
+    Row(
+        Modifier.fillMaxWidth().clickable(onClick = onSelect),
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+    ) {
+        RadioButton(selected = selected, onClick = onSelect)
+        Column(
+            Modifier.weight(1f).padding(top = 12.dp, bottom = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(label, style = MaterialTheme.typography.bodyLarge)
+            details()
+        }
+    }
+}
+
+private fun AnalysisConfig.labelRes(): Int = when (token) {
+    FoodAnalysisModels.TOKEN_FAST -> R.string.settings_ai_model_fast
+    FoodAnalysisModels.TOKEN_BALANCED -> R.string.settings_ai_model_balanced
+    FoodAnalysisModels.TOKEN_OPEN -> R.string.settings_ai_model_open
+    FoodAnalysisModels.TOKEN_ACCURATE -> R.string.settings_ai_model_accurate
+    else -> R.string.settings_ai_model_custom
+}
+
+private fun formatSeconds(value: Double): String =
+    if (value >= 10.0) value.toInt().toString() else String.format(Locale.US, "%.1f", value)
+
+private fun formatOneDecimal(value: Double): String = String.format(Locale.US, "%.1f", value)
+
+private fun formatDollars(centsPerThousand: Int): String =
+    String.format(Locale.US, "%.2f", centsPerThousand / 100.0)
 
 @Composable
 private fun SwitchRow(label: String, value: Boolean, onChange: (Boolean) -> Unit) {

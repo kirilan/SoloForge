@@ -1,11 +1,18 @@
 # Curated model choice — implementation plan
 
-Status: **planned, not started.** Written 2026-08-28; **substantially revised the same day**
-after the third sweep in `food-analysis-model-improvement-plan.md` measured 108 models and gave
-seven of them full-set runs. The revision changed the decision in four ways: the offered set is
-a short list rather than a pair, each row carries **its own escalation model** instead of one
-global retry target, `qwen3.8-flash` is out (its weights are not Apache-2.0), and Phase 1's
-`reasoning` plumbing is no longer needed by anything we would ship.
+Status: **implemented 2026-08-29 for 0.7.0 (versionCode 13); NOT yet built or tested.**
+Written 2026-08-28, revised the same day after the third sweep in
+`food-analysis-model-improvement-plan.md` measured 108 models and gave eight of them full-set
+runs. The revision changed the decision in four ways: the offered set is a short list rather than
+a pair, each row carries **its own escalation model** instead of one global retry target,
+`qwen3.8-flash` is out (its weights are not Apache-2.0), and Phase 1's `reasoning` plumbing was
+dropped because nothing shippable needs it.
+
+**Two things are outstanding and neither is optional before release** — see "Verification debt"
+at the end. The code was written on a machine with no JDK and no Android SDK, so it has never
+been compiled, `testDebugUnitTest` and `lintDebug` have never run; and the release re-eval was
+cut short when the OpenRouter key hit its monthly limit, so two of the four rows carry numbers
+from earlier in the same session rather than from a single clean release run.
 
 This still reverses the recorded "users do not pick from a model list" decision, and the reason
 the original decision stands against an *unbounded* list still holds: an accuracy label is only
@@ -110,22 +117,33 @@ Non-negotiable conditions:
 5. **Widen the bad-angle bucket.** It is one photo, and only 58 of 99 models flagged it, so it
    is borderline. Add 3–4 more before any row's `retry_image` behaviour is described in Settings.
 
-## Phase 0 — fix the temperature drift (independent, ship first)
+## Phase 0 — fix the temperature drift  ✅ done
 
 `OpenRouterClient`'s `Json` config leaves `encodeDefaults` at its default (**false**), and
-`ChatRequest.temperature` has a default of `0.2` — so the app has **never sent `temperature`**;
-providers run at their own default. The eval sends `0.2` explicitly, so every recorded number
-was measured at a temperature the app doesn't use.
+`ChatRequest.temperature` had a default of `0.2` — so the app **never sent `temperature`** and
+providers ran at their own. The eval sent `0.2`, so every recorded number described something
+the app was not doing.
 
-- Fix in the app: send temperature explicitly (e.g. make it non-defaulted in the DTO, or set
-  it at the call site with a value that differs from nothing — verify in a golden test that
-  the encoded body contains it). Do **not** flip `encodeDefaults = true` globally without
-  checking what else starts serializing.
-- Per convention this is a live-behavior change: run the full eval on Gemini once *without*
-  temperature first. If the numbers don't move beyond run noise (~2 pp), say so in the plan
-  doc and proceed; if they do, the fix is even more warranted.
+**Measured, and it is not cosmetic.** A paired run of the default model on the 38 cases both
+configurations answered cleanly:
 
-## Phase 1 — network layer
+| | kcal MAPE | accepts | prompt / completion tokens |
+|---|---|---|---|
+| temperature 0.2 | **19.4%** | 18/38 | 1662 / 261 |
+| no temperature (what shipped) | **25.9%** | 15/38 | 1662 / 280 |
+
+**+6.5 pp**, far outside the ~2 pp noise band this plan set as the decision threshold, and it
+also asked three more follow-up questions. The plan said "if they do move, the fix is even more
+warranted" — they moved. Neither run truncated, so the `--max-tokens 8000` both carried is
+irrelevant here.
+
+Shipped as: `ChatRequest.temperature` is now non-defaulted (the compiler, not a serializer flag,
+guarantees it is sent), `OpenRouterClient` passes `ANALYSIS_TEMPERATURE = 0.2`, and
+`OpenRouterClientTest.requestAlwaysCarriesTemperature` is the regression guard. A side effect
+worth stating: until this fix, the labels this feature prints would have been wrong for the app
+they describe.
+
+## Phase 1 — network layer  ✅ done
 
 **No `Reasoning` DTO.** The earlier draft added one to serve `qwen3.8-flash` + reasoning-off;
 that row is gone, and the sweep found the field is rejected outright by most of the field
@@ -147,7 +165,7 @@ before.
   offered row and escalation is one command. Fix `seconds_max` contamination and capture
   `usage` here (Gates 3 and 4) — the UI numbers come from this script.
 
-## Phase 2 — setting and wiring
+## Phase 2 — setting and wiring  ✅ done
 
 - `SettingsRepo`: `stringPreferencesKey("food_analysis_model")` with stable tokens
   `"fast"` / `"balanced"` / `"open"` / `"accurate"` / `"custom"` — **not** raw model ids, so a
@@ -166,7 +184,7 @@ before.
 - The AI-off boundary is untouched: the chooser lives inside the AI section of Settings and
   disappears with it; the repository's before-every-request check already covers every model.
 
-## Phase 3 — Settings UI and strings
+## Phase 3 — Settings UI and strings  ✅ done
 
 - A radio list in the AI section. Each row shows name, **typical wait**, **how often it just
   answers**, then kcal error, provenance (proprietary / open-weight, via OpenRouter — same
@@ -184,7 +202,7 @@ before.
 - Every new string ships in all 7 locales in the same commit; lint's `MissingTranslation` is an
   error and CI runs `lintDebug`. Product and model names stay untranslated.
 
-## Phase 4 — docs and release
+## Phase 4 — docs and release  ◐ partial
 
 - Rewrite the "Food analysis models" section of `CLAUDE.md` (it currently states there is no
   escalation chain and that users never pick a model — the first is still true per analysis, the
@@ -199,8 +217,8 @@ before.
 
 ## Verification
 
-- Unit: request-encoding golden tests (temperature present; no `reasoning` key on any config);
-  config resolution for each token including unknown-token fallback and blank custom id;
+- Unit: request-encoding golden tests (temperature present; no `reasoning` key); config
+  resolution for each token including unknown-token fallback and blank custom id;
   `escalationId == null` suppresses the retry path. Routing policy untouched — no
   `AnalysisPolicy` changes anywhere in this plan.
 - Manual: switch each row and analyze (check `modelUsed`); confirm the retry button appears only
@@ -210,6 +228,36 @@ before.
   backup imports.
 - Eval: full run on every offered row **and** every escalation at the release prompt/schema
   (`run_matrix.py`); update the UI numbers if they moved.
+
+### Verification debt — must clear before tagging 0.7.0
+
+Written 2026-08-29. The implementation is complete; the verification is not, and both gaps are
+environmental rather than design problems.
+
+1. **Never compiled, never tested, never linted.** The machine this was written on has no JDK and
+   no Android SDK, and `local.properties` points at a Windows path. `assembleDebug`,
+   `testDebugUnitTest` and `lintDebug` have all still to run. Static cross-checks were done in
+   place of a compiler — every `R.string.*` reference resolves, no reference to the removed
+   `ON_DEMAND_RETRY` survives, every `AnalysisConfig` field the picker reads exists, all 7 locales
+   parse as XML with no missing key and matching format specifiers — but **none of that is a
+   substitute for the build.** The likeliest failures are Compose import details in
+   `AnalysisModelPicker` and the `io.ktor.http.content.TextContent` import in the new golden
+   tests (chosen for Ktor 2.3.13; it moved between major versions).
+2. **The release re-eval is incomplete.** The OpenRouter key hit its monthly limit partway
+   through (`HTTP 402`, affordable ceiling falling from 63,782 tokens to 4,470 as the run
+   proceeded). `fast` completed 39/44 and the Phase 0 pair completed, which is where the
+   temperature result and the token counts come from. `balanced` and `accurate` did **not**
+   complete, so their labels still come from the earlier full runs of the same evening — same
+   prompt, same schema, same temperature, but not one clean release run. Raise the key's monthly
+   limit and re-run `run_matrix.py` across all four rows plus `gemini-3.1-pro-preview` before
+   tagging; update `FoodAnalysisModels` if anything moved.
+3. **Per-model token counts are still extrapolated.** Cost labels use 1662 prompt + 261
+   completion measured on the default model, applied to each model's published rate. The rows
+   differ by more than 20x so the displayed figure is sound, but the re-run in (2) should replace
+   the extrapolation with each model's own `usage`.
+4. **The bad-angle bucket is still one photo.** Unchanged by this work and still the weakest
+   evidence in the eval; `retry_image` behaviour is deliberately not described in the Settings
+   copy because of it.
 
 ## Out of scope, on purpose
 

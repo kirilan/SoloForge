@@ -219,7 +219,7 @@
     <string name="settings_eating_window_reminder">Erinnerung: Essensfenster schließt</string>
     <string name="settings_section_ai">KI / API</string>
     <string name="settings_ai_food_analysis">KI-Essensanalyse</string>
-    <string name="settings_ai_chain_desc">Essensfotos durchlaufen eine automatische Modellkette: erst eine schnelle Standardanalyse, bei geringer Sicherheit eine stärkere Prüfung und nur bei verbleibender Unsicherheit ein Premium-Check.</string>
+    <string name="settings_ai_chain_desc">Jede Analyse sendet eine Anfrage an das gewählte Modell. Ist das Ergebnis unsicher, entscheidest du: Details ergänzen oder einmal mit einem stärkeren Modell wiederholen, sofern vorhanden.</string>
     <string name="settings_ai_off_desc">KI-Analyse ist aus. Die Analyse-Buttons sind ausgeblendet und die App macht keinerlei Netzwerkzugriffe.</string>
     <string name="settings_key_set">Ein OpenRouter-Schlüssel ist hinterlegt.</string>
     <string name="settings_key_none">Kein API-Schlüssel hinterlegt.</string>
@@ -299,4 +299,18 @@
         <item>Fast geschafft. Dein zukünftiges Ich wird dir danken.</item>
         <item>Noch eine Stunde. Reiß die Kette nicht ab.</item>
     </string-array>
+    <string name="settings_ai_model_title">Analysemodell</string>
+    <string name="settings_ai_model_fast">Am schnellsten</string>
+    <string name="settings_ai_model_balanced">Ausgewogen</string>
+    <string name="settings_ai_model_open">Open-Weight</string>
+    <string name="settings_ai_model_accurate">Am genauesten</string>
+    <string name="settings_ai_model_custom">Erweitert: anderes Modell</string>
+    <string name="settings_ai_model_speed">Etwa %1$ss pro Foto · beantwortet %2$d von %3$d ohne Rückfrage</string>
+    <string name="settings_ai_model_accuracy">%1$s%% durchschnittlicher Kalorienfehler · etwa %2$s $ pro 1000 Analysen</string>
+    <string name="settings_ai_model_open_note">Open-Weight-Modell, über OpenRouter</string>
+    <string name="settings_ai_model_proprietary_note">Proprietäres Modell, über OpenRouter</string>
+    <string name="settings_ai_model_measured_note">Die Werte stammen aus dem eigenen Testsatz dieser App und werden bei jeder Version neu gemessen.</string>
+    <string name="settings_ai_model_custom_field">OpenRouter-Modell-ID</string>
+    <string name="settings_ai_model_custom_warning">Nicht getestet. Geschwindigkeit und Genauigkeit sind unbekannt, es gibt kein stärkeres Modell für einen erneuten Versuch, und die Analyse schlägt fehl, wenn die ID falsch ist oder das Modell zurückgezogen wurde.</string>
+    <string name="analysis_retry_none">Das gewählte Modell hat kein stärkeres Modell für einen erneuten Versuch. Mehr Details helfen eher.</string>
 </resources>

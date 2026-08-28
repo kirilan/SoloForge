@@ -16,11 +16,125 @@ import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
 
-object FoodAnalysisModels {
-    const val DEFAULT = "google/gemini-3.1-flash-lite"
+/**
+ * One selectable analysis configuration: the model that answers, and the model the user's
+ * explicit "retry with a stronger model" tap escalates to.
+ *
+ * Escalation belongs to the row rather than being one global constant. The 2026-08-28 eval found
+ * nothing that beats [FoodAnalysisModels.ACCURATE]'s model and no Apache-2.0 model that beats
+ * [FoodAnalysisModels.OPEN]'s, so both carry a null [escalationId] and hide the retry button
+ * rather than offering a sideways move dressed up as an upgrade.
+ *
+ * The measured fields come from 44-case runs at the shipped prompt and schema. `tools/food_eval`
+ * re-runs every row and every escalation before a release touches a model id, the prompt,
+ * temperature, image preprocessing, or the schema — see docs/curated-model-choice-plan.md.
+ */
+data class AnalysisConfig(
+    val token: String,
+    val modelId: String,
+    val escalationId: String?,
+    val openWeight: Boolean,
+    /** Mean absolute calorie error in percent, over the eval cases carrying ground truth. */
+    val kcalErrorPercent: Double,
+    /** Cases answered outright, without a follow-up question, out of [casesScored]. */
+    val answersDirectly: Int,
+    val casesScored: Int,
+    val medianPhotoSeconds: Double,
+    /**
+     * US cents per 1000 analyses. Token counts were measured on [FoodAnalysisModels.FAST]
+     * (1662 prompt + 261 completion) and applied to each model's published rate; per-model token
+     * counts still need the release re-run. The rows differ by more than 20x, so the figure is
+     * sound at the precision the UI shows it.
+     */
+    val centsPerThousandAnalyses: Int,
+) {
+    /** A user-supplied id carries no measurements, so the UI must not print any. */
+    val isMeasured: Boolean get() = casesScored > 0
+}
 
-    /** Never called automatically — only when the user taps retry. */
-    const val ON_DEMAND_RETRY = "google/gemini-3.1-pro-preview"
+object FoodAnalysisModels {
+    const val TOKEN_FAST = "fast"
+    const val TOKEN_BALANCED = "balanced"
+    const val TOKEN_OPEN = "open"
+    const val TOKEN_ACCURATE = "accurate"
+    const val TOKEN_CUSTOM = "custom"
+
+    val FAST = AnalysisConfig(
+        token = TOKEN_FAST,
+        modelId = "google/gemini-3.1-flash-lite",
+        escalationId = "google/gemini-3.1-pro-preview",
+        openWeight = false,
+        kcalErrorPercent = 23.3,
+        answersDirectly = 16,
+        casesScored = 44,
+        medianPhotoSeconds = 2.2,
+        centsPerThousandAnalyses = 81,
+    )
+
+    val BALANCED = AnalysisConfig(
+        token = TOKEN_BALANCED,
+        modelId = "google/gemini-3.7-flash",
+        escalationId = "google/gemini-3.1-pro-preview",
+        openWeight = false,
+        kcalErrorPercent = 21.3,
+        answersDirectly = 23,
+        casesScored = 44,
+        medianPhotoSeconds = 7.0,
+        centsPerThousandAnalyses = 223,
+    )
+
+    // No open-weight model measured beats this one, so escalating would leave Apache-2.0
+    // for a proprietary model and end the row's only promise at the first tap.
+    val OPEN = AnalysisConfig(
+        token = TOKEN_OPEN,
+        modelId = "qwen/qwen3-vl-32b-instruct",
+        escalationId = null,
+        openWeight = true,
+        kcalErrorPercent = 26.2,
+        answersDirectly = 14,
+        casesScored = 44,
+        medianPhotoSeconds = 6.9,
+        centsPerThousandAnalyses = 28,
+    )
+
+    // The escalation target itself; there is nothing measured above it to escalate to.
+    val ACCURATE = AnalysisConfig(
+        token = TOKEN_ACCURATE,
+        modelId = "google/gemini-3.1-pro-preview",
+        escalationId = null,
+        openWeight = false,
+        kcalErrorPercent = 17.4,
+        answersDirectly = 15,
+        casesScored = 44,
+        medianPhotoSeconds = 5.4,
+        centsPerThousandAnalyses = 646,
+    )
+
+    val OFFERED = listOf(FAST, BALANCED, OPEN, ACCURATE)
+
+    val DEFAULT = FAST
+
+    /** A user-supplied id: never evaluated, so no measured numbers and no escalation. */
+    fun custom(modelId: String) = AnalysisConfig(
+        token = TOKEN_CUSTOM,
+        modelId = modelId,
+        escalationId = null,
+        openWeight = false,
+        kcalErrorPercent = 0.0,
+        answersDirectly = 0,
+        casesScored = 0,
+        medianPhotoSeconds = 0.0,
+        centsPerThousandAnalyses = 0,
+    )
+
+    /** Prefs boundary: an unknown token or a blank custom id falls back to the default. */
+    fun resolve(token: String, customModelId: String): AnalysisConfig {
+        if (token == TOKEN_CUSTOM) {
+            val id = customModelId.trim()
+            return if (id.isEmpty()) DEFAULT else custom(id)
+        }
+        return OFFERED.firstOrNull { it.token == token } ?: DEFAULT
+    }
 }
 
 @Singleton
@@ -38,7 +152,7 @@ class FoodRepository @Inject constructor(
     suspend fun analyze(
         imageFile: File,
         comment: String,
-        model: String = FoodAnalysisModels.DEFAULT,
+        model: String = FoodAnalysisModels.DEFAULT.modelId,
     ): Result<NutritionEstimate> {
         val base64 = runCatching { ImageUtils.fileToBase64Jpeg(imageFile) }
             .getOrElse { return Result.failure(it) }
@@ -47,7 +161,7 @@ class FoodRepository @Inject constructor(
 
     suspend fun analyzeText(
         description: String,
-        model: String = FoodAnalysisModels.DEFAULT,
+        model: String = FoodAnalysisModels.DEFAULT.modelId,
     ): Result<NutritionEstimate> = analyzeOnce(null, description, model)
 
     private suspend fun analyzeOnce(
@@ -91,7 +205,7 @@ class FoodRepository @Inject constructor(
             fatG = estimate.fatG,
             fiberG = estimate.fiberG,
             comment = comment,
-            modelUsed = estimate.modelUsed.ifBlank { FoodAnalysisModels.DEFAULT },
+            modelUsed = estimate.modelUsed.ifBlank { FoodAnalysisModels.DEFAULT.modelId },
             confidence = estimate.confidence,
             imagePath = savedImagePath,
         )

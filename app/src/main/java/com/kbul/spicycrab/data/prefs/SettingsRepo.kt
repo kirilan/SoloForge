@@ -18,6 +18,9 @@ import javax.inject.Singleton
 
 private val Context.settingsDataStore by preferencesDataStore(name = "settings")
 
+/** Mirrors FoodAnalysisModels.TOKEN_FAST; an unknown token resolves to the default anyway. */
+private const val DEFAULT_ANALYSIS_MODEL_TOKEN = "fast"
+
 @Serializable
 data class NutritionGoals(
     val kcal: Int,
@@ -50,6 +53,11 @@ data class AppSettings(
     val healthImportEnabled: Boolean = false,
     val healthExportEnabled: Boolean = false,
     val healthLastSyncEpoch: Long = 0L,
+    // Stable tokens, never raw model ids, so swapping a model doesn't invalidate saved prefs
+    // or older backups. Literal like defaultFastingModeName above, to keep this layer free of a
+    // domain import; FoodAnalysisModels.resolve treats anything it doesn't know as the default.
+    val foodAnalysisModel: String = DEFAULT_ANALYSIS_MODEL_TOKEN,
+    val foodAnalysisModelCustomId: String = "",
 )
 
 @Singleton
@@ -78,6 +86,14 @@ class SettingsRepo @Inject constructor(
     suspend fun setHealthImportEnabled(value: Boolean) = update { it[KEY_HEALTH_IMPORT] = value }
     suspend fun setHealthExportEnabled(value: Boolean) = update { it[KEY_HEALTH_EXPORT] = value }
     suspend fun setHealthLastSync(epoch: Long) = update { it[KEY_HEALTH_LAST_SYNC] = epoch }
+
+    suspend fun setFoodAnalysisModel(token: String) = update { it[KEY_FOOD_MODEL] = token }
+
+    // Stored opaque: the OpenRouter catalog changes without us, so there is nothing to validate
+    // against. A blank id resolves back to the default at read time.
+    suspend fun setFoodAnalysisModelCustomId(modelId: String) = update {
+        it[KEY_FOOD_MODEL_CUSTOM] = modelId.trim().take(MAX_MODEL_ID_LENGTH)
+    }
 
     // HC change token is device-specific operational state — not observed by UI, not backed up.
     suspend fun healthChangeCursor(): Pair<String, String>? {
@@ -131,6 +147,9 @@ class SettingsRepo @Inject constructor(
         // Toggles restore; healthLastSyncEpoch/token stay local (device-specific, like exportFolderUri).
         it[KEY_HEALTH_IMPORT] = s.healthImportEnabled
         it[KEY_HEALTH_EXPORT] = s.healthExportEnabled
+        // A model preference, not a secret — it restores with the rest of the settings.
+        it[KEY_FOOD_MODEL] = s.foodAnalysisModel
+        it[KEY_FOOD_MODEL_CUSTOM] = s.foodAnalysisModelCustomId
     }
 
     private suspend fun update(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
@@ -164,6 +183,8 @@ class SettingsRepo @Inject constructor(
         healthImportEnabled = this[KEY_HEALTH_IMPORT] ?: false,
         healthExportEnabled = this[KEY_HEALTH_EXPORT] ?: false,
         healthLastSyncEpoch = this[KEY_HEALTH_LAST_SYNC] ?: 0L,
+        foodAnalysisModel = this[KEY_FOOD_MODEL] ?: DEFAULT_ANALYSIS_MODEL_TOKEN,
+        foodAnalysisModelCustomId = this[KEY_FOOD_MODEL_CUSTOM] ?: "",
     )
 
     private companion object {
@@ -193,5 +214,8 @@ class SettingsRepo @Inject constructor(
         val KEY_HEALTH_LAST_SYNC = longPreferencesKey("health_last_sync")
         val KEY_HEALTH_TOKEN = stringPreferencesKey("health_change_token")
         val KEY_HEALTH_TOKEN_TYPES = stringPreferencesKey("health_change_token_types")
+        val KEY_FOOD_MODEL = stringPreferencesKey("food_analysis_model")
+        val KEY_FOOD_MODEL_CUSTOM = stringPreferencesKey("food_analysis_model_custom")
+        const val MAX_MODEL_ID_LENGTH = 120
     }
 }

@@ -8,6 +8,7 @@ import com.kbul.spicycrab.data.db.entities.FoodEntry
 import dagger.hilt.android.qualifiers.ApplicationContext
 import com.kbul.spicycrab.data.db.entities.MealPreset
 import com.kbul.spicycrab.data.prefs.SettingsRepo
+import com.kbul.spicycrab.domain.nutrition.AnalysisConfig
 import com.kbul.spicycrab.domain.nutrition.FoodAnalysisModels
 import com.kbul.spicycrab.domain.nutrition.FoodRepository
 import com.kbul.spicycrab.domain.nutrition.FoodPhotoFiles
@@ -58,6 +59,11 @@ class FoodViewModel @Inject constructor(
 
     val aiEnabled: StateFlow<Boolean> = settings.settings.map { it.aiFeaturesEnabled }
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
+    /** The user's chosen configuration. Its escalation may be null, which hides the retry button. */
+    val analysisConfig: StateFlow<AnalysisConfig> = settings.settings
+        .map { FoodAnalysisModels.resolve(it.foodAnalysisModel, it.foodAnalysisModelCustomId) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), FoodAnalysisModels.DEFAULT)
 
     private val _mode = MutableStateFlow<FoodUiMode>(FoodUiMode.List)
     val mode: StateFlow<FoodUiMode> = _mode.asStateFlow()
@@ -114,10 +120,16 @@ class FoodViewModel @Inject constructor(
         _analyze.value = _analyze.value.copy(comment = value)
     }
 
-    fun analyze() = runAnalysis(FoodAnalysisModels.DEFAULT)
+    fun analyze() = runAnalysis(analysisConfig.value.modelId)
 
-    /** Only ever reached from the explicit retry button — never automatic escalation. */
-    fun retryWithStrongerModel() = runAnalysis(FoodAnalysisModels.ON_DEMAND_RETRY)
+    /**
+     * Only ever reached from the explicit retry button — never automatic escalation. Rows whose
+     * escalation is null don't show the button at all, so this is a no-op guard, not a fallback.
+     */
+    fun retryWithStrongerModel() {
+        val stronger = analysisConfig.value.escalationId ?: return
+        runAnalysis(stronger)
+    }
 
     private fun runAnalysis(model: String) {
         if (!aiEnabled.value) {

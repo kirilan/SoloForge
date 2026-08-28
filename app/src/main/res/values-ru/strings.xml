@@ -223,7 +223,7 @@
     <string name="settings_eating_window_reminder">Напоминание о закрытии пищевого окна</string>
     <string name="settings_section_ai">ИИ / API</string>
     <string name="settings_ai_food_analysis">Анализ еды с помощью ИИ</string>
-    <string name="settings_ai_chain_desc">Фото еды проходят автоматическую цепочку моделей: сначала быстрый анализ, при низкой уверенности — более сильная проверка, и только при остающейся неопределённости — премиум-проверка.</string>
+    <string name="settings_ai_chain_desc">Каждый анализ — один запрос к выбранной модели. Если результат неточен, решаете вы: добавить детали или один раз повторить с более сильной моделью, если она есть.</string>
     <string name="settings_ai_off_desc">Анализ ИИ выключен. Кнопки анализа скрыты, и приложение не делает никаких сетевых запросов.</string>
     <string name="settings_key_set">Ключ OpenRouter задан.</string>
     <string name="settings_key_none">Ключ API не задан.</string>
@@ -305,4 +305,18 @@
         <item>Почти получилось. Будущий вы скажет спасибо.</item>
         <item>Ещё один час. Не разрывайте цепочку.</item>
     </string-array>
+    <string name="settings_ai_model_title">Модель анализа</string>
+    <string name="settings_ai_model_fast">Самая быстрая</string>
+    <string name="settings_ai_model_balanced">Сбалансированная</string>
+    <string name="settings_ai_model_open">С открытыми весами</string>
+    <string name="settings_ai_model_accurate">Самая точная</string>
+    <string name="settings_ai_model_custom">Дополнительно: другая модель</string>
+    <string name="settings_ai_model_speed">Около %1$s с на фото · отвечает на %2$d из %3$d без уточняющего вопроса</string>
+    <string name="settings_ai_model_accuracy">%1$s%% средняя ошибка в калориях · около %2$s $ за 1000 анализов</string>
+    <string name="settings_ai_model_open_note">Модель с открытыми весами, через OpenRouter</string>
+    <string name="settings_ai_model_proprietary_note">Проприетарная модель, через OpenRouter</string>
+    <string name="settings_ai_model_measured_note">Цифры получены на собственном наборе тестов приложения и перепроверяются в каждом выпуске.</string>
+    <string name="settings_ai_model_custom_field">Идентификатор модели OpenRouter</string>
+    <string name="settings_ai_model_custom_warning">Не тестировалась. Скорость и точность неизвестны, более сильной модели для повтора нет, а анализ не выполнится, если идентификатор неверен или модель отозвана.</string>
+    <string name="analysis_retry_none">У выбранной модели нет более сильной модели для повтора. Уточнение деталей помогает больше.</string>
 </resources>

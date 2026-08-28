@@ -86,6 +86,14 @@ class SettingsViewModel @Inject constructor(
 
     fun setAiFeaturesEnabled(value: Boolean) = viewModelScope.launch { settings.setAiFeaturesEnabled(value) }
 
+    fun setFoodAnalysisModel(token: String) = viewModelScope.launch {
+        settings.setFoodAnalysisModel(token)
+    }
+
+    fun setFoodAnalysisModelCustomId(modelId: String) = viewModelScope.launch {
+        settings.setFoodAnalysisModelCustomId(modelId)
+    }
+
     fun setWeightUnitKg(value: Boolean) = viewModelScope.launch { settings.setWeightUnitKg(value) }
 
     fun setGoals(goals: NutritionGoals) = viewModelScope.launch { settings.setGoals(goals) }
