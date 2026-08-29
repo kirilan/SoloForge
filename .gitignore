@@ -17,7 +17,9 @@ keystore.properties
 play-service-account*.json
 __pycache__/
 tools/food_eval/cases.json
+tools/food_eval/cases-public.json
 tools/food_eval/images/
 tools/food_eval/results/
 tools/food_eval/truth.csv
 tools/food_eval/n5k/
+tools/food_eval/openrouter.key

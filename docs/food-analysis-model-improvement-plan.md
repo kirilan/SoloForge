@@ -1,11 +1,13 @@
 # Food analysis model improvement plan
 
-Status: **CLOSED 2026-08-09.** Phases 1–2 shipped in v0.6.0; the model swap is dropped and the
-open-weight question is settled, not parked. No further testing is planned — the eval harness
-stays for the next time a model id, prompt, or schema changes, which is what it was built for.
+Status: **REOPENED 2026-08-28** by the third sweep at the end of this document. Phases 1–2
+shipped in v0.6.0 and stand. What reopened is model choice: a census of every vision model
+OpenRouter has carried in the last twelve months found several that beat the shipped default on
+accuracy *and* routing, and found that `retry_image` barely fires on the shipped model. The
+follow-on design work lives in `curated-model-choice-plan.md`; this document is the evidence.
 
-Ten models across six vendors have now been measured against the shipped one and none
-displaced it — see "Full candidate sweep" at the end before proposing another.
+Twenty-two models now have a full-set run and 108 have been screened. The shipped default still
+wins on latency and nothing else — read "Third sweep" before proposing a change.
 
 Shipped models, and they stay until new evidence says otherwise:
 `DEFAULT = google/gemini-3.1-flash-lite`, `ON_DEMAND_RETRY = google/gemini-3.1-pro-preview`.
@@ -21,9 +23,12 @@ argued about — the 8B failed outright, the 30B came close enough to be credibl
 on multi-component plates, the common real case. Both cost a few cents to test and one of them
 overturned a benchmark claim this plan had treated as fact.
 
-If this is ever reopened, `qwen3-vl-30b-a3b` is the candidate of record and multi-component
-accuracy on real phone photos is the single measurement that decides it. Food-R1 remains worth
-a glance if it lands on OpenRouter with a compatible licence. Neither is scheduled work.
+**Superseded 2026-08-28 by the third sweep.** The open candidate of record is now
+`qwen/qwen3-vl-32b-instruct` (Apache-2.0, verified on HF), displacing `qwen3.8-flash` with
+reasoning disabled: the only Qwen3.8 Flash weights published carry the Qwen Community License,
+so that row could never have been labelled "open-weight" honestly. Food-R1 remains worth a
+glance if it lands on OpenRouter with a compatible licence — checked again 2026-08-28, still
+not there.
 
 ## Strategy (as shipped)
 
@@ -49,8 +54,10 @@ Parked candidates (all now need eval evidence before adoption, not just a benchm
 - `qwen/qwen3-vl-30b-a3b-instruct` — **tested 2026-08-09, and it is the only credible open
   candidate.** 36% MAPE, ties Gemini on hidden fat, same price as the 8B, Apache-2.0. Blocked
   on multi-component plates, not on principle. Retest against phone photos before adopting.
-- `mistralai/mistral-small-2603` — text path only, and only if the eval shows Qwen-8B failing
-  on text descriptions.
+- `mistralai/mistral-small-2603` — **rejected 2026-08-28.** Fast (2.4s) and Apache-2.0, and it
+  accepted the genuinely blurry dessert plate with zero uncertainty reasons, calling it "fruit
+  salad with cottage cheese". Confidently wrong with no uncertainty signal defeats the entire
+  response contract; speed does not buy that back.
 - **Food-R1** — food-specialized Qwen3-VL-8B derivative with much stronger domain evidence
   (Nutrition5k calorie MAE 27.6). Not on OpenRouter; **check availability and license at every
   release** — if it lands compatibly, it is the natural drop-in default.
@@ -302,6 +309,268 @@ Two method notes worth keeping:
 
 Everything above is single-run at temperature 0.2. Treat gaps under ~2 pp as no difference;
 latency and price differences are real.
+
+### Second sweep (2026-08-28, the August reasoning-VLM generation)
+
+The open releases of Aug 10–26 screened against the same cases and prompt. All screens are
+5 photos (latency/schema gate, accuracy at that size is noise); `qwen3.8-flash` with reasoning
+off survived and got the full 44 cases. "reasoning off/low" rows send OpenRouter's `reasoning`
+field via the eval's `--reasoning` flag — **not the app's request shape**; adopting one of
+those rows means shipping the same field in `OpenRouterDtos.kt`.
+
+| model | config | kcal MAPE | action match | photo latency med/max | outcome |
+|---|---|---|---|---|---|
+| z-ai/glm-5.3-flash | default thinking | 22.2% (n=5) | 0.75 | 25.4s / 49.7s | latency |
+| z-ai/glm-5.3-flash | effort low | 48.1% (n=5) | 0.50 | 13.6s / 14.7s | slow **and** inaccurate; rejects `enabled: false` outright ("Reasoning is mandatory") |
+| qwen/qwen3.8-27b | default thinking | 17.5% (n=5) | 0.50 | 14.9s / 40.4s | best accuracy ever measured here, unusable latency |
+| qwen/qwen3.8-27b | reasoning off | 37.9% (n=5) | 0.75 | 6.0s / 13.3s | accuracy collapses |
+| qwen/qwen3.8-flash | default thinking | 31.3% (n=5) | 1.00 | 15.3s / 26.3s | same failure as 3.7-flash |
+| **qwen/qwen3.8-flash** | **reasoning off** | **26.9% (44 cases)** | **0.903** | **6.4s / 11.8s** | **credible second; not a default** |
+| deepseek/deepseek-v4-flash-vision-exp | — | — | — | — | blocked: no OpenRouter endpoint satisfies this account's data policy (and `-exp` ids can vanish) |
+
+Not screened: Meta's Muse-Glimmer-30B (not on OpenRouter, and its vision tuning is
+OCR/screenshots); qwen3.8-max and the 2.4T (same price class that cut kimi-k3). Food-R1
+checked again 2026-08-28: still not on OpenRouter.
+
+**The generation's pattern, consistent across three vendors: the accuracy lives in the
+thinking tokens.** Every candidate is accurate-but-slow with thinking on and fast-but-wrong
+with it suppressed — except `qwen3.8-flash`, which keeps most of its accuracy at 6.4s.
+Gemini flash-lite's moat is not accuracy; it is 23% MAPE at 2.2s *without* reasoning.
+
+Full-run detail on `qwen3.8-flash` + reasoning off, against the shipped model's 2026-08-09
+numbers: text 2.3% vs 1.1%, simple 14.9% vs 13.0%, multi-component 40.0% vs 32.8%, oils
+30.6% vs 26.0% with an identical −50 kcal median bias. Every successful photo answered in
+under 12s. Two routing regressions: it missed `image_quality` on the genuinely blurry
+dessert plate (thinking off appears to under-flag image quality — the inverse of 3.7-flash's
+over-asking), and it over-asked on two accepts. At $0.15/M in, the 3.7-flash price argument
+is gone.
+
+**Candidate of record is now `qwen3.8-flash` with `reasoning: {"enabled": false}`,**
+displacing `qwen3-vl-30b-a3b`. It does not displace Gemini as default — slightly worse on
+every bucket and 3× the median wait — but it is the first open-weight configuration close
+enough to be *offered*, if a curated model choice ever ships. Note the license: the 3.8
+generation's Flash weights carry the Qwen Community License, not Apache-2.0 — check which
+variant OpenRouter serves before calling it license-aligned.
+
+### Third sweep (2026-08-28): every vision model of the last twelve months
+
+A census rather than a shortlist. OpenRouter carried 388 models, 223 vision-capable, **169
+created in the last twelve months**; 61 were excluded as not-candidates (`:batch` queue
+variants, `~…-latest` alias pointers, image-*generation* models, code/safety/search
+specialists, `:free` duplicates of a paid id, routers), leaving **108 screened on the same 5
+photos** — 540 calls, about $5. Everything below is single-run at temperature 0.2 in the app's
+request shape unless stated.
+
+| screen verdict | n | criterion |
+|---|---|---|
+| passed | 52 | valid schema 5/5, slowest call ≤20s |
+| latency-rejected | 35 | slowest call >20s (incl. `meta/muse-glimmer-30b`, which blew a 25-min timeout) |
+| schema failure | 2 | `rekaai/reka-edge` (0.40), `bytedance-seed/seed-1.6-flash` (0.80) |
+| flaky | 4 | 1–3 of 5 calls failed |
+| unusable | 15 | account gates and provider errors, below |
+
+**Latency is bimodal and the field got slower.** Median screened model answers a food photo in
+8.6s; p75 is 24.1s; **29% take over 20s**. Only 12 of 92 timed models answer under 3s and three
+of those twelve are Gemini flash-lite variants. The shipped default's moat is not accuracy — it
+is 23% MAPE at ~2s *without* reasoning, which almost nothing else in the catalog does.
+
+#### Full-set runs (44 cases) — the 2026-08-28 cohort
+
+| config | schema | kcal MAPE | action | accepts | med / max | text | simple | multi | oils |
+|---|---|---|---|---|---|---|---|---|---|
+| `gemini-3.1-pro-preview` | 1.000 | **17.4%** | 0.935 | 15/44 | 5.4s / 17.7s | 1.0% | 13.9% | **18.6%** | **21.8%** |
+| `z-ai/glm-5.3-flash` | 1.000 | 19.5% | 0.806 | 18/44 | 18.0s / 34.0s | 0.4% | **9.5%** | 30.2% | 21.9% |
+| `qwen/qwen3.8-flash` thinking | 0.727 | 19.7% | 0.852 | 13/39 | 14.8s / 22.6s | 0.2% | 12.7% | 25.2% | 27.8% |
+| **`google/gemini-3.7-flash`** | 1.000 | 21.3% | **0.968** | **23/44** | 7.0s / 12.6s | 0.4% | 12.6% | 26.1% | 29.9% |
+| `google/gemini-3.1-flash-lite` *(shipped)* | 1.000 | 23.3% | 0.935 | 16/44 | **2.2s** | 0.9% | 12.3% | 33.5% | 28.3% |
+| `qwen/qwen3-vl-235b-a22b-instruct` | 1.000 | 26.0% | 0.871 | 14/44 | 7.8s / **142.6s** | 6.0% | 15.4% | 39.2% | 25.9% |
+| **`qwen/qwen3-vl-32b-instruct`** | 0.977 | 26.2% | 0.903 | 14/44 | 6.9s / 13.4s | 7.4% | 20.4% | 32.9% | 27.2% |
+| `qwen/qwen3.8-flash` + reasoning off | 0.977 | 26.9% | 0.903 | 15/43 | 6.4s / 11.8s | 2.3% | 14.9% | 40.0% | 30.6% |
+
+Four things this cohort settles:
+
+- **The escalation model had never been measured, and it works.** First full run of
+  `gemini-3.1-pro-preview`: 17.4% against the default's 23.3%, better on 13 truthed cases and
+  worse on 4, and it nearly halves multi-component error (33.5% → 18.6%) while improving hidden
+  fat. The retry button shipped on unit tests and a 5-photo screen; it now has evidence, and it
+  improves exactly the buckets where a calorie counter being wrong matters.
+- **`gemini-3.7-flash` has the best routing ever measured here** — 0.968 action match and
+  **23/44 accepts**, against the default's 16/44 — while also being more accurate (21.3%) and
+  reliable (zero failures, 0 calls over 20s). It costs 7.0s against 2.2s and $0.75/M against
+  $0.25/M.
+- **`qwen3-vl-32b-instruct` is the open candidate of record.** 26.2% ties `qwen3.8-flash`
+  + reasoning-off (26.9%) inside noise but wins everything around the number: Apache-2.0
+  (verified), a 13.4s worst case, no `reasoning` field needed, and it beats both the shipped
+  default and the previous open pick on **multi-component** (32.9%) — the bucket the whole
+  open-weight question died on in the August 9 sweep.
+- **Bigger is not escalation.** `qwen3-vl-235b-a22b` was tested as an open escalation target for
+  the 32B and is a sidegrade: 26.0% vs 26.2% is noise, it is *worse* on multi-component
+  (39.2%), worse on routing, and one call took **142.6s** — a real response, not a retry, past
+  the client's 60s timeout. There is currently no open-weight escalation target.
+
+#### `retry_image` barely fires on the shipped model
+
+The plan's bad-angle bucket is one photo, so it was run five times per model (the gate
+`curated-model-choice-plan.md` asks for):
+
+| model | raised `image_quality` | routed `retry_image` |
+|---|---|---|
+| `qwen/qwen3-vl-32b-instruct` | **5/5** | **5/5** |
+| `google/gemini-3.7-flash` | **5/5** | **5/5** |
+| `qwen/qwen3.8-max` | 5/5 | 5/5 |
+| `qwen/qwen3.8-flash` + reasoning off | 3/5 | 3/5 |
+| `z-ai/glm-5.3-flash` | 3/5 | 3/5 |
+| `google/gemini-3.5-flash-lite` | 2/5 | 2/5 |
+| `x-ai/grok-4.6` | 1/5 | 1/5 |
+| **`google/gemini-3.1-flash-lite`** *(shipped)* | **0/5** | **0/5** |
+
+Counting the August runs, the shipped default flags that photo about **1 time in 9**.
+
+**This corrects the August 9 record, which over-read a single sample.** That run concluded
+"`retry_image` works end to end on a real photo" from one hit; the honest statement is that the
+path is close to dormant in production. It is not a regression — it was never measured properly.
+Note also that only **58 of 99** models flagged the photo at all, so it is genuinely borderline;
+the real defect is that one borderline image is the entire bad-angle bucket. **Add 3–4 more
+bad-angle photos before anyone trusts a `retry_image` number, the shipped model's included.**
+
+#### What 459 calls across 107 models say about the design
+
+- **The response contract is durable. 99.1% of answered calls were schema-clean** — 107 models,
+  ~20 vendors, 300× price spread, none of which have seen this prompt. Phase 1 was validated on
+  two model families in August; it now holds across essentially the whole field, so a model swap
+  carries near-zero parsing risk and format is not what constrains model choice.
+- **Almost no model will say `accept`.** 59 of 86 models (**69%**) accepted *nothing* across 5
+  photos; the median model accepts 0 of 5; nobody exceeded 2. Reasons cited across ~460 photo
+  analyses: `portion_unknown` **80%**, `hidden_ingredients` 63%, `preparation_unknown` 50%,
+  `image_quality` 20%, `identity_ambiguous` 17%, and only **7%** cited nothing at all. Since
+  `AnalysisPolicy` routes *any* reason to `ask_user`, the industry's honest answer lands on the
+  clarification sheet for ~93% of photos. **The default's real moat is willingness to commit**,
+  and that is now a first-class selection metric — a "better" model can easily ship an app that
+  asks a follow-up question about every meal.
+- **107 models, one dominant failure mode, and it is `portion_unknown`.** That is the plan's
+  central thesis confirmed at scale: escalation cannot recover what the photo does not show, and
+  the clarification loop is the escalation.
+
+#### The 5-photo screen measures portion mass, not nutrition knowledge
+
+Worth knowing before anyone ranks models on it. Both ground-truthed screen cases resolve to a
+single skill, and they are biased in opposite directions:
+
+- `n5k-dish_1558629444` is **a plate of almonds** — 77 of 88 models identified it correctly and
+  estimated a median 30 g → 174 kcal. Almonds are 579 kcal/100 g, so their kcal-per-gram is
+  exact; the scale says 225.5 kcal, i.e. 39 g. The entire error is 30 g vs 39 g of nuts.
+  **84/88 models undershot.**
+- `n5k-dish_1563465847` is scrambled eggs with potatoes; models estimate 250 g → ~400 kcal
+  against a 267.8 kcal truth. **86/89 overshot**, median +132 kcal.
+
+Consequence: the shipped model scored **39.7% and 32.3% MAPE on identical inputs eight minutes
+apart**. Treat the screen as a latency, schema and routing gate only — which is what the README
+already says, though now the reason is known rather than assumed. Swapping in cases where mass
+is knowable (a labelled package, a weighed portion) would make the number mean something.
+
+#### Not measured, and why
+
+- **`x-ai/grok-4.6` — no valid accuracy number.** It hit `HTTP 402` on 30 of 44 cases; the 14
+  that completed were the text-only ones, so its apparent 0.3% MAPE is **11 canonical reference
+  lookups and must not be quoted**. Separately disqualified anyway: **1/5** on the bad-angle
+  gate, 4 of 14 completed calls over 20s, slowest 47.7s. Re-runnable with `--max-tokens` below.
+
+- **The `HTTP 402` was a token reservation, not an empty account** — the first diagnosis here
+  was wrong and is worth correcting, because it nearly wrote off two models for the wrong
+  reason. The full message reads *"You requested up to 65536 tokens, but can only afford
+  63782"*: the eval never sends `max_tokens`, so OpenRouter reserves the model's full default
+  completion against the **key's monthly limit**. The shortfall was 1,754 tokens. Capping the
+  completion clears it, and `run_eval.py --max-tokens N` now does that. **It is a flagged run
+  like `--reasoning`** — filename-tagged, recorded in the result — but unlike `--reasoning` it
+  does not change model behaviour *provided nothing truncated*, which is why `finish_reason` is
+  now captured and `summary["truncated"]` names any case that came back `length` instead of
+  `stop`. Never trust a capped run without checking that key is absent.
+
+- **`qwen/qwen3.8-max` — measured this way, and disqualified on latency.** 5 photos at
+  `--max-tokens 16000`: zero failures, schema 1.00, **nothing truncated** (peak 4,487 completion
+  tokens against 16,000 allowed, so the cap never bit). Latency **median 72.0s, max 105.6s**,
+  with three of five calls past the client's 60s timeout — in the app most analyses would simply
+  fail. The newly captured `usage` explains it: it spends **2,000–4,500 completion tokens** to
+  produce a ~350-token JSON answer, and it rejects `reasoning: {"enabled": false}`, so no
+  configuration of it fits. No full run was spent on it; a MAPE for a model that cannot ship
+  would not inform anything.
+- **`deepseek/deepseek-v4-flash-vision-exp` — blocked, by choice.** Its only provider is
+  DeepSeek's own first-party endpoint (healthy, 100% uptime), so the account's data policy has
+  nothing to route around. Evaluating it means permitting providers that may train on inputs,
+  which on this project is a real cost and not obviously worth three cents of curiosity. A
+  `cases-public.json` (41 cases: Nutrition5k CC BY 4.0 + text, personal photos excluded) exists
+  for anyone who decides to, so the phone photos never need to be part of that trade.
+- **Reasoning cannot be disabled on most of the field.** `glm-5.3-flash`, `grok-4.6`,
+  `gemini-3.7-flash` and `qwen3.8-max` all reject `reasoning: {"enabled": false}` with
+  `HTTP 400: Reasoning is mandatory for this endpoint`. The lever that rescued `qwen3.8-flash`
+  (15.3s → 6.4s) works on almost nothing else — which is why the curated-choice plan no longer
+  needs a `Reasoning` DTO.
+
+#### Eval harness changes made by this sweep
+
+1. **`seconds_max` no longer counts failed calls.** `qwen3.8-flash` + reasoning-off reported a
+   173.9s max from a failed 429 row carrying both `error` and `seconds`; its real max is 11.8s.
+   `summarize()` now excludes error rows from every latency figure. Historic result files
+   predating this still carry the inflated summary — recompute rather than quote them.
+2. **`usage` and `finish_reason` are captured per row**, and `prompt_tokens_median` /
+   `completion_tokens_median` are in every summary. This closes the cost-label gate in
+   `curated-model-choice-plan.md`: ~1,263 prompt tokens per analysis is consistent across
+   models, and completion tokens are what separate a thinking model from a fast one.
+3. **`--max-tokens N`** for getting under a key's credit reservation, as above.
+
+4. **`--no-temperature`** reproduces what the app sent before the 0.7.0 fix. It found the drift
+   below and has no other use.
+
+Still open: the bad-angle bucket is one borderline photo. Add 3–4 more before any
+`retry_image` number is quoted, the shipped model's included.
+
+#### The app was never running at the temperature the eval measured (2026-08-29)
+
+`ChatRequest.temperature` was a defaulted property and `encodeDefaults` is false, so the field
+was silently dropped from every request the app ever made while the eval sent `0.2`. Paired run
+of the default model, restricted to the 38 cases both configurations answered cleanly:
+
+| | kcal MAPE | accepts | prompt / completion tokens |
+|---|---|---|---|
+| temperature 0.2 | **19.4%** | 18/38 | 1662 / 261 |
+| no temperature (what shipped through 0.6.0) | **25.9%** | 15/38 | 1662 / 280 |
+
+**+6.5 pp**, three fewer direct answers, and three cases routed differently. Every model number
+in this document was therefore measured on a configuration users did not have. Fixed in 0.7.0
+(`temperature` is now non-defaulted, with a golden test); from 0.7.0 the recorded numbers
+describe the shipped app for the first time.
+
+The same run gives the first measured token counts: **1662 prompt + 261 completion** per
+analysis on the default model, which is where the cost labels come from.
+
+#### 0.7.0 release run (2026-08-29, 44 cases, all four offered rows, no eval flags)
+
+After the key's monthly limit was raised, every offered row ran the full set in the app's exact
+request shape — no `--max-tokens`, no `--reasoning`. Zero call failures across all four.
+
+| row | model | schema | kcal MAPE | action | answers directly | med / max | prompt/completion tokens | ¢/1000 |
+|---|---|---|---|---|---|---|---|---|
+| fast | `gemini-3.1-flash-lite` | 1.000 | 22.6% | 0.935 | 17/44 | 2.0s / 3.9s | 1662 / 283 | 84 |
+| balanced | `gemini-3.7-flash` | 1.000 | 21.9% | 0.935 | **24/44** | 8.1s / 14.8s | 1662 / 677 | 379 |
+| open | `qwen3-vl-32b-instruct` | 0.977 | 25.9% | 0.903 | 14/44 | 7.5s / 16.2s | **851** / 367 | **24** |
+| accurate | `gemini-3.1-pro-preview` | 1.000 | **17.3%** | 0.935 | 17/44 | 4.8s / 16.8s | 1662 / 504 | 937 |
+
+Two corrections came out of it, both of which had already reached shipped code:
+
+- **Never scale one model's token profile onto another.** The 0.7.0 cost labels were first
+  derived by applying the default model's 1662/261 to every row's published rate. That was wrong
+  by up to **70%**: completion length is exactly what differs between these models (283 tokens
+  for flash-lite against 677 for 3.7-flash), and Qwen reads the same image in **half** the prompt
+  tokens (851 vs 1662). `accurate` was understated at 646¢ against a real 937¢. Cost now comes
+  from each row's own measured `usage`.
+- **`gemini-3.7-flash`'s routing advantage did not reproduce.** 0.968 on 2026-08-28, 0.935 here —
+  it ties the other Gemini rows rather than leading them. Its case now rests entirely on
+  answering **24 of 44** without a follow-up question against the default's 17.
+
+Reassuring half: **calorie error was stable within 0.7 pp for every row across the two runs**
+(22.6/23.3, 21.9/21.3, 25.9/26.2, 17.3/17.4), so the accuracy ordering that drove the row choices
+is not a single-run artifact. Action match was stable for three rows of four. Treat routing
+metrics as noisier than MAPE at n=44.
 
 ## Sources
 

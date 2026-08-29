@@ -219,7 +219,7 @@
     <string name="settings_eating_window_reminder">Yeme penceresi kapanış hatırlatıcısı</string>
     <string name="settings_section_ai">YZ / API</string>
     <string name="settings_ai_food_analysis">YZ ile yemek analizi</string>
-    <string name="settings_ai_chain_desc">Yemek fotoğrafları otomatik bir model zinciri kullanır: önce hızlı bir analiz, güven düşükse daha güçlü bir inceleme ve yalnızca belirsizlik sürerse premium bir kontrol.</string>
+    <string name="settings_ai_chain_desc">Her analiz, seçtiğiniz modele tek bir istek gönderir. Sonuç belirsizse kararı siz verirsiniz: ayrıntı ekleyin veya varsa daha güçlü bir modelle bir kez yeniden deneyin.</string>
     <string name="settings_ai_off_desc">YZ analizi kapalı. Analiz düğmeleri gizli ve uygulama hiçbir ağ isteği yapmaz.</string>
     <string name="settings_key_set">Bir OpenRouter anahtarı tanımlı.</string>
     <string name="settings_key_none">API anahtarı tanımlı değil.</string>
@@ -299,4 +299,18 @@
         <item>Az kaldı. Gelecekteki siz teşekkür edecek.</item>
         <item>Bir saat daha. Zinciri kırmayın.</item>
     </string-array>
+    <string name="settings_ai_model_title">Analiz modeli</string>
+    <string name="settings_ai_model_fast">En hızlı</string>
+    <string name="settings_ai_model_balanced">Dengeli</string>
+    <string name="settings_ai_model_open">Açık ağırlıklı</string>
+    <string name="settings_ai_model_accurate">En doğru</string>
+    <string name="settings_ai_model_custom">Gelişmiş: başka bir model</string>
+    <string name="settings_ai_model_speed">Fotoğraf başına yaklaşık %1$s sn · %3$d durumun %2$d tanesini soru sormadan yanıtlar</string>
+    <string name="settings_ai_model_accuracy">%1$s%% ortalama kalori hatası · 1000 analiz için yaklaşık %2$s $</string>
+    <string name="settings_ai_model_open_note">Açık ağırlıklı model, OpenRouter üzerinden</string>
+    <string name="settings_ai_model_proprietary_note">Tescilli model, OpenRouter üzerinden</string>
+    <string name="settings_ai_model_measured_note">Değerler uygulamanın kendi test setinden gelir ve her sürümde yeniden ölçülür.</string>
+    <string name="settings_ai_model_custom_field">OpenRouter model kimliği</string>
+    <string name="settings_ai_model_custom_warning">Test edilmedi. Hız ve doğruluk bilinmiyor, yeniden denemek için daha güçlü bir model yok ve kimlik yanlışsa veya model kaldırıldıysa analiz başarısız olur.</string>
+    <string name="analysis_retry_none">Seçtiğiniz modelin yeniden denemek için daha güçlü bir karşılığı yok. Ayrıntı eklemek daha çok yardımcı olur.</string>
 </resources>

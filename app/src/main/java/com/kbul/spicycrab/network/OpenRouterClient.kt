@@ -29,6 +29,9 @@ private const val ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 private const val APP_ATTRIBUTION_URL = "https://github.com/kirilan/SoloForge"
 private const val APP_ATTRIBUTION_TITLE = "Solo Forge"
 
+// Every eval number was measured at this value; tools/food_eval sends the same one.
+private const val ANALYSIS_TEMPERATURE = 0.2
+
 @Singleton
 class OpenRouterClient internal constructor(engine: HttpClientEngine) {
 
@@ -82,6 +85,7 @@ class OpenRouterClient internal constructor(engine: HttpClientEngine) {
             model = model,
             messages = listOf(systemMsg, ChatMessage(role = "user", content = userParts)),
             responseFormat = ResponseFormat("json_object"),
+            temperature = ANALYSIS_TEMPERATURE,
         )
 
         val resp: HttpResponse = client.post(ENDPOINT) {

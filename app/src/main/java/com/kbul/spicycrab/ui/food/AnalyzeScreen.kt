@@ -28,7 +28,6 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.domain.nutrition.AnalysisAction
-import com.kbul.spicycrab.domain.nutrition.FoodAnalysisModels
 import com.kbul.spicycrab.domain.nutrition.NutritionEstimate
 import com.kbul.spicycrab.domain.nutrition.UncertaintyReason
 import com.kbul.spicycrab.domain.nutrition.hasValidNutrition
@@ -42,6 +41,8 @@ fun AnalyzeScreen(
     state: AnalyzeState,
     onCommentChange: (String) -> Unit,
     onAnalyze: () -> Unit,
+    /** Null when the chosen configuration has no stronger model above it. */
+    escalationModelId: String?,
     onRetryStronger: () -> Unit,
     onSave: () -> Unit,
     onCancel: () -> Unit,
@@ -102,7 +103,7 @@ fun AnalyzeScreen(
         }
         state.estimate?.let { est ->
             if (!state.isLoading && est.routedAction(hasImage = !textOnly) != AnalysisAction.ACCEPT) {
-                UncertaintyCard(est, textOnly, onRetryStronger)
+                UncertaintyCard(est, textOnly, escalationModelId, onRetryStronger)
             }
             EstimateForm(est, onEstimateUpdate)
             Row(
@@ -169,6 +170,7 @@ private fun EstimateForm(
 private fun UncertaintyCard(
     est: NutritionEstimate,
     textOnly: Boolean,
+    escalationModelId: String?,
     onRetryStronger: () -> Unit,
 ) {
     ElevatedCard(Modifier.fillMaxWidth()) {
@@ -182,22 +184,33 @@ private fun UncertaintyCard(
             hints.forEach {
                 Text("• $it", style = MaterialTheme.typography.bodyMedium)
             }
-            if (!est.strongerModelCanHelp()) {
+            // "Add details" is always available; the stronger-model retry only exists when the
+            // chosen configuration actually has something above it. Offering a sideways move
+            // would be worse than offering nothing.
+            if (escalationModelId == null) {
                 Text(
-                    stringResource(R.string.analysis_retry_wont_help),
+                    stringResource(R.string.analysis_retry_none),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            } else {
+                if (!est.strongerModelCanHelp()) {
+                    Text(
+                        stringResource(R.string.analysis_retry_wont_help),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                OutlinedButton(
+                    onClick = onRetryStronger,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                ) { Text(stringResource(R.string.analysis_retry_stronger)) }
+                Text(
+                    stringResource(R.string.analysis_retry_disclosure, escalationModelId),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
-            OutlinedButton(
-                onClick = onRetryStronger,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
-            ) { Text(stringResource(R.string.analysis_retry_stronger)) }
-            Text(
-                stringResource(R.string.analysis_retry_disclosure, FoodAnalysisModels.ON_DEMAND_RETRY),
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
         }
     }
 }

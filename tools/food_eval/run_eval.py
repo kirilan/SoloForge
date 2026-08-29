@@ -34,6 +34,7 @@ REPO = HERE.parent.parent
 PROMPT_FILE = REPO / "app/src/main/java/com/kbul/spicycrab/network/VisionPrompts.kt"
 CASES = HERE / "cases.json"
 RESULTS = HERE / "results"
+KEY_FILE = HERE / "openrouter.key"
 
 ENDPOINT = "https://openrouter.ai/api/v1/chat/completions"
 HEADERS_EXTRA = {
@@ -53,6 +54,19 @@ REASONS = {
 }
 ACTIONS = {"accept", "ask_user", "retry_image"}
 MACROS = ("protein_g", "carbs_g", "fat_g")
+
+
+def api_key() -> str | None:
+    """Environment first; otherwise the first key-looking line of openrouter.key."""
+    key = os.environ.get("OPENROUTER_API_KEY")
+    if key:
+        return key
+    if KEY_FILE.exists():
+        for line in KEY_FILE.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#"):
+                return line
+    return None
 
 
 def system_prompt() -> str:
@@ -78,34 +92,65 @@ def image_part(path: Path) -> dict:
     return {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{encoded}"}}
 
 
-def analyze(key: str, model: str, prompt: str, case: dict) -> dict:
+def analyze(
+    key: str, model: str, prompt: str, case: dict, reasoning: dict | None, max_tokens: int | None,
+    send_temperature: bool = True,
+) -> tuple[dict, float, dict]:
+    """Returns the parsed response, the seconds the successful request took (excluding any 429
+    backoff waits — those measure the key's rate limit, not the model), and the provider's own
+    accounting: token usage, and the finish_reason that says whether the answer was cut off."""
     comment = case.get("comment") or "Please estimate calories and macros for this food."
     parts = [{"type": "text", "text": comment}]
     if case.get("image"):
         parts.append(image_part(HERE / case["image"]))
 
-    response = requests.post(
-        ENDPOINT,
-        headers={"Authorization": f"Bearer {key}", **HEADERS_EXTRA},
-        json={
-            "model": model,
-            "messages": [
-                {"role": "system", "content": prompt},
-                {"role": "user", "content": parts},
-            ],
-            "response_format": {"type": "json_object"},
-            "temperature": TEMPERATURE,
-        },
-        timeout=120,
-    )
-    response.raise_for_status()
-    content = response.json()["choices"][0]["message"]["content"]
+    body = {
+        "model": model,
+        "messages": [
+            {"role": "system", "content": prompt},
+            {"role": "user", "content": parts},
+        ],
+        "response_format": {"type": "json_object"},
+    }
+    if send_temperature:
+        body["temperature"] = TEMPERATURE
+    if reasoning:
+        body["reasoning"] = reasoning
+    if max_tokens:
+        body["max_tokens"] = max_tokens
+
+    for attempt in range(4):
+        started = time.monotonic()
+        response = requests.post(
+            ENDPOINT,
+            headers={"Authorization": f"Bearer {key}", **HEADERS_EXTRA},
+            json=body,
+            timeout=120,
+        )
+        seconds = time.monotonic() - started
+        if response.status_code != 429:
+            break
+        wait = 10 * 2**attempt
+        print(f"    429 rate-limited, retrying in {wait}s", flush=True)
+        time.sleep(wait)
+    if not response.ok:
+        try:
+            detail = response.json()["error"]["message"]
+        except Exception:
+            detail = response.text[:200]
+        raise RuntimeError(f"HTTP {response.status_code}: {detail}")
+    payload = response.json()
+    choice = payload["choices"][0]
+    content = choice["message"]["content"]
     cleaned = content.strip().removeprefix("```json").removeprefix("```").removesuffix("```").strip()
-    return json.loads(cleaned)
+    meta = {"finish_reason": choice.get("finish_reason"), "usage": payload.get("usage") or {}}
+    return json.loads(cleaned), seconds, meta
 
 
 def schema_errors(dto: dict) -> list[str]:
     """Same contract the app enforces, so a pass here means the app would accept it."""
+    if not isinstance(dto, dict):
+        return [f"top-level JSON is {type(dto).__name__}, not an object"]
     errors = []
     numbers = ["estimated_grams", "calories", *MACROS, "fiber_g"]
     for field in ["item_name", *numbers]:
@@ -143,10 +188,10 @@ def close_enough(a: float, b: float) -> bool:
 
 def routed_action(dto: dict, has_image: bool) -> str:
     """Mirrors AnalysisPolicy.routedAction."""
-    reasons = set(map(str.lower, dto.get("uncertainty_reasons", [])))
     if schema_errors(dto):
-        action = "ask_user"
-    elif "image_quality" in reasons:
+        return "ask_user"
+    reasons = set(map(str.lower, dto.get("uncertainty_reasons", [])))
+    if "image_quality" in reasons:
         action = "retry_image"
     elif reasons or str(dto.get("confidence", "")).lower() == "low":
         action = "ask_user"
@@ -155,7 +200,10 @@ def routed_action(dto: dict, has_image: bool) -> str:
     return "ask_user" if action == "retry_image" and not has_image else action
 
 
-def score(cases: list[dict], key: str, model: str, prompt: str, pause: float) -> list[dict]:
+def score(
+    cases: list[dict], key: str, model: str, prompt: str, pause: float,
+    reasoning: dict | None, max_tokens: int | None, send_temperature: bool = True,
+) -> list[dict]:
     rows = []
     for index, case in enumerate(cases, 1):
         print(f"[{index}/{len(cases)}] {case['id']}", flush=True)
@@ -167,14 +215,17 @@ def score(cases: list[dict], key: str, model: str, prompt: str, pause: float) ->
         }
         started = time.monotonic()
         try:
-            dto = analyze(key, model, prompt, case)
+            dto, seconds, meta = analyze(key, model, prompt, case, reasoning, max_tokens, send_temperature)
         except Exception as exc:  # a failed call is a data point, not a crash
             row["error"] = f"{type(exc).__name__}: {exc}"
-            row["seconds"] = round(time.monotonic() - started, 1)
+            # includes any backoff waits, so it stays out of the latency summary
+            row["seconds_with_waits"] = round(time.monotonic() - started, 1)
             rows.append(row)
             continue
         # The user is standing there holding a plate; a correct answer at 55s is a broken feature.
-        row["seconds"] = round(time.monotonic() - started, 1)
+        row["seconds"] = round(seconds, 1)
+        row["finish_reason"] = meta["finish_reason"]
+        row["usage"] = meta["usage"]
         row["response"] = dto
         row["schema_errors"] = schema_errors(dto)
         row["action"] = routed_action(dto, bool(case.get("image")))
@@ -185,7 +236,7 @@ def score(cases: list[dict], key: str, model: str, prompt: str, pause: float) ->
 
 
 def summarize(rows: list[dict]) -> dict:
-    timed = sorted(r["seconds"] for r in rows if "seconds" in r)
+    timed = sorted(r["seconds"] for r in rows if "seconds" in r and "error" not in r)
     ok = [r for r in rows if "response" in r and not r["schema_errors"]]
     truthed = [r for r in ok if "kcal" in r["expected"]]
     summary = {
@@ -194,7 +245,10 @@ def summarize(rows: list[dict]) -> dict:
         "valid_schema_rate": round(len(ok) / len(rows), 3) if rows else 0.0,
     }
     if timed:
-        photo = sorted(r["seconds"] for r in rows if r.get("image_case") and "seconds" in r)
+        photo = sorted(
+            r["seconds"] for r in rows
+            if r.get("image_case") and "seconds" in r and "error" not in r
+        )
         summary["seconds_median"] = timed[len(timed) // 2]
         summary["seconds_max"] = timed[-1]
         if photo:
@@ -211,6 +265,16 @@ def summarize(rows: list[dict]) -> dict:
                 summary[f"{macro}_mae"] = round(
                     sum(abs(r["response"][macro] - r["expected"][macro]) for r in paired) / len(paired), 1
                 )
+    truncated = [r["id"] for r in rows if r.get("finish_reason") not in (None, "stop")]
+    if truncated:
+        summary["truncated"] = truncated
+    prompt_toks = [r["usage"].get("prompt_tokens") for r in rows if r.get("usage", {}).get("prompt_tokens")]
+    out_toks = [r["usage"].get("completion_tokens") for r in rows if r.get("usage", {}).get("completion_tokens")]
+    if prompt_toks:
+        summary["prompt_tokens_median"] = sorted(prompt_toks)[len(prompt_toks) // 2]
+    if out_toks:
+        summary["completion_tokens_median"] = sorted(out_toks)[len(out_toks) // 2]
+
     judged = [r for r in rows if "action" in r and r["expected"].get("action")]
     if judged:
         matches = sum(r["action"] == r["expected"]["action"] for r in judged)
@@ -241,6 +305,8 @@ def selftest() -> None:
     assert routed_action({**good, "uncertainty_reasons": ["image_quality"]}, False) == "ask_user"
     assert routed_action({**good, "confidence": "low"}, True) == "ask_user"
 
+    assert schema_errors([good]) == ["top-level JSON is list, not an object"]
+    assert routed_action([good], has_image=True) == "ask_user"
     assert schema_errors({**good, "calories": -5})
     assert schema_errors({**good, "calories": float("nan")})
     assert schema_errors({**good, "uncertainty_reasons": ["vibes"]})
@@ -274,11 +340,38 @@ def main() -> None:
     parser.add_argument("--tag", help="only run cases carrying this tag")
     parser.add_argument("--limit", type=int)
     parser.add_argument("--pause", type=float, default=0.5, help="seconds between calls")
+    parser.add_argument(
+        "--reasoning",
+        choices=["off", "low", "medium", "high"],
+        help="send OpenRouter's reasoning field; NOT the app's request shape — "
+        "adopting a winner from a flagged run means shipping the same field in OpenRouterDtos.kt",
+    )
+    parser.add_argument(
+        "--no-temperature",
+        action="store_true",
+        help="omit the temperature field, reproducing what the app sent before the "
+        "encodeDefaults fix. Use to measure that drift, not to screen candidates",
+    )
+    parser.add_argument(
+        "--max-tokens",
+        type=int,
+        help="cap the completion; NOT the app's request shape. Use only to get under a key's "
+        "credit reservation, and check summary['truncated'] is absent before trusting the run",
+    )
     args = parser.parse_args()
 
-    key = os.environ.get("OPENROUTER_API_KEY")
+    reasoning = None
+    if args.reasoning == "off":
+        reasoning = {"enabled": False}
+    elif args.reasoning:
+        reasoning = {"effort": args.reasoning}
+
+    key = api_key()
     if not key:
-        sys.exit("Set OPENROUTER_API_KEY (the eval never reads the app's stored key).")
+        sys.exit(
+            f"Set OPENROUTER_API_KEY or paste the key into {KEY_FILE.name} "
+            "(the eval never reads the app's stored key)."
+        )
     if not args.cases.exists():
         sys.exit(f"No case file at {args.cases} — copy cases.sample.json and build yours.")
 
@@ -290,14 +383,25 @@ def main() -> None:
     if not cases:
         sys.exit("No cases selected.")
 
-    rows = score(cases, key, args.model, system_prompt(), args.pause)
+    rows = score(cases, key, args.model, system_prompt(), args.pause, reasoning, args.max_tokens,
+                 not args.no_temperature)
     summary = summarize(rows)
 
     RESULTS.mkdir(exist_ok=True)
     stamp = time.strftime("%Y%m%d-%H%M%S")
-    out = RESULTS / f"{args.model.replace('/', '_')}-{stamp}.json"
+    suffix = f"-reasoning-{args.reasoning}" if args.reasoning else ""
+    if args.max_tokens:
+        suffix += f"-maxtok{args.max_tokens}"
+    if args.no_temperature:
+        suffix += "-notemp"
+    out = RESULTS / f"{args.model.replace('/', '_')}{suffix}-{stamp}.json"
     out.write_text(
-        json.dumps({"model": args.model, "summary": summary, "rows": rows}, indent=2),
+        json.dumps(
+            {"model": args.model, "reasoning": reasoning, "max_tokens": args.max_tokens,
+             "temperature": None if args.no_temperature else TEMPERATURE,
+             "summary": summary, "rows": rows},
+            indent=2,
+        ),
         encoding="utf-8",
     )
 

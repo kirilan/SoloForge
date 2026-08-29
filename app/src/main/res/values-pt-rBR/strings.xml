@@ -221,7 +221,7 @@
     <string name="settings_eating_window_reminder">Aviso de fechamento da janela de alimentação</string>
     <string name="settings_section_ai">IA / API</string>
     <string name="settings_ai_food_analysis">Análise de comida com IA</string>
-    <string name="settings_ai_chain_desc">As fotos de comida usam uma cadeia automática de modelos: primeiro uma análise rápida, uma revisão mais forte quando a confiança é baixa e uma checagem premium apenas se restar incerteza.</string>
+    <string name="settings_ai_chain_desc">Cada análise faz uma requisição ao modelo escolhido. Se o resultado for incerto, você decide: adicionar detalhes ou tentar uma vez com um modelo mais forte, quando existir.</string>
     <string name="settings_ai_off_desc">A análise com IA está desativada. Os botões de análise ficam ocultos e o app não faz nenhuma chamada de rede.</string>
     <string name="settings_key_set">Uma chave do OpenRouter está definida.</string>
     <string name="settings_key_none">Nenhuma chave de API definida.</string>
@@ -302,4 +302,18 @@
         <item>Quase lá. Seu eu do futuro vai agradecer.</item>
         <item>Mais uma hora. Não quebre a corrente.</item>
     </string-array>
+    <string name="settings_ai_model_title">Modelo de análise</string>
+    <string name="settings_ai_model_fast">Mais rápido</string>
+    <string name="settings_ai_model_balanced">Equilibrado</string>
+    <string name="settings_ai_model_open">Pesos abertos</string>
+    <string name="settings_ai_model_accurate">Mais preciso</string>
+    <string name="settings_ai_model_custom">Avançado: outro modelo</string>
+    <string name="settings_ai_model_speed">Cerca de %1$ss por foto · responde %2$d de %3$d sem perguntar</string>
+    <string name="settings_ai_model_accuracy">%1$s%% de erro calórico médio · cerca de %2$s $ por 1000 análises</string>
+    <string name="settings_ai_model_open_note">Modelo de pesos abertos, via OpenRouter</string>
+    <string name="settings_ai_model_proprietary_note">Modelo proprietário, via OpenRouter</string>
+    <string name="settings_ai_model_measured_note">Os números vêm do conjunto de testes do próprio app e são medidos de novo a cada versão.</string>
+    <string name="settings_ai_model_custom_field">ID do modelo no OpenRouter</string>
+    <string name="settings_ai_model_custom_warning">Não testado. A velocidade e a precisão são desconhecidas, não há modelo mais forte para tentar de novo e a análise falha se o ID estiver errado ou o modelo for retirado.</string>
+    <string name="analysis_retry_none">O modelo escolhido não tem um modelo mais forte para tentar de novo. Adicionar detalhes ajuda mais.</string>
 </resources>

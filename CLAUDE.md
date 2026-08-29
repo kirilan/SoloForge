@@ -8,7 +8,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
    - "Almost there" encouragement 1h before fast ends
    - "Eating window closing" 1h before window ends, scheduled when a completed fast ends
    - Cancellation is automatic when the user takes the opposite action
-2. **AI calorie counter** — user supplies their OpenRouter key, then either snaps a photo (with optional comment) or types a description ("100 g watermelon"); gets structured macros back, edits if needed, saves locally. Model choice is automatic through the escalation chain in `FoodAnalysisModels`. Non-AI paths: manual entry and one-tap meal presets ("Quick add"). The `ai_features_enabled` setting (default on) hides every AI entry point.
+2. **AI calorie counter** — user supplies their OpenRouter key, then either snaps a photo (with optional comment) or types a description ("100 g watermelon"); gets structured macros back, edits if needed, saves locally. Settings offers four tested model configurations plus a custom model id, each labelled with figures from this project's own eval; the default needs no decision from the user. Non-AI paths: manual entry and one-tap meal presets ("Quick add"). The `ai_features_enabled` setting (default on) hides every AI entry point.
 3. **Weight tracking** — manual entries, line chart, edit/delete, weekly weigh-in reminder. Food and weight entries have editable date/time (backdating allowed, future dates blocked).
 4. **Workout timer** — simple, interval, and exercise/rest timers with local workout logging and dashboard calorie bonus. Active phase, pause state, and accumulated exercise/rest time persist in Room across process or service death.
 5. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
@@ -104,14 +104,33 @@ app/src/main/java/com/kbul/spicycrab/
 
 ## Food analysis models
 
+The user picks one of four **tested configurations** in Settings, or supplies their own model id.
+A configuration is a pair — the model that answers, and the model the explicit retry button
+escalates to — because escalation is a property of the row, not a global constant:
+
 ```
-google/gemini-3.1-flash-lite   # every analysis starts here
-google/gemini-3.1-pro-preview  # ONLY when the user taps "Retry with a stronger model"
+fast (default)  google/gemini-3.1-flash-lite    -> retry: gemini-3.1-pro-preview
+balanced        google/gemini-3.7-flash         -> retry: gemini-3.1-pro-preview
+open            qwen/qwen3-vl-32b-instruct      -> no retry (nothing open-weight measures better)
+accurate        google/gemini-3.1-pro-preview   -> no retry (it is the ceiling)
+custom          <user-supplied id>              -> no retry, no measured labels
 ```
 
-**There is no automatic escalation chain.** One request per analysis; the second model is
-reached only by an explicit user tap, and is labelled in the UI as a proprietary model called
-through OpenRouter with the user's key. Users still do not pick from a model list.
+**There is still no automatic escalation.** One request per analysis; a second model is reached
+only by an explicit user tap, and the button is hidden entirely for rows with no escalation
+target rather than offering a sideways move. Stored preferences use stable tokens
+(`fast`/`balanced`/`open`/`accurate`/`custom`), never raw model ids, so swapping a model does not
+invalidate saved settings or older backups.
+
+**Every label in Settings comes from this project's own eval.** Wait, answer-without-asking rate,
+calorie error and cost are 44-case measurements in `FoodAnalysisModels` — one place, so a
+release-time re-eval updates them once. The custom row shows a warning where the others show
+numbers: the app never prints an accuracy figure it did not measure.
+
+**`temperature` must always be sent.** `ChatRequest.temperature` is deliberately non-defaulted:
+`encodeDefaults` is false, so a default meant the field was silently dropped and every provider
+ran at its own — measured at 6.5 pp worse calorie error than the 0.2 the eval assumes. A golden
+test asserts it is in the encoded body.
 
 **Routing never reads model prose.** The response carries `items[]`, enumerated
 `uncertainty_reasons` (`image_quality`, `identity_ambiguous`, `portion_unknown`,
@@ -124,9 +143,12 @@ what the photo doesn't show.
 
 Before changing any model id, prompt, temperature, image preprocessing, or schema, run
 `tools/food_eval/` (see its README) — it replays the app's exact request against a local case
-set. A 2026-08-09 run is why the default is still Gemini: `qwen/qwen3-vl-8b-instruct` measured
-53% kcal MAPE against Gemini's 23% and falsely blamed image quality on a third of cases.
-`AnalysisPolicy.closeEnough` and the script's copy of it must be changed together.
+set, and **every offered row plus every escalation must be re-run**, not just the default.
+`AnalysisPolicy.closeEnough` and the script's copy of it must be changed together. Two findings
+worth knowing before trusting a number from it: the 5-photo screen is a latency/schema gate only
+(its truthed cases measure portion mass and are biased in opposite directions), and
+`retry_image` rests on a single borderline photo — the shipped default raises `image_quality` on
+it about 1 time in 9.
 
 ## Build & run
 

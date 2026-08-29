@@ -221,7 +221,7 @@
     <string name="settings_eating_window_reminder">Rappel de fermeture de la fenêtre d\'alimentation</string>
     <string name="settings_section_ai">IA / API</string>
     <string name="settings_ai_food_analysis">Analyse des repas par IA</string>
-    <string name="settings_ai_chain_desc">Les photos de repas passent par une chaîne de modèles automatique : d\'abord une analyse rapide, puis une vérification plus poussée si la confiance est faible, et un contrôle premium seulement si l\'incertitude persiste.</string>
+    <string name="settings_ai_chain_desc">Chaque analyse envoie une requête au modèle choisi. Si le résultat est incertain, vous décidez : ajouter des détails ou réessayer une fois avec un modèle plus puissant, s\'il en existe un.</string>
     <string name="settings_ai_off_desc">L\'analyse par IA est désactivée. Les boutons d\'analyse sont masqués et l\'application n\'effectue aucun appel réseau.</string>
     <string name="settings_key_set">Une clé OpenRouter est définie.</string>
     <string name="settings_key_none">Aucune clé d\'API définie.</string>
@@ -302,4 +302,18 @@
         <item>Presque fini. Votre futur vous remerciera.</item>
         <item>Encore une heure. Ne brisez pas la chaîne.</item>
     </string-array>
+    <string name="settings_ai_model_title">Modèle d\'analyse</string>
+    <string name="settings_ai_model_fast">Le plus rapide</string>
+    <string name="settings_ai_model_balanced">Équilibré</string>
+    <string name="settings_ai_model_open">Poids ouverts</string>
+    <string name="settings_ai_model_accurate">Le plus précis</string>
+    <string name="settings_ai_model_custom">Avancé : autre modèle</string>
+    <string name="settings_ai_model_speed">Environ %1$ss par photo · répond à %2$d sur %3$d sans question</string>
+    <string name="settings_ai_model_accuracy">%1$s%% d\'erreur calorique moyenne · environ %2$s $ pour 1000 analyses</string>
+    <string name="settings_ai_model_open_note">Modèle à poids ouverts, via OpenRouter</string>
+    <string name="settings_ai_model_proprietary_note">Modèle propriétaire, via OpenRouter</string>
+    <string name="settings_ai_model_measured_note">Les chiffres proviennent du jeu de tests de l\'application, remesurés à chaque version.</string>
+    <string name="settings_ai_model_custom_field">Identifiant du modèle OpenRouter</string>
+    <string name="settings_ai_model_custom_warning">Non testé. La vitesse et la précision sont inconnues, aucun modèle plus puissant n\'est proposé en réessai, et l\'analyse échoue si l\'identifiant est erroné ou le modèle retiré.</string>
+    <string name="analysis_retry_none">Le modèle choisi n\'a pas de modèle plus puissant pour réessayer. Ajouter des détails aide davantage.</string>
 </resources>

@@ -4,12 +4,18 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonElement
 
+/**
+ * [temperature] is deliberately not defaulted. kotlinx.serialization omits defaulted properties
+ * unless `encodeDefaults` is on, so a default here meant the app never sent the field at all and
+ * every provider ran at its own — while the eval sent 0.2 and measured something the app was not
+ * doing. Keep it required so the compiler, not a serializer flag, guarantees it goes out.
+ */
 @Serializable
 data class ChatRequest(
     val model: String,
     val messages: List<ChatMessage>,
     @SerialName("response_format") val responseFormat: ResponseFormat? = null,
-    val temperature: Double? = 0.2,
+    val temperature: Double,
 )
 
 @Serializable

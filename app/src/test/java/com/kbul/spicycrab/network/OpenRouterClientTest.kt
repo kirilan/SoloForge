@@ -2,11 +2,14 @@ package com.kbul.spicycrab.network
 
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
+import io.ktor.client.request.HttpRequestData
+import io.ktor.http.content.TextContent
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import kotlinx.coroutines.runBlocking
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -18,6 +21,22 @@ class OpenRouterClientTest {
                 respond(body, status, headersOf(HttpHeaders.ContentType, "application/json"))
             }
         )
+
+    /** Captures the encoded request body so the golden tests can assert on what we actually send. */
+    private fun capturingClient(): Pair<OpenRouterClient, () -> String> {
+        var body = ""
+        val client = OpenRouterClient(
+            MockEngine { request: HttpRequestData ->
+                body = (request.body as TextContent).text
+                respond(
+                    chatResponseWith(validEstimate),
+                    HttpStatusCode.OK,
+                    headersOf(HttpHeaders.ContentType, "application/json"),
+                )
+            }
+        )
+        return client to { body }
+    }
 
     private fun chatResponseWith(content: String): String {
         val escaped = content.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n")
@@ -123,5 +142,49 @@ class OpenRouterClientTest {
         val result = clientReturning(chatResponseWith("Sorry, I cannot identify this food."))
             .analyzeFood("key", "model", null, "x")
         assertTrue(result.isFailure)
+    }
+
+    /**
+     * Regression guard for the temperature drift: `encodeDefaults` is false, so while
+     * ChatRequest.temperature had a default the field was silently dropped from every request
+     * and providers ran at their own. Every eval number assumes 0.2, so this must stay sent.
+     */
+    @Test
+    fun requestAlwaysCarriesTemperature() = runBlocking {
+        val (client, body) = capturingClient()
+        client.analyzeFood("key", "model", null, "salmon").getOrThrow()
+        assertTrue("temperature missing from request body: ${body()}", body().contains("\"temperature\""))
+        assertTrue(body().contains("0.2"))
+    }
+
+    @Test
+    fun requestSendsNoReasoningField() = runBlocking {
+        // Every shipped configuration runs at its provider default, and most providers reject
+        // the field outright. Adding it means shipping an eval flag to match — see the README.
+        val (client, body) = capturingClient()
+        client.analyzeFood("key", "model", null, "salmon").getOrThrow()
+        assertFalse(body().contains("reasoning"))
+    }
+
+    @Test
+    fun requestUsesTheModelIdItWasGiven() = runBlocking {
+        val (client, body) = capturingClient()
+        client.analyzeFood("key", "vendor/some-model", null, "salmon").getOrThrow()
+        assertTrue(body().contains("vendor/some-model"))
+    }
+
+    @Test
+    fun textOnlyRequestCarriesNoImagePart() = runBlocking {
+        val (client, body) = capturingClient()
+        client.analyzeFood("key", "model", null, "100 g watermelon").getOrThrow()
+        assertFalse(body().contains("image_url"))
+    }
+
+    @Test
+    fun photoRequestCarriesTheImageAsADataUri() = runBlocking {
+        val (client, body) = capturingClient()
+        client.analyzeFood("key", "model", "QUJD", "dinner").getOrThrow()
+        assertTrue(body().contains("image_url"))
+        assertTrue(body().contains("data:image/jpeg;base64,QUJD"))
     }
 }
