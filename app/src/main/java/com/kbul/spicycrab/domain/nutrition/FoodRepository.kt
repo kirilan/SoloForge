@@ -25,7 +25,7 @@ import javax.inject.Singleton
  * [FoodAnalysisModels.OPEN]'s, so both carry a null [escalationId] and hide the retry button
  * rather than offering a sideways move dressed up as an upgrade.
  *
- * The measured fields come from 44-case runs at the shipped prompt and schema. `tools/food_eval`
+ * The measured fields come from 44-case runs at the shipped prompt and schema (2026-08-29 release run, all four rows, no eval flags). `tools/food_eval`
  * re-runs every row and every escalation before a release touches a model id, the prompt,
  * temperature, image preprocessing, or the schema — see docs/curated-model-choice-plan.md.
  */
@@ -41,10 +41,10 @@ data class AnalysisConfig(
     val casesScored: Int,
     val medianPhotoSeconds: Double,
     /**
-     * US cents per 1000 analyses. Token counts were measured on [FoodAnalysisModels.FAST]
-     * (1662 prompt + 261 completion) and applied to each model's published rate; per-model token
-     * counts still need the release re-run. The rows differ by more than 20x, so the figure is
-     * sound at the precision the UI shows it.
+     * US cents per 1000 analyses, from each row's own measured token usage and published rates.
+     * Extrapolating one row's token profile onto the others was wrong by up to 70% — completion
+     * length is exactly what differs between these models (283 to 677 tokens), and Qwen's
+     * tokenizer reads the same image in half the prompt tokens. Measure per row, never scale.
      */
     val centsPerThousandAnalyses: Int,
 ) {
@@ -64,11 +64,11 @@ object FoodAnalysisModels {
         modelId = "google/gemini-3.1-flash-lite",
         escalationId = "google/gemini-3.1-pro-preview",
         openWeight = false,
-        kcalErrorPercent = 23.3,
-        answersDirectly = 16,
+        kcalErrorPercent = 22.6,
+        answersDirectly = 17,
         casesScored = 44,
-        medianPhotoSeconds = 2.2,
-        centsPerThousandAnalyses = 81,
+        medianPhotoSeconds = 2.0,
+        centsPerThousandAnalyses = 84,
     )
 
     val BALANCED = AnalysisConfig(
@@ -76,11 +76,11 @@ object FoodAnalysisModels {
         modelId = "google/gemini-3.7-flash",
         escalationId = "google/gemini-3.1-pro-preview",
         openWeight = false,
-        kcalErrorPercent = 21.3,
-        answersDirectly = 23,
+        kcalErrorPercent = 21.9,
+        answersDirectly = 24,
         casesScored = 44,
-        medianPhotoSeconds = 7.0,
-        centsPerThousandAnalyses = 223,
+        medianPhotoSeconds = 8.1,
+        centsPerThousandAnalyses = 379,
     )
 
     // No open-weight model measured beats this one, so escalating would leave Apache-2.0
@@ -90,11 +90,11 @@ object FoodAnalysisModels {
         modelId = "qwen/qwen3-vl-32b-instruct",
         escalationId = null,
         openWeight = true,
-        kcalErrorPercent = 26.2,
+        kcalErrorPercent = 25.9,
         answersDirectly = 14,
         casesScored = 44,
-        medianPhotoSeconds = 6.9,
-        centsPerThousandAnalyses = 28,
+        medianPhotoSeconds = 7.5,
+        centsPerThousandAnalyses = 24,
     )
 
     // The escalation target itself; there is nothing measured above it to escalate to.
@@ -103,11 +103,11 @@ object FoodAnalysisModels {
         modelId = "google/gemini-3.1-pro-preview",
         escalationId = null,
         openWeight = false,
-        kcalErrorPercent = 17.4,
-        answersDirectly = 15,
+        kcalErrorPercent = 17.3,
+        answersDirectly = 17,
         casesScored = 44,
-        medianPhotoSeconds = 5.4,
-        centsPerThousandAnalyses = 646,
+        medianPhotoSeconds = 4.8,
+        centsPerThousandAnalyses = 937,
     )
 
     val OFFERED = listOf(FAST, BALANCED, OPEN, ACCURATE)

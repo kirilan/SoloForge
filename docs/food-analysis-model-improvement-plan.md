@@ -543,10 +543,34 @@ describe the shipped app for the first time.
 The same run gives the first measured token counts: **1662 prompt + 261 completion** per
 analysis on the default model, which is where the cost labels come from.
 
-**Incomplete, and worth knowing:** the rest of the release re-eval did not finish — the key hit
-its monthly limit mid-run, with the affordable reservation falling from 63,782 tokens to 4,470
-as it went. `gemini-3.7-flash` and `gemini-3.1-pro-preview` did not complete a clean release run;
-their 0.7.0 labels come from the full runs earlier the same evening.
+#### 0.7.0 release run (2026-08-29, 44 cases, all four offered rows, no eval flags)
+
+After the key's monthly limit was raised, every offered row ran the full set in the app's exact
+request shape — no `--max-tokens`, no `--reasoning`. Zero call failures across all four.
+
+| row | model | schema | kcal MAPE | action | answers directly | med / max | prompt/completion tokens | ¢/1000 |
+|---|---|---|---|---|---|---|---|---|
+| fast | `gemini-3.1-flash-lite` | 1.000 | 22.6% | 0.935 | 17/44 | 2.0s / 3.9s | 1662 / 283 | 84 |
+| balanced | `gemini-3.7-flash` | 1.000 | 21.9% | 0.935 | **24/44** | 8.1s / 14.8s | 1662 / 677 | 379 |
+| open | `qwen3-vl-32b-instruct` | 0.977 | 25.9% | 0.903 | 14/44 | 7.5s / 16.2s | **851** / 367 | **24** |
+| accurate | `gemini-3.1-pro-preview` | 1.000 | **17.3%** | 0.935 | 17/44 | 4.8s / 16.8s | 1662 / 504 | 937 |
+
+Two corrections came out of it, both of which had already reached shipped code:
+
+- **Never scale one model's token profile onto another.** The 0.7.0 cost labels were first
+  derived by applying the default model's 1662/261 to every row's published rate. That was wrong
+  by up to **70%**: completion length is exactly what differs between these models (283 tokens
+  for flash-lite against 677 for 3.7-flash), and Qwen reads the same image in **half** the prompt
+  tokens (851 vs 1662). `accurate` was understated at 646¢ against a real 937¢. Cost now comes
+  from each row's own measured `usage`.
+- **`gemini-3.7-flash`'s routing advantage did not reproduce.** 0.968 on 2026-08-28, 0.935 here —
+  it ties the other Gemini rows rather than leading them. Its case now rests entirely on
+  answering **24 of 44** without a follow-up question against the default's 17.
+
+Reassuring half: **calorie error was stable within 0.7 pp for every row across the two runs**
+(22.6/23.3, 21.9/21.3, 25.9/26.2, 17.3/17.4), so the accuracy ordering that drove the row choices
+is not a single-run artifact. Action match was stable for three rows of four. Treat routing
+metrics as noisier than MAPE at n=44.
 
 ## Sources
 

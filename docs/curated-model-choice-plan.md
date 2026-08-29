@@ -8,11 +8,10 @@ a pair, each row carries **its own escalation model** instead of one global retr
 `qwen3.8-flash` is out (its weights are not Apache-2.0), and Phase 1's `reasoning` plumbing was
 dropped because nothing shippable needs it.
 
-**Two things are outstanding and neither is optional before release** — see "Verification debt"
+**One thing is outstanding and it is not optional before release** — see "Verification debt"
 at the end. The code was written on a machine with no JDK and no Android SDK, so it has never
-been compiled, `testDebugUnitTest` and `lintDebug` have never run; and the release re-eval was
-cut short when the OpenRouter key hit its monthly limit, so two of the four rows carry numbers
-from earlier in the same session rather than from a single clean release run.
+been compiled and `testDebugUnitTest` / `lintDebug` have never run. The release re-eval, which
+was blocked by the key's monthly limit, has since completed cleanly across all four rows.
 
 This still reverses the recorded "users do not pick from a model list" decision, and the reason
 the original decision stands against an *unbounded* list still holds: an accuracy label is only
@@ -29,16 +28,28 @@ Settings offers a short list of **configurations**, each a `(main model, escalat
 pair with **measured** numbers, plus an advanced free-text escape hatch that is explicitly not
 measured.
 
-| row | main model | escalation | kcal MAPE | action | accepts | typical / worst wait |
-|---|---|---|---|---|---|---|
-| **Fastest** (default) | `google/gemini-3.1-flash-lite` | `gemini-3.1-pro-preview` | 23.3% | 0.935 | 16/44 | **2.2s** |
-| **Balanced** | `google/gemini-3.7-flash` | `gemini-3.1-pro-preview` | 21.3% | **0.968** | **23/44** | 7.0s / 12.6s |
-| **Open-weight** | `qwen/qwen3-vl-32b-instruct` | *none* | 26.2% | 0.903 | 14/44 | 6.9s / 13.4s |
-| **Most accurate** | `google/gemini-3.1-pro-preview` | *none — it is the ceiling* | **17.4%** | 0.935 | 15/44 | 5.4s / 17.7s |
-| *Advanced* | user-supplied id | *none* | not evaluated | — | — | unknown |
+| row | main model | escalation | kcal MAPE | action | answers directly | typical / worst wait | ¢/1000 |
+|---|---|---|---|---|---|---|---|
+| **Fastest** (default) | `google/gemini-3.1-flash-lite` | `gemini-3.1-pro-preview` | 22.6% | 0.935 | 17/44 | **2.0s** / 3.9s | 84 |
+| **Balanced** | `google/gemini-3.7-flash` | `gemini-3.1-pro-preview` | 21.9% | 0.935 | **24/44** | 8.1s / 14.8s | 379 |
+| **Open-weight** | `qwen/qwen3-vl-32b-instruct` | *none* | 25.9% | 0.903 | 14/44 | 7.5s / 16.2s | **24** |
+| **Most accurate** | `google/gemini-3.1-pro-preview` | *none — it is the ceiling* | **17.3%** | 0.935 | 17/44 | 4.8s / 16.8s | 937 |
+| *Advanced* | user-supplied id | *none* | not evaluated | — | — | unknown | — |
 
-All numbers are 44-case full runs at the current prompt and schema, 2026-08-28. The default is
-unchanged, so doing nothing keeps today's behaviour exactly.
+All numbers are from the **2026-08-29 release run**: 44 cases, all four rows, zero call failures,
+**no eval flags** — the request the phone actually sends. The default is unchanged, so doing
+nothing keeps today's behaviour exactly.
+
+That run corrected two things the earlier evidence had wrong. **Cost was extrapolated and wrong
+by up to 70%**: completion length is precisely what differs between these models (283 tokens for
+flash-lite, 677 for 3.7-flash), and Qwen reads the same image in half the prompt tokens (851 vs
+1662), so `accurate` was understated at 646¢ against a real 937¢ and `balanced` at 223¢ against
+379¢. Per-row token measurement is now the rule; never scale one row's profile onto another.
+And **`gemini-3.7-flash`'s routing advantage did not reproduce** — 0.935, not the 0.968 measured
+on 2026-08-28, so it now ties the other Gemini rows. Its case rests on answering 24 of 44 without
+a follow-up question against the default's 17, which is the metric the labels lead with anyway.
+Calorie error was stable across both runs for every row (within 0.7 pp), which is the reassuring
+half of the comparison.
 
 **Escalation is per row, not global.** The sweep killed the single-retry-target assumption:
 
@@ -231,30 +242,22 @@ before.
 
 ### Verification debt — must clear before tagging 0.7.0
 
-Written 2026-08-29. The implementation is complete; the verification is not, and both gaps are
-environmental rather than design problems.
+Written 2026-08-29. Items 2 and 3 are **cleared**; item 1 is not, and it is the blocker.
 
-1. **Never compiled, never tested, never linted.** The machine this was written on has no JDK and
-   no Android SDK, and `local.properties` points at a Windows path. `assembleDebug`,
-   `testDebugUnitTest` and `lintDebug` have all still to run. Static cross-checks were done in
-   place of a compiler — every `R.string.*` reference resolves, no reference to the removed
+1. **Never compiled, never tested, never linted.** ← **STILL OPEN.** The machine this was written
+   on has no JDK and no Android SDK, and `local.properties` points at a Windows path.
+   `assembleDebug`, `testDebugUnitTest` and `lintDebug` have all still to run. Static cross-checks
+   stood in for a compiler — every `R.string.*` reference resolves, no reference to the removed
    `ON_DEMAND_RETRY` survives, every `AnalysisConfig` field the picker reads exists, all 7 locales
    parse as XML with no missing key and matching format specifiers — but **none of that is a
    substitute for the build.** The likeliest failures are Compose import details in
-   `AnalysisModelPicker` and the `io.ktor.http.content.TextContent` import in the new golden
-   tests (chosen for Ktor 2.3.13; it moved between major versions).
-2. **The release re-eval is incomplete.** The OpenRouter key hit its monthly limit partway
-   through (`HTTP 402`, affordable ceiling falling from 63,782 tokens to 4,470 as the run
-   proceeded). `fast` completed 39/44 and the Phase 0 pair completed, which is where the
-   temperature result and the token counts come from. `balanced` and `accurate` did **not**
-   complete, so their labels still come from the earlier full runs of the same evening — same
-   prompt, same schema, same temperature, but not one clean release run. Raise the key's monthly
-   limit and re-run `run_matrix.py` across all four rows plus `gemini-3.1-pro-preview` before
-   tagging; update `FoodAnalysisModels` if anything moved.
-3. **Per-model token counts are still extrapolated.** Cost labels use 1662 prompt + 261
-   completion measured on the default model, applied to each model's published rate. The rows
-   differ by more than 20x so the displayed figure is sound, but the re-run in (2) should replace
-   the extrapolation with each model's own `usage`.
+   `AnalysisModelPicker` and the `io.ktor.http.content.TextContent` import in the new golden tests
+   (chosen for Ktor 2.3.13; it moved between major versions).
+2. ~~**The release re-eval is incomplete.**~~ **Cleared 2026-08-29** after the key's monthly limit
+   was raised: all four rows ran the full 44 cases uncapped and unflagged, zero call failures, and
+   `FoodAnalysisModels` now carries those numbers.
+3. ~~**Per-model token counts are extrapolated.**~~ **Cleared** — and the extrapolation had been
+   wrong by up to 70%. Each row's cost now comes from its own measured `usage`.
 4. **The bad-angle bucket is still one photo.** Unchanged by this work and still the weakest
    evidence in the eval; `retry_image` behaviour is deliberately not described in the Settings
    copy because of it.
