@@ -8,10 +8,9 @@ a pair, each row carries **its own escalation model** instead of one global retr
 `qwen3.8-flash` is out (its weights are not Apache-2.0), and Phase 1's `reasoning` plumbing was
 dropped because nothing shippable needs it.
 
-**One thing is outstanding and it is not optional before release** — see "Verification debt"
-at the end. The code was written on a machine with no JDK and no Android SDK, so it has never
-been compiled and `testDebugUnitTest` / `lintDebug` have never run. The release re-eval, which
-was blocked by the key's monthly limit, has since completed cleanly across all four rows.
+All verification debt is cleared. The release re-eval ran cleanly across all four rows, and the
+branch was built and tested on Windows on 2026-08-29 — `testDebugUnitTest`, `lintDebug` and
+`assembleDebug` all pass.
 
 This still reverses the recorded "users do not pick from a model list" decision, and the reason
 the original decision stands against an *unbounded* list still holds: an accuracy label is only
@@ -240,19 +239,19 @@ before.
 - Eval: full run on every offered row **and** every escalation at the release prompt/schema
   (`run_matrix.py`); update the UI numbers if they moved.
 
-### Verification debt — must clear before tagging 0.7.0
+### Verification debt — cleared
 
-Written 2026-08-29. Items 2 and 3 are **cleared**; item 1 is not, and it is the blocker.
+Written 2026-08-29, all three items closed the same day.
 
-1. **Never compiled, never tested, never linted.** ← **STILL OPEN.** The machine this was written
-   on has no JDK and no Android SDK, and `local.properties` points at a Windows path.
-   `assembleDebug`, `testDebugUnitTest` and `lintDebug` have all still to run. Static cross-checks
-   stood in for a compiler — every `R.string.*` reference resolves, no reference to the removed
-   `ON_DEMAND_RETRY` survives, every `AnalysisConfig` field the picker reads exists, all 7 locales
-   parse as XML with no missing key and matching format specifiers — but **none of that is a
-   substitute for the build.** The likeliest failures are Compose import details in
-   `AnalysisModelPicker` and the `io.ktor.http.content.TextContent` import in the new golden tests
-   (chosen for Ktor 2.3.13; it moved between major versions).
+1. ~~**Never compiled, never tested, never linted.**~~ **Cleared 2026-08-29** on Windows with a
+   real JDK and SDK. `testDebugUnitTest` passes (including the 17 new `AnalysisConfigTest` and 14
+   new `OpenRouterClientTest` cases), `lintDebug` reports no errors and no `MissingTranslation`,
+   and `assembleDebug` produces an APK. Both predicted failure points — the Compose imports in
+   `AnalysisModelPicker` and `io.ktor.http.content.TextContent` — compiled as written. The picker
+   was then exercised on a Pixel 7 Pro emulator: all four rows render with the numbers this file
+   records, selection persists as a stable token, the advanced row prints no measured figures, and
+   turning AI off removes the whole section. With AI off the app's uid holds no sockets and is
+   charged no bytes.
 2. ~~**The release re-eval is incomplete.**~~ **Cleared 2026-08-29** after the key's monthly limit
    was raised: all four rows ran the full 44 cases uncapped and unflagged, zero call failures, and
    `FoodAnalysisModels` now carries those numbers.
