@@ -31,7 +31,7 @@ The only intentional outbound network request is a user-initiated OpenRouter cal
 
 - Intermittent fasting timer with 16:8, 18:6, 20:4, and 36 hour modes.
 - Smart fasting reminders driven by timer state instead of fixed daily spam.
-- AI-assisted food analysis (photo or text description) through OpenRouter — one request per analysis, with an off switch in Settings.
+- AI-assisted food analysis (photo or text description) through OpenRouter — one request per analysis, a choice of four measured models (or your own), and an off switch in Settings.
 - Manual meal entry and one-tap meal presets when the user does not want to use AI.
 - Editable food entries, including proportional macro recalculation by total grams.
 - Local nutrition tracking with calorie and macro goals.
@@ -65,7 +65,48 @@ The app declares `INTERNET` only for food analysis through OpenRouter. That call
 
 Health Connect is opt-in and off by default. It is an on-device integration: weight and exercise records are read from and written to the local Health Connect store, never uploaded anywhere by Solo Forge.
 
-Every food analysis is a single request to `google/gemini-3.1-flash-lite`. There is no automatic escalation; `google/gemini-3.1-pro-preview` is used only when the user explicitly taps "Retry with a stronger model". Uncertain results are surfaced to the user by `AnalysisPolicy` instead of being silently re-sent to a bigger model.
+Every food analysis is a single request to whichever model the user selected (default `google/gemini-3.1-flash-lite`). There is no automatic escalation: a second, stronger model is reached only when the user explicitly taps "Retry with a stronger model", and that button is hidden entirely for rows that have nothing stronger above them. Uncertain results are surfaced to the user by `AnalysisPolicy` instead of being silently re-sent to a bigger model. See [Food Analysis Models](#food-analysis-models) for the options and how they were chosen.
+
+## Food Analysis Models
+
+Settings offers four tested configurations plus an escape hatch. Every figure below is measured by this repo's own eval (`tools/food_eval/`) against the app's exact prompt, image preprocessing and request shape — never quoted from a vendor benchmark.
+
+| Setting | Model | Calorie error | Answers without asking | Typical / worst wait | Cost per 1000 |
+|---|---|---|---|---|---|
+| **Fastest** (default) | `google/gemini-3.1-flash-lite` | 22.6% | 17/44 | **2.0s** / 3.9s | $0.84 |
+| **Balanced** | `google/gemini-3.7-flash` | 21.9% | **24/44** | 8.1s / 14.8s | $3.79 |
+| **Open-weight** | `qwen/qwen3-vl-32b-instruct` (Apache-2.0) | 25.9% | 14/44 | 7.5s / 16.2s | **$0.24** |
+| **Most accurate** | `google/gemini-3.1-pro-preview` | **17.3%** | 17/44 | 4.8s / 16.8s | $9.37 |
+| *Advanced* | any OpenRouter model id | not tested | — | unknown | — |
+
+44 cases, one run each, 2026-08-29. Cost assumes the user's own OpenRouter key and their own rates.
+
+### Why the settings look like this
+
+**Four named options, not a model picker.** An accuracy label is only honest if it comes from our own measurements, and the app never prints a number it did not measure — so the list is bounded by what has actually been evaluated. The *Advanced* field still accepts any model id, but it shows a warning where the other rows show figures.
+
+**Curation is also a safety filter, not just a labelling one.** Screening rejected models that would have looked good in a table. One fast, permissively licensed candidate confidently identified an unreadable dessert photo as "fruit salad with cottage cheese" with no uncertainty flags at all; another returned top-level JSON arrays on 8 of 44 cases, which the app cannot parse.
+
+**The retry model belongs to the row, not to the app.** "Retry with a stronger model" escalates to `gemini-3.1-pro-preview`, which measurably helps — it nearly halves the error on multi-component plates. But it is not stronger than itself, and no Apache-2.0 model we measured beats the open-weight row, so **both of those rows hide the retry button** rather than offer a sideways move or quietly swap a user out of the licence they chose.
+
+**Labels lead with waiting time and how often you get asked a follow-up question**, with calorie error second. Two findings drove that ordering: the accuracy figure is noisier than it looks, and **69% of the models that completed a clean screen would not accept a single one of five test photos outright** — under this app's uncertainty policy, a "more accurate" model can easily mean an app that asks a question about every meal. That is the difference a user actually feels.
+
+**Stored settings use stable tokens** (`fast`, `balanced`, `open`, `accurate`, `custom`), never model ids, so replacing a model in a future release does not invalidate saved preferences or older backups.
+
+### How the models were chosen
+
+`tools/food_eval/` replays the app's real request against a local case set: 27 dish photos from [Nutrition5k](https://github.com/google-research-datasets/Nutrition5k) (CC BY 4.0, scale-measured ground truth), 14 text descriptions, and a few of the maintainer's own phone photos. It scores calorie error, schema validity, latency, and whether routing lands where the case says it should. Ground truth comes from labels, a nutrient database, or a kitchen scale — never from another model.
+
+In August 2026 every vision-capable model OpenRouter had carried in the previous twelve months was screened this way: **169 candidates, 108 after removing batch variants, aliases, image generators and code specialists, then 540 calls across a fixed set of five photos.** Fifty-two passed the screen; 35 were rejected on latency alone, several taking 27–55 seconds to answer a food photo against a 60-second client timeout. Survivors got a full 44-case run.
+
+Findings worth recording, beyond which model won:
+
+- **The response contract is durable.** 99.1% of 459 calls across 107 models from ~20 vendors returned schema-valid JSON, none of which had ever seen this prompt. Changing model carries almost no parsing risk.
+- **Portion size is the real problem, not model quality.** `portion_unknown` appears in 80% of all analyses. On one test photo — a plate of almonds that 77 of 88 models identified correctly — the calorie-per-gram maths was essentially exact and the entire error was estimating 30g of nuts instead of 39g. No stronger model fixes that; asking the user does.
+- **A bug worth more than any model swap.** The app had never actually sent its `temperature` setting, because a serialization default silently dropped the field. Fixing it improved calorie error by 6.5 percentage points — more than the gap between any two models in the table above.
+- **Bigger is not automatically an escalation.** The obvious larger sibling of the open-weight row measured as a sidegrade: no accuracy gain, worse on multi-component plates, and one call that took 142 seconds.
+
+Full method, per-bucket results, rejected candidates and the reasoning behind each decision are in [`docs/food-analysis-model-improvement-plan.md`](docs/food-analysis-model-improvement-plan.md) and [`docs/curated-model-choice-plan.md`](docs/curated-model-choice-plan.md). Before any change to a model id, prompt, temperature, image preprocessing or schema, every offered row and every escalation target is re-run.
 
 ## Tech Stack
 
