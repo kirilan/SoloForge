@@ -19,6 +19,7 @@ import com.kbul.spicycrab.domain.workout.WorkoutRepository
 import com.kbul.spicycrab.domain.workout.effectiveTotalSeconds
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -98,7 +99,8 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            settings.settings.map { FastingMode.fromName(it.defaultFastingModeName) }.collect { mode ->
+            settings.settings.map { FastingMode.fromName(it.defaultFastingModeName) }.distinctUntilChanged().collect { mode ->
+                if (selectedMode.value != mode) userPickedMode = false
                 if (!userPickedMode) selectedMode.value = mode
             }
         }
