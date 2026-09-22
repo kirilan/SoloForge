@@ -5,6 +5,8 @@ enum class FastingMode(
     val fastHours: Int,
     val eatingWindowHours: Int,
 ) {
+    TWELVE_TWELVE("12:12", 12, 12),
+    FOURTEEN_TEN("14:10", 14, 10),
     SIXTEEN_EIGHT("16:8", 16, 8),
     EIGHTEEN_SIX("18:6", 18, 6),
     TWENTY_FOUR("20:4", 20, 4),
