@@ -1,0 +1,1 @@
+Fixes the first-run intro screen, which could hide its Continue button in landscape, on small screens, or with a large font or display size, leaving no way into the app. The intro now scrolls when it doesn't fit.
