@@ -1,5 +1,9 @@
 package com.kbul.spicycrab.ui.onboarding
 
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -35,38 +39,45 @@ fun OpenSourceIntroScreen(
     loading: Boolean,
     onContinue: () -> Unit,
 ) {
-    Column(
+    BoxWithConstraints(
         Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing)
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        verticalArrangement = Arrangement.Center,
+            .windowInsetsPadding(WindowInsets.safeDrawing),
     ) {
-        Text(
-            stringResource(R.string.app_name),
-            style = MaterialTheme.typography.displayMedium,
-            color = MaterialTheme.colorScheme.primary,
-        )
-        Text(
-            stringResource(R.string.onboarding_tagline),
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.onSurface,
-        )
-        Spacer(Modifier.height(24.dp))
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            TrustPoint(Icons.Outlined.Code, stringResource(R.string.onboarding_trust1_title), stringResource(R.string.onboarding_trust1_body))
-            TrustPoint(Icons.Outlined.Lock, stringResource(R.string.onboarding_trust2_title), stringResource(R.string.onboarding_trust2_body))
-            TrustPoint(Icons.Outlined.CloudOff, stringResource(R.string.onboarding_trust3_title), stringResource(R.string.onboarding_trust3_body))
-        }
-        Spacer(Modifier.height(28.dp))
-        Button(
-            onClick = onContinue,
-            enabled = !loading,
-            modifier = Modifier
+        Column(
+            Modifier
                 .fillMaxWidth()
-                .height(52.dp),
+                .verticalScroll(rememberScrollState())
+                .heightIn(min = maxHeight)
+                .padding(horizontal = 24.dp, vertical = 32.dp),
+            verticalArrangement = Arrangement.Center,
         ) {
-            Text(stringResource(if (loading) R.string.onboarding_loading else R.string.onboarding_continue))
+            Text(
+                stringResource(R.string.app_name),
+                style = MaterialTheme.typography.displayMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
+            Text(
+                stringResource(R.string.onboarding_tagline),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+            )
+            Spacer(Modifier.height(24.dp))
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                TrustPoint(Icons.Outlined.Code, stringResource(R.string.onboarding_trust1_title), stringResource(R.string.onboarding_trust1_body))
+                TrustPoint(Icons.Outlined.Lock, stringResource(R.string.onboarding_trust2_title), stringResource(R.string.onboarding_trust2_body))
+                TrustPoint(Icons.Outlined.CloudOff, stringResource(R.string.onboarding_trust3_title), stringResource(R.string.onboarding_trust3_body))
+            }
+            Spacer(Modifier.height(28.dp))
+            Button(
+                onClick = onContinue,
+                enabled = !loading,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(52.dp),
+            ) {
+                Text(stringResource(if (loading) R.string.onboarding_loading else R.string.onboarding_continue))
+            }
         }
     }
 }
