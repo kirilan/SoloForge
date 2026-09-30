@@ -86,8 +86,8 @@ app/src/main/java/com/kbul/spicycrab/
 - **Health Connect initial import anchors a change token before reading history**, then consumes changes from that token so records changed during the initial read cannot be missed.
 - **Android system backup is disabled** (`allowBackup=false`). Device migration should use explicit export/import flows, not silent Android cloud backup.
 - **API key** is the only secret; it's in EncryptedSharedPreferences and excluded from auto-backup (`backup_rules.xml` / `data_extraction_rules.xml`).
-- **All user-visible strings live in `res/values/strings.xml`** (`screen_element` naming). Compose uses `stringResource`/`pluralStringResource`; services, workers, and repositories use `context.getString`. Shipped locales are en, de, es, fr, pt-rBR, ru, and tr; `locales_config.xml` and Gradle `localeFilters` must agree. OpenRouter prompts stay English because they are model input.
-- **Every new string ships translated into all six non-English locales in the same commit.** There is no translation platform. Lint's `MissingTranslation` is an error and CI runs `lintDebug`; do not downgrade the rule.
+- **All user-visible strings live in `res/values/strings.xml`** (`screen_element` naming). Compose uses `stringResource`/`pluralStringResource`; services, workers, and repositories use `context.getString`. Shipped locales are en, de, es, fr, pt-rBR, ru, tr, zh-Hans, and zh-Hant (`values-b+zh+Hans`/`values-b+zh+Hant`); `locales_config.xml` and Gradle `localeFilters` must agree. OpenRouter prompts stay English because they are model input.
+- **Every new string ships translated into all eight non-English locales in the same commit.** There is no translation platform. Lint's `MissingTranslation` is an error and CI runs `lintDebug`; do not downgrade the rule.
 - **No comments unless the *why* is non-obvious.** Prefer well-named functions to docstrings.
 - **No barebones fallbacks or "in case X fails" code paths** unless the failure is at a real boundary (network, file I/O, missing key).
 
