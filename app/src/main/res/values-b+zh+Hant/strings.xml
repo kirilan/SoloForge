@@ -1,0 +1,313 @@
+<resources>
+    <!-- Common -->
+    <string name="common_save">儲存</string>
+    <string name="common_cancel">取消</string>
+    <string name="common_ok">確定</string>
+    <string name="common_next">下一步</string>
+    <string name="common_edit">編輯</string>
+    <string name="common_delete">刪除</string>
+    <string name="common_clear">清除</string>
+    <string name="common_close">關閉</string>
+    <string name="common_history">歷史紀錄</string>
+    <string name="common_mode">模式</string>
+    <string name="common_edited">%1$s · 已編輯</string>
+    <string name="common_quoted">「%1$s」</string>
+    <string name="label_item">食物</string>
+    <string name="label_comment">備註</string>
+    <string name="label_grams">公克</string>
+    <string name="label_calories">熱量</string>
+    <string name="label_calories_kcal">熱量（大卡）</string>
+    <string name="label_protein_g">蛋白質（公克）</string>
+    <string name="label_carbs_g">碳水化合物（公克）</string>
+    <string name="label_fat_g">脂肪（公克）</string>
+    <string name="label_fiber_g">膳食纖維（公克）</string>
+
+    <!-- Bottom navigation -->
+    <string name="nav_home">首頁</string>
+    <string name="nav_fast">斷食</string>
+    <string name="nav_food">飲食</string>
+    <string name="nav_weight">體重</string>
+    <string name="nav_workout">訓練</string>
+    <string name="nav_settings">設定</string>
+
+    <!-- Onboarding -->
+    <string name="onboarding_tagline">免費。開放原始碼。本機優先。</string>
+    <string name="onboarding_trust1_title">GPL-3.0 自由軟體</string>
+    <string name="onboarding_trust1_body">本應用程式的授權允許你研究、分享和修改它。</string>
+    <string name="onboarding_trust2_title">你的資料屬於你</string>
+    <string name="onboarding_trust2_body">不需要帳號，沒有後端伺服器，而且已停用 Android 雲端備份。</string>
+    <string name="onboarding_trust3_title">沒有數據分析或遙測</string>
+    <string name="onboarding_trust3_body">唯一的網路連線是你發起的 OpenRouter 食物照片分析。</string>
+    <string name="onboarding_loading">載入中</string>
+    <string name="onboarding_continue">繼續</string>
+
+    <!-- Fasting -->
+    <string name="fasting_title">斷食</string>
+    <string name="fasting_ready">準備好就開始吧</string>
+    <string name="fasting_remaining">剩餘</string>
+    <string name="fasting_goal_reached">已達成目標</string>
+    <string name="fasting_done">完成</string>
+    <string name="fasting_mode_elapsed">模式 %1$s · 已進行 %2$s</string>
+    <string name="fasting_edit_start">編輯開始時間</string>
+    <string name="fasting_end">結束斷食</string>
+    <string name="fasting_cancel_delete">取消（刪除這次斷食）</string>
+    <string name="fasting_pick_mode">選擇模式</string>
+    <string name="fasting_start">開始斷食</string>
+    <string name="fasting_start_mode">開始 %1$s 斷食</string>
+    <string name="fasting_completed">已完成</string>
+    <string name="fasting_incomplete">未完成</string>
+    <string name="fast_edit_title">編輯斷食</string>
+    <string name="fast_edit_start_label">開始（yyyy-MM-dd HH:mm）</string>
+    <string name="fast_edit_end_label">結束（留空 = 仍在進行）</string>
+    <string name="fast_edit_error_start_format">開始時間格式無效。</string>
+    <string name="fast_edit_error_end_before_start">結束時間必須晚於開始時間。</string>
+    <string name="fast_edit_error_future">斷食時間不能是未來的時間。</string>
+    <string name="fast_edit_error_active_exists">請先結束目前的斷食，再還原另一次進行中的斷食。</string>
+    <string name="fast_edit_delete">刪除斷食</string>
+
+    <!-- Home -->
+    <string name="home_today">今天</string>
+    <string name="home_progress_calendar">進度日曆</string>
+    <string name="home_kcal_of">%1$d / %2$d 大卡</string>
+    <string name="home_kcal_bonus_suffix">（訓練 +%1$d）</string>
+    <string name="home_no_events">這一天沒有紀錄。</string>
+    <string name="home_journal">日記</string>
+    <string name="home_edit_note">編輯日記</string>
+    <string name="home_add_journal_note">新增日記</string>
+    <string name="home_event_meal">餐點</string>
+    <string name="home_status_completed">已完成</string>
+    <string name="home_status_active">進行中</string>
+    <string name="home_streak">連續 %1$d 天</string>
+    <string name="home_eating_window">進食時段</string>
+    <string name="home_until_window_closes">距離進食時段結束還有 %1$s</string>
+    <string name="home_todays_nutrition">今日營養</string>
+    <string name="home_kcal_from_training">訓練消耗 +%1$d 大卡</string>
+    <plurals name="home_meals_tracked">
+        <item quantity="other">今天已記錄 %d 餐</item>
+    </plurals>
+    <string name="home_no_weight">還沒有體重紀錄。</string>
+    <string name="home_since_last">較上次 %1$s %2$s</string>
+    <string name="home_no_workout_today">今天還沒有訓練紀錄。</string>
+    <string name="home_logged_today">今日已記錄</string>
+
+    <!-- Weight -->
+    <string name="weight_log">記錄體重</string>
+    <string name="weight_edit_title">編輯體重</string>
+    <string name="weight_label">體重（%1$s）</string>
+    <string name="weight_note_optional">備註（選填）</string>
+    <string name="weight_no_entries">還沒有紀錄。輕觸「記錄體重」新增一筆。</string>
+    <string name="weight_since_last_entry">較上一筆紀錄 %1$s %2$s</string>
+    <string name="weight_range_7d">7天</string>
+    <string name="weight_range_30d">30天</string>
+    <string name="weight_range_all">全部</string>
+    <string name="chart_log_first">記錄一次體重即可查看趨勢。</string>
+    <string name="chart_log_one_more">再記錄一筆即可繪製趨勢。</string>
+
+    <!-- Food -->
+    <string name="food_add_manual_cd">手動新增餐點</string>
+    <string name="food_describe_cd">用文字描述食物</string>
+    <string name="food_analyze_photo">分析照片</string>
+    <string name="food_empty_ai">還沒有餐點紀錄。分析一張照片，或手動新增餐點。</string>
+    <string name="food_empty_manual">還沒有餐點紀錄。手動新增一餐吧。</string>
+    <string name="food_macros_line">%1$d 大卡 · 蛋白質 %2$d / 碳水 %3$d / 脂肪 %4$d</string>
+    <string name="food_edit_title">編輯餐點</string>
+    <string name="food_reanalyze_hint">新增描述這餐的備註，就能在沒有照片的情況下重新分析。</string>
+    <string name="food_delete_entry">刪除紀錄</string>
+    <string name="quick_add">快速新增</string>
+    <string name="preset_save">存為常用餐點</string>
+    <string name="preset_saved">已儲存到快速新增 ✓</string>
+    <string name="preset_delete_title">刪除常用餐點？</string>
+    <string name="preset_delete_text">從快速新增中移除「%1$s」。已記錄的餐點不受影響。</string>
+    <string name="manual_title">手動新增餐點</string>
+    <string name="manual_desc">自行輸入營養資訊，而不是分析照片。</string>
+    <string name="manual_name_label">餐點名稱 *</string>
+    <string name="manual_notes_optional">備註（選填）</string>
+    <string name="manual_total_weight">總重量（公克）</string>
+    <string name="manual_kcal_required">熱量（大卡）*</string>
+    <string name="manual_save">儲存餐點</string>
+
+    <!-- Capture / Analyze -->
+    <string name="capture_permission_required">需要相機權限。</string>
+    <string name="capture_error">無法拍攝照片。請檢查相機後再試一次。</string>
+    <string name="capture_tap">輕觸拍照</string>
+    <string name="analyze_describe_title">描述餐點</string>
+    <string name="analyze_review_title">檢查餐點</string>
+    <string name="analyze_captured_cd">已拍攝的餐點</string>
+    <string name="analyze_description">描述</string>
+    <string name="analyze_comment_optional">備註（選填）</string>
+    <string name="analyze_placeholder_text">例如：100 公克西瓜</string>
+    <string name="analyze_placeholder_photo">例如：烤雞肉約 200 公克，配白飯</string>
+    <string name="analyze_button">分析</string>
+    <string name="analyze_reanalyze_description">依目前的描述重新分析</string>
+    <string name="analyze_reanalyze_comment">依目前的備註重新分析</string>
+    <string name="analyze_analyzing">分析中…</string>
+    <string name="analyze_reanalyzing">重新分析中…</string>
+    <string name="analyze_discard">捨棄</string>
+    <string name="analyze_notes">說明：%1$s</string>
+    <string name="confidence_high">可信度高</string>
+    <string name="confidence_medium">可信度中等</string>
+    <string name="confidence_low">可信度低——請檢查</string>
+    <string name="scale_adjust">調整總重量</string>
+    <string name="scale_title">依新的總重量換算營養素</string>
+    <string name="scale_new_grams">新的總公克數</string>
+    <string name="scale_apply">套用</string>
+    <string name="error_analysis_failed">分析失敗</string>
+    <string name="error_save_failed">儲存失敗</string>
+    <string name="error_reanalysis_failed">重新分析失敗</string>
+    <string name="error_no_api_key">請在設定中輸入你的 OpenRouter API 金鑰。</string>
+    <string name="error_ai_disabled">AI 功能已在設定中停用。</string>
+    <string name="error_invalid_nutrition">請輸入名稱、大於零的熱量，以及不為負數的營養數值。</string>
+    <string name="analysis_detail_prompt">補充份量、烹調用油、醬料和隱藏食材等細節，然後重新分析。</string>
+    <string name="analysis_uncertain_title">這個估算不太確定</string>
+    <string name="analysis_hint_image_quality">照片難以辨識——請在光線較好的地方靠近重拍。</string>
+    <string name="analysis_hint_identity">難以辨識這道菜——請在描述中寫出菜名。</string>
+    <string name="analysis_hint_portion">份量是猜測的——請補充重量或份數。</string>
+    <string name="analysis_hint_preparation">烹調方式不明——請說明是油炸、燒烤還是水煮。</string>
+    <string name="analysis_hint_hidden">可能有看不到的油、醬汁或內餡——如果知道請描述。</string>
+    <string name="analysis_retry_wont_help">更強的模型也看不到照片沒拍到的東西。補充細節更有幫助。</string>
+    <string name="analysis_retry_stronger">用更強的模型重試</string>
+    <string name="analysis_retry_disclosure">將使用你的金鑰，透過 OpenRouter 再向 %1$s（專有模型）傳送一次請求。</string>
+
+    <!-- Workout -->
+    <string name="workout_mode_simple">簡單</string>
+    <string name="workout_mode_interval">間隔</string>
+    <string name="workout_mode_exercise_rest">運動與休息</string>
+    <string name="workout_start">開始訓練</string>
+    <string name="workout_end">結束訓練</string>
+    <string name="workout_desc_simple">為訓練計時。可隨時暫停和繼續。</string>
+    <string name="workout_desc_interval">每個間隔結束時發出嗶聲。大計數器在每個間隔重設。</string>
+    <string name="workout_desc_exercise_rest">在運動和休息之間切換。每次切換時大計數器都會重設。開始時為暫停狀態。</string>
+    <string name="workout_interval_minutes">間隔（分鐘）</string>
+    <string name="workout_paused">已暫停</string>
+    <string name="workout_running">進行中</string>
+    <string name="workout_working">運動中</string>
+    <string name="workout_resting">休息中</string>
+    <string name="workout_resume">繼續</string>
+    <string name="workout_pause">暫停</string>
+    <string name="workout_interval_title">間隔 · %1$s 分鐘</string>
+    <string name="workout_current_interval">目前間隔</string>
+    <string name="workout_total">總計：%1$s</string>
+    <plurals name="workout_intervals_completed">
+        <item quantity="other">已完成 %d 個間隔</item>
+    </plurals>
+    <string name="workout_phase_working">運動中</string>
+    <string name="workout_phase_resting">休息中</string>
+    <string name="workout_phase_paused">已暫停</string>
+    <string name="workout_current_phase">目前階段</string>
+    <string name="workout_exercise">運動</string>
+    <string name="workout_rest">休息</string>
+    <string name="workout_stat_total">總計</string>
+    <string name="workout_switch_to_rest">切換到休息</string>
+    <string name="workout_switch_to_exercise">切換到運動</string>
+    <string name="workout_begin_exercise">開始運動</string>
+    <string name="workout_ex_rest_line">運動 %1$s · 休息 %2$s</string>
+    <string name="workout_interval_line">間隔：%1$s 分鐘</string>
+    <string name="workout_edit_title">編輯訓練</string>
+    <string name="workout_total_minutes">總分鐘數</string>
+    <string name="workout_exercise_minutes">運動分鐘數</string>
+    <string name="workout_rest_minutes">休息分鐘數</string>
+    <string name="label_notes">備註</string>
+    <string name="workout_error_nonnegative">數值不能為負數。</string>
+    <string name="workout_delete">刪除訓練</string>
+
+    <!-- Settings -->
+    <string name="settings_title">設定</string>
+    <string name="settings_default_mode">預設斷食模式</string>
+    <string name="settings_almost_there">「快完成了」鼓勵提醒</string>
+    <string name="settings_eating_window_reminder">進食時段即將結束提醒</string>
+    <string name="settings_section_ai">AI / API</string>
+    <string name="settings_ai_food_analysis">AI 食物分析</string>
+    <string name="settings_ai_chain_desc">每次分析只會向你選擇的模型傳送一次請求。如果結果不確定，由你決定下一步：補充細節，或在有更強模型可用時用它重試一次。</string>
+    <string name="settings_ai_off_desc">AI 分析已關閉。分析按鈕已隱藏，應用程式不會進行任何網路連線。</string>
+    <string name="settings_key_set">已設定 OpenRouter 金鑰。</string>
+    <string name="settings_key_none">尚未設定 API 金鑰。</string>
+    <string name="settings_api_key_label">OpenRouter API 金鑰</string>
+    <string name="settings_replace">更換</string>
+    <string name="settings_section_goals">每日營養目標</string>
+    <string name="settings_section_data">資料</string>
+    <string name="settings_export_folder_set">已設定自動備份資料夾。每次資料變更時都會重寫其中的 SoloForge-backup.json。</string>
+    <string name="settings_export_folder_none">尚未選擇自動備份資料夾。選擇一個會同步的資料夾（例如 Google Drive），即可持續備份到裝置以外。</string>
+    <string name="settings_auto_backup_last_success">上次自動備份：%1$s</string>
+    <string name="settings_auto_backup_failed">自動備份失敗。請檢查資料夾存取權和可用的儲存空間。</string>
+    <string name="settings_pick_folder">選擇資料夾</string>
+    <string name="settings_save_photo">每筆紀錄都在本機儲存照片</string>
+    <string name="settings_export_backup">匯出備份</string>
+    <string name="settings_import_backup">匯入備份</string>
+    <string name="settings_backup_note">備份包含所有紀錄和設定，但不包含你的 API 金鑰。</string>
+    <string name="settings_import_explain">合併會保留這部裝置上的所有內容，並加入備份中的紀錄。取代會先清除目前所有資料和設定。</string>
+    <string name="settings_merge">合併</string>
+    <string name="settings_replace_everything">全部取代</string>
+    <string name="settings_use_kg">使用公斤</string>
+    <string name="settings_weigh_in_reminder">每週量體重提醒</string>
+    <string name="settings_day">星期</string>
+    <string name="settings_hour">時</string>
+    <string name="settings_minute">分</string>
+    <string name="settings_section_tabs">分頁</string>
+    <string name="settings_tabs_desc">隱藏你不使用的分頁。首頁和設定一律顯示。</string>
+    <string name="settings_show_fasting_tab">顯示斷食分頁</string>
+    <string name="settings_show_food_tab">顯示飲食分頁</string>
+    <string name="settings_show_weight_tab">顯示體重分頁</string>
+    <string name="settings_show_workout_tab">顯示訓練分頁</string>
+    <string name="settings_section_health">Health Connect</string>
+    <string name="settings_health_desc">與這部裝置上的其他健康應用程式同步體重和訓練資料。資料不會離開你的手機。</string>
+    <string name="settings_health_import">從 Health Connect 匯入</string>
+    <string name="settings_health_export">匯出到 Health Connect</string>
+    <string name="settings_health_manage">管理權限</string>
+    <string name="settings_health_sync_now">立即同步</string>
+    <string name="settings_health_last_sync">上次同步：%1$s</string>
+    <string name="settings_section_about">關於</string>
+    <string name="settings_about_line1">Solo Forge 是以 GPL-3.0 授權發布的自由開放原始碼軟體。</string>
+    <string name="settings_about_line2">沒有後端。沒有帳號。沒有數據分析。只有在你開始分析餐點時，食物圖片才會傳送到 OpenRouter。</string>
+    <string name="settings_privacy_policy">隱私權政策</string>
+    <string name="settings_version">版本 %1$s</string>
+    <string name="settings_gpl_footer">Solo Forge 是 GPL-3.0 自由軟體。</string>
+    <string name="settings_msg_backup_exported">備份已匯出。</string>
+    <string name="settings_msg_export_failed">匯出失敗：%1$s</string>
+    <string name="settings_msg_backup_restored">備份已還原（%1$d 筆紀錄）。</string>
+    <plurals name="settings_msg_merged">
+        <item quantity="other">已合併 %d 筆新紀錄。</item>
+    </plurals>
+    <string name="settings_msg_import_failed">匯入失敗：%1$s</string>
+    <string name="settings_msg_import_completed_warning">資料已匯入，但部分設定或背景工作無法重新整理。</string>
+
+    <!-- Notifications -->
+    <string name="channel_active_fast">斷食計時器</string>
+    <string name="channel_active_fast_desc">斷食進行期間持續顯示的通知</string>
+    <string name="channel_active_workout">訓練計時器</string>
+    <string name="channel_active_workout_desc">訓練進行期間持續顯示的通知</string>
+    <string name="channel_fasting_reminders">斷食提醒</string>
+    <string name="channel_fasting_reminders_desc">進食時段即將結束提醒和「快完成了」鼓勵</string>
+    <string name="channel_weight_reminders">體重提醒</string>
+    <string name="channel_weight_reminders_desc">每週量體重提醒</string>
+    <string name="notif_fasting_title">斷食 · %1$s</string>
+    <string name="notif_fasting_target">%1$s 達成目標</string>
+    <string name="notif_workout_title">訓練 · %1$s</string>
+    <string name="notif_workout_title_plain">訓練</string>
+    <string name="notif_workout_active">進行中</string>
+    <string name="reminder_almost_there_title">快完成了</string>
+    <string name="reminder_window_title">進食時段即將結束</string>
+    <string name="reminder_window_message">你的進食時段將在 1 小時後結束。安排好最後一餐吧。</string>
+    <string name="weigh_in_title">該量每週體重了</string>
+    <string name="weigh_in_text">站上體重計，記錄一下體重吧。</string>
+    <string-array name="fasting_encouragements">
+        <item>還剩一小時——你一定做得到。</item>
+        <item>只剩 60 分鐘，堅持到最後。</item>
+        <item>最後衝刺！記得多喝水，繼續加油。</item>
+        <item>快完成了。未來的你會感謝現在的自己。</item>
+        <item>再撐一小時，別讓連續紀錄中斷。</item>
+    </string-array>
+    <string name="settings_ai_model_title">分析模型</string>
+    <string name="settings_ai_model_fast">最快</string>
+    <string name="settings_ai_model_balanced">均衡</string>
+    <string name="settings_ai_model_open">開放權重</string>
+    <string name="settings_ai_model_accurate">最準確</string>
+    <string name="settings_ai_model_custom">進階：其他模型</string>
+    <string name="settings_ai_model_speed">每張照片約 %1$s 秒 · %3$d 次中有 %2$d 次不需追問就能回答</string>
+    <string name="settings_ai_model_accuracy">平均熱量誤差 %1$s%% · 每 1000 次分析約 %2$s 美元</string>
+    <string name="settings_ai_model_open_note">開放權重模型，透過 OpenRouter 使用</string>
+    <string name="settings_ai_model_proprietary_note">專有模型，透過 OpenRouter 使用</string>
+    <string name="settings_ai_model_measured_note">這些數據來自本應用程式自己的測試集，每次發布時重新測量。</string>
+    <string name="settings_ai_model_custom_field">OpenRouter 模型 ID</string>
+    <string name="settings_ai_model_custom_warning">未經測試。速度和準確度不明，沒有可用來重試的更強模型；如果 ID 錯誤或模型已下架，分析就會失敗。</string>
+    <string name="analysis_retry_none">你選擇的模型沒有可用來重試的更強模型。補充細節更有幫助。</string>
+</resources>

@@ -168,7 +168,7 @@ Run the connected Room migration tests with an emulator or device attached:
 .\gradlew.bat :app:connectedDebugAndroidTest
 ```
 
-Run lint (`MissingTranslation` is an error — every new string ships in all seven locales):
+Run lint (`MissingTranslation` is an error — every new string ships in all nine locales):
 
 ```powershell
 .\gradlew.bat lintDebug
