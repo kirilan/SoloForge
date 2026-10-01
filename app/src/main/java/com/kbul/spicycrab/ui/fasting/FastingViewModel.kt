@@ -6,6 +6,7 @@ import com.kbul.spicycrab.data.db.entities.FastSession
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.fasting.FastingMode
 import com.kbul.spicycrab.domain.fasting.FastingRepository
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -37,9 +38,10 @@ class FastingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            settings.settings.map { FastingMode.fromName(it.defaultFastingModeName) }.collect { mode ->
-                if (!userPickedMode) selectedMode.value = mode
-            }
+        settings.settings.map { FastingMode.fromName(it.defaultFastingModeName) }.distinctUntilChanged().collect { mode ->
+            if (selectedMode.value != mode) userPickedMode = false
+            if (!userPickedMode) selectedMode.value = mode
+        }
         }
     }
 
