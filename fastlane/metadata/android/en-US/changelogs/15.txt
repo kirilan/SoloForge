@@ -1,0 +1,1 @@
+Solo Forge is now available in Chinese, in both Simplified and Traditional script. The app follows your phone's language, or you can pick it per app in Android's language settings. Hong Kong and Macau get Traditional, Singapore gets Simplified. Translations are machine-produced and reviewed by eye, so corrections are welcome on GitHub.

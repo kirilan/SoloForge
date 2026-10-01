@@ -22,8 +22,8 @@ android {
         applicationId = "com.kbul.spicycrab"
         minSdk = 26
         targetSdk = 36
-        versionCode = 14
-        versionName = "0.7.1"
+        versionCode = 15
+        versionName = "0.7.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables { useSupportLibrary = true }
