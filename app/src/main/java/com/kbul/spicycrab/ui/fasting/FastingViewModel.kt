@@ -38,10 +38,10 @@ class FastingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-        settings.settings.map { FastingMode.fromName(it.defaultFastingModeName) }.distinctUntilChanged().collect { mode ->
-            if (selectedMode.value != mode) userPickedMode = false
-            if (!userPickedMode) selectedMode.value = mode
-        }
+            settings.settings.map { FastingMode.fromName(it.defaultFastingModeName) }.distinctUntilChanged().collect { mode ->
+                if (selectedMode.value != mode) userPickedMode = false
+                if (!userPickedMode) selectedMode.value = mode
+            }
         }
     }
 
