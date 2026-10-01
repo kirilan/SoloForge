@@ -181,6 +181,9 @@ Three distribution channels with different signing keys (builds are not cross-in
    Console UI — it uploads the AAB, sets the release notes from `changelogs/<versionCode>.txt`, and
    starts a full rollout via the Play Developer API. Needs `GOOGLE_PLAY_SERVICE_ACCOUNT` pointing at
    a service-account JSON with "Release manager"; keep that file out of the repo, like the keystore.
+   Store listings come from `fastlane/metadata/android/<locale>/` too: `--listings` publishes every
+   locale's title and descriptions, so run it whenever that text changes. Hand-edited, the Play
+   en-US listing went stale — it still advertised CSV export in 0.7.2.
    Policy declarations and App content forms still have to be done in the Console by hand.
 
 ### Website

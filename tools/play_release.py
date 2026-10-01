@@ -7,6 +7,7 @@ access); point GOOGLE_PLAY_SERVICE_ACCOUNT at it.
     python tools/play_release.py --dry-run     # everything except going live
     python tools/play_release.py
     python tools/play_release.py --status      # what each track is serving
+    python tools/play_release.py --listings    # store text for every fastlane locale
 
 A stale testing track counts against the target API requirement, so --status is
 the fastest way to find the build behind a Console warning.
@@ -31,8 +32,10 @@ SCOPES = ["https://www.googleapis.com/auth/androidpublisher"]
 REPO = Path(__file__).resolve().parent.parent
 GRADLE = REPO / "app" / "build.gradle.kts"
 AAB = REPO / "app" / "build" / "outputs" / "bundle" / "release" / "app-release.aab"
-CHANGELOGS = REPO / "fastlane" / "metadata" / "android" / "en-US" / "changelogs"
+METADATA = REPO / "fastlane" / "metadata" / "android"
+CHANGELOGS = METADATA / "en-US" / "changelogs"
 MAX_NOTES_CHARS = 500
+LISTING_LIMITS = {"title": 30, "shortDescription": 80, "fullDescription": 4000}
 
 
 def version_code() -> int:
@@ -40,6 +43,28 @@ def version_code() -> int:
     if not match:
         sys.exit(f"No versionCode found in {GRADLE}")
     return int(match.group(1))
+
+
+def read_listings() -> dict:
+    """Every fastlane locale's store text, keyed by Play language code (the folder names match)."""
+    def text(locale, name):
+        path = METADATA / locale / f"{name}.txt"
+        return path.read_text(encoding="utf-8").strip() if path.is_file() else None
+
+    listings = {}
+    for folder in sorted(p for p in METADATA.iterdir() if (p / "full_description.txt").is_file()):
+        listing = {
+            # The app name is never translated, so locales without their own title use en-US's.
+            "title": text(folder.name, "title") or text("en-US", "title"),
+            "shortDescription": text(folder.name, "short_description"),
+            "fullDescription": text(folder.name, "full_description"),
+        }
+        for field, limit in LISTING_LIMITS.items():
+            if not listing[field] or len(listing[field]) > limit:
+                sys.exit(f"{folder.name} {field} must be 1–{limit} chars, "
+                         f"is {len(listing[field] or '')}")
+        listings[folder.name] = listing
+    return listings
 
 
 def check(response, what):
@@ -56,6 +81,8 @@ def main():
                         help="do everything but commit; the edit is discarded")
     parser.add_argument("--status", action="store_true",
                         help="list every track's active releases and exit")
+    parser.add_argument("--listings", action="store_true",
+                        help="publish every fastlane locale's store listing instead of an AAB")
     args = parser.parse_args()
 
     key = os.environ.get("GOOGLE_PLAY_SERVICE_ACCOUNT")
@@ -78,6 +105,18 @@ def main():
                 print(f"{track['track']:<12} {release['status']}{rollout}  "
                       f"versionCode {codes}  {release.get('name', '')}")
         session.delete(f"{base}/edits/{edit}")
+        return
+
+    if args.listings:
+        listings = read_listings()
+        edit = check(session.post(f"{base}/edits"), "Creating edit")["id"]
+        print(f"Edit {edit}")
+        for language, listing in listings.items():
+            check(session.put(f"{base}/edits/{edit}/listings/{language}",
+                              json={"language": language, **listing}),
+                  f"Updating {language} listing")
+        print(f"Listings: {', '.join(listings)}")
+        finish(session, base, edit, args.dry_run, f"{len(listings)} store listings")
         return
 
     if not args.aab.is_file():
@@ -124,14 +163,16 @@ def main():
         f"Assigning to {args.track}",
     )
     print(f"Track {args.track}: full rollout, notes from {notes_file.name}")
+    finish(session, base, edit, args.dry_run, f"{got} to {args.track}")
 
-    if args.dry_run:
+
+def finish(session, base, edit, dry_run, what):
+    if dry_run:
         session.delete(f"{base}/edits/{edit}")
         print("Dry run — edit discarded, nothing published.")
         return
-
     check(session.post(f"{base}/edits/{edit}:commit"), "Committing edit")
-    print(f"Submitted {got} to {args.track}. Review status is in the Console.")
+    print(f"Submitted {what}. Review status is in the Console.")
 
 
 if __name__ == "__main__":
