@@ -3,14 +3,13 @@ package com.kbul.spicycrab.ui.fasting
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -25,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.R
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -93,12 +93,18 @@ fun FastingScreen(
                 centerValue = "${state.selectedMode.fastHours}h",
             )
             Text(stringResource(R.string.fasting_pick_mode), style = MaterialTheme.typography.titleMedium)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(FastingMode.entries) { mode ->
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+                maxItemsInEachRow = 3,
+            ) {
+                FastingMode.entries.forEach { mode ->
                     FilterChip(
                         selected = state.selectedMode == mode,
                         onClick = { viewModel.onModeSelected(mode) },
-                        label = { Text(mode.displayName) },
+                        label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }
