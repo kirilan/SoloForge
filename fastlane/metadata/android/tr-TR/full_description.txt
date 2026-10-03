@@ -11,7 +11,7 @@ Verilerin yerel sahipliği etrafında tasarlanmıştır:
 
 Özellikler:
 
-* 16:8, 18:6, 20:4 ve 36 saat modlu aralıklı oruç sayacı
+* 12:12, 14:10, 16:8, 18:6, 20:4 ve 36 saat modlu aralıklı oruç sayacı
 * Günlük bildirim yağmuru yerine duruma bağlı oruç hatırlatıcıları
 * Kendi OpenRouter API anahtarınızla yemek fotoğrafı analizi
 * Elle öğün girişi ve düzenlenebilir makro tahminleri

@@ -11,7 +11,7 @@ Ele é construído em torno da posse local dos seus dados:
 
 Recursos:
 
-* Cronômetro de jejum intermitente com modos 16:8, 18:6, 20:4 e 36 horas
+* Cronômetro de jejum intermitente com modos 12:12, 14:10, 16:8, 18:6, 20:4 e 36 horas
 * Lembretes de jejum baseados no seu estado, sem spam diário de notificações
 * Análise de fotos de comida com a sua própria chave de API do OpenRouter
 * Registro manual de refeições e estimativas de macros editáveis

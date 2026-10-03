@@ -1,0 +1,1 @@
+Two gentler fasting modes, 12:12 and 14:10, join 16:8, 18:6, 20:4 and 36h. With six modes, every mode picker now wraps into a grid so none are hidden off-screen, and the selected mode is marked with a check. Changing the default mode in Settings now always reaches Home and the Fast tab, even after you have picked a mode by hand. Thanks to Malachi Soord (inverse) for both changes.

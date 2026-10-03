@@ -11,7 +11,7 @@ Sie ist auf lokale Datenhoheit ausgelegt:
 
 Funktionen:
 
-* Intervallfasten-Timer mit den Modi 16:8, 18:6, 20:4 und 36 Stunden
+* Intervallfasten-Timer mit den Modi 12:12, 14:10, 16:8, 18:6, 20:4 und 36 Stunden
 * Zustandsgesteuerte Fasten-Erinnerungen statt täglichem Benachrichtigungs-Spam
 * Essensfoto-Analyse mit deinem eigenen OpenRouter-API-Schlüssel
 * Manuelle Mahlzeiteneingabe und bearbeitbare Makro-Schätzungen

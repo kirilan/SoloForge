@@ -29,7 +29,7 @@ The only intentional outbound network request is a user-initiated OpenRouter cal
 
 ## Current Features
 
-- Intermittent fasting timer with 16:8, 18:6, 20:4, and 36 hour modes.
+- Intermittent fasting timer with 12:12, 14:10, 16:8, 18:6, 20:4, and 36 hour modes.
 - Smart fasting reminders driven by timer state instead of fixed daily spam.
 - AI-assisted food analysis (photo or text description) through OpenRouter — one request per analysis, a choice of four measured models (or your own), and an off switch in Settings.
 - Manual meal entry and one-tap meal presets when the user does not want to use AI.

@@ -11,7 +11,7 @@ Está construida en torno a la propiedad local de tus datos:
 
 Funciones:
 
-* Temporizador de ayuno intermitente con modos 16:8, 18:6, 20:4 y 36 horas
+* Temporizador de ayuno intermitente con modos 12:12, 14:10, 16:8, 18:6, 20:4 y 36 horas
 * Recordatorios de ayuno según tu estado, sin spam diario de notificaciones
 * Análisis de fotos de comida con tu propia clave de API de OpenRouter
 * Registro manual de comidas y estimaciones de macros editables

@@ -11,7 +11,7 @@ It is built around local data ownership:
 
 Features:
 
-* Intermittent fasting timer with 16:8, 18:6, 20:4, and 36 hour modes
+* Intermittent fasting timer with 12:12, 14:10, 16:8, 18:6, 20:4, and 36 hour modes
 * State-driven fasting reminders instead of daily notification spam
 * Food photo analysis using your own OpenRouter API key
 * Manual meal entry and editable macro estimates

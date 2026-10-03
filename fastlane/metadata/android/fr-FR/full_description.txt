@@ -11,7 +11,7 @@ Elle est conçue autour de la propriété locale des données :
 
 Fonctionnalités :
 
-* Minuteur de jeûne intermittent avec les modes 16:8, 18:6, 20:4 et 36 heures
+* Minuteur de jeûne intermittent avec les modes 12:12, 14:10, 16:8, 18:6, 20:4 et 36 heures
 * Rappels de jeûne liés à votre progression plutôt que du spam quotidien de notifications
 * Analyse de photos de repas avec votre propre clé d'API OpenRouter
 * Saisie manuelle des repas et estimations de macros modifiables

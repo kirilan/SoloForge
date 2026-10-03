@@ -4,7 +4,7 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 
 ## Features
 
-1. **Intermittent fasting timer** — modes: 16:8, 18:6, 20:4, 36h. Smart context-aware reminders (no time-of-day spam):
+1. **Intermittent fasting timer** — modes: 12:12, 14:10, 16:8, 18:6, 20:4, 36h. Smart context-aware reminders (no time-of-day spam):
    - "Almost there" encouragement 1h before fast ends
    - "Eating window closing" 1h before window ends, scheduled when a completed fast ends
    - Cancellation is automatic when the user takes the opposite action
