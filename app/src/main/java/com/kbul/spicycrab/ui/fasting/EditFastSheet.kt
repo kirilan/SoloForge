@@ -2,12 +2,11 @@ package com.kbul.spicycrab.ui.fasting
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -65,8 +64,11 @@ fun EditFastSheet(
             Text(stringResource(R.string.fast_edit_title), style = MaterialTheme.typography.headlineMedium)
 
             Text(stringResource(R.string.common_mode), style = MaterialTheme.typography.bodyMedium)
-            LazyRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                items(FastingMode.entries) { mode ->
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                FastingMode.entries.forEach { mode ->
                     FilterChip(
                         selected = modeName == mode.name,
                         onClick = { modeName = mode.name },
