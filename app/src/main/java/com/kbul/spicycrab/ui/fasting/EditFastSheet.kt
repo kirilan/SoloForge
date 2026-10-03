@@ -27,6 +27,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FastSession
@@ -65,14 +66,17 @@ fun EditFastSheet(
 
             Text(stringResource(R.string.common_mode), style = MaterialTheme.typography.bodyMedium)
             FlowRow(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                maxItemsInEachRow = 3,
             ) {
                 FastingMode.entries.forEach { mode ->
                     FilterChip(
                         selected = modeName == mode.name,
                         onClick = { modeName = mode.name },
-                        label = { Text(mode.displayName) },
+                        label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }

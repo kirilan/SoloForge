@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.R
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -93,14 +94,17 @@ fun FastingScreen(
             )
             Text(stringResource(R.string.fasting_pick_mode), style = MaterialTheme.typography.titleMedium)
             FlowRow(
+                modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
+                maxItemsInEachRow = 3,
             ) {
                 FastingMode.entries.forEach { mode ->
                     FilterChip(
                         selected = state.selectedMode == mode,
                         onClick = { viewModel.onModeSelected(mode) },
-                        label = { Text(mode.displayName) },
+                        label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                        modifier = Modifier.weight(1f),
                     )
                 }
             }

@@ -45,6 +45,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.kbul.spicycrab.R
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -575,14 +576,17 @@ private fun IdleContent(
 @Composable
 private fun ModeChips(selected: FastingMode, onModeSelected: (FastingMode) -> Unit) {
     FlowRow(
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp),
+        maxItemsInEachRow = 3,
     ) {
         FastingMode.entries.forEach { mode ->
             FilterChip(
                 selected = selected == mode,
                 onClick = { onModeSelected(mode) },
-                label = { Text(mode.displayName) },
+                label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                modifier = Modifier.weight(1f),
             )
         }
     }

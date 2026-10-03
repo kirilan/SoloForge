@@ -41,6 +41,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import java.util.Locale
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -200,17 +201,20 @@ private fun DefaultModeDropdown(currentName: String, onSelected: (String) -> Uni
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(stringResource(R.string.settings_default_mode), style = MaterialTheme.typography.bodyMedium)
         FlowRow(
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
+            maxItemsInEachRow = 3,
         ) {
             FastingMode.entries.forEach { mode ->
                 FilterChip(
                     selected = current == mode,
                     onClick = { onSelected(mode.name) },
-                    label = { Text(mode.displayName) },
+                    label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
                     leadingIcon = if (current == mode) {
                         { Icon(Icons.Default.Check, contentDescription = null) }
                     } else null,
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
