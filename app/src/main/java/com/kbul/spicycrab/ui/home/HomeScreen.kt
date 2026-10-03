@@ -17,6 +17,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
@@ -586,6 +588,9 @@ private fun ModeChips(selected: FastingMode, onModeSelected: (FastingMode) -> Un
                 selected = selected == mode,
                 onClick = { onModeSelected(mode) },
                 label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                leadingIcon = if (selected == mode) {
+                    { Icon(Icons.Default.Check, contentDescription = null) }
+                } else null,
                 modifier = Modifier.weight(1f),
             )
         }

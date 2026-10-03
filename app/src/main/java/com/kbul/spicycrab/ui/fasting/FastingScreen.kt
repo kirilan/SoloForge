@@ -12,10 +12,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
@@ -104,6 +107,9 @@ fun FastingScreen(
                         selected = state.selectedMode == mode,
                         onClick = { viewModel.onModeSelected(mode) },
                         label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                        leadingIcon = if (state.selectedMode == mode) {
+                            { Icon(Icons.Default.Check, contentDescription = null) }
+                        } else null,
                         modifier = Modifier.weight(1f),
                     )
                 }

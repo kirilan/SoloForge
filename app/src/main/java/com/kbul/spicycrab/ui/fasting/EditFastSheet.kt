@@ -9,10 +9,13 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -76,6 +79,9 @@ fun EditFastSheet(
                         selected = modeName == mode.name,
                         onClick = { modeName = mode.name },
                         label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
+                        leadingIcon = if (modeName == mode.name) {
+                            { Icon(Icons.Default.Check, contentDescription = null) }
+                        } else null,
                         modifier = Modifier.weight(1f),
                     )
                 }
