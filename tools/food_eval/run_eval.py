@@ -65,7 +65,7 @@ def api_key() -> str | None:
         for line in KEY_FILE.read_text(encoding="utf-8").splitlines():
             line = line.strip()
             if line and not line.startswith("#"):
-                return line
+                return line.removeprefix("export ").removeprefix("OPENROUTER_API_KEY=").strip("\"' ")
     return None
 
 

@@ -111,7 +111,7 @@ escalates to — because escalation is a property of the row, not a global const
 ```
 fast (default)  google/gemini-3.1-flash-lite    -> retry: gemini-3.1-pro-preview
 balanced        google/gemini-3.7-flash         -> retry: gemini-3.1-pro-preview
-open            qwen/qwen3-vl-32b-instruct      -> no retry (nothing open-weight measures better)
+open            deepseek/deepseek-v4.1-flash    -> no retry (nothing open-weight measures better)
 accurate        google/gemini-3.1-pro-preview   -> no retry (it is the ceiling)
 custom          <user-supplied id>              -> no retry, no measured labels
 ```

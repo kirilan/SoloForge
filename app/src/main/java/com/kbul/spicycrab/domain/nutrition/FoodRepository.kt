@@ -21,11 +21,11 @@ import javax.inject.Singleton
  * explicit "retry with a stronger model" tap escalates to.
  *
  * Escalation belongs to the row rather than being one global constant. The 2026-08-28 eval found
- * nothing that beats [FoodAnalysisModels.ACCURATE]'s model and no Apache-2.0 model that beats
- * [FoodAnalysisModels.OPEN]'s, so both carry a null [escalationId] and hide the retry button
+ * nothing that beats [FoodAnalysisModels.ACCURATE]'s model, and the 2026-10-12 one no open-weight
+ * model that beats [FoodAnalysisModels.OPEN]'s, so both carry a null [escalationId] and hide the retry button
  * rather than offering a sideways move dressed up as an upgrade.
  *
- * The measured fields come from 44-case runs at the shipped prompt and schema (2026-08-29 release run, all four rows, no eval flags). `tools/food_eval`
+ * The measured fields come from 44-case runs at the shipped prompt and schema (2026-08-29 release run, no eval flags; the open row from the 2026-10-12 run). `tools/food_eval`
  * re-runs every row and every escalation before a release touches a model id, the prompt,
  * temperature, image preprocessing, or the schema — see docs/curated-model-choice-plan.md.
  */
@@ -83,18 +83,19 @@ object FoodAnalysisModels {
         centsPerThousandAnalyses = 379,
     )
 
-    // No open-weight model measured beats this one, so escalating would leave Apache-2.0
+    // MIT weights; replaced qwen3-vl-32b-instruct, which OpenRouter retired on 2026-10-09.
+    // No open-weight model measured beats this one, so escalating would leave open weights
     // for a proprietary model and end the row's only promise at the first tap.
     val OPEN = AnalysisConfig(
         token = TOKEN_OPEN,
-        modelId = "qwen/qwen3-vl-32b-instruct",
+        modelId = "deepseek/deepseek-v4.1-flash",
         escalationId = null,
         openWeight = true,
-        kcalErrorPercent = 25.9,
-        answersDirectly = 14,
+        kcalErrorPercent = 21.3,
+        answersDirectly = 13,
         casesScored = 44,
-        medianPhotoSeconds = 7.5,
-        centsPerThousandAnalyses = 24,
+        medianPhotoSeconds = 9.3,
+        centsPerThousandAnalyses = 194,
     )
 
     // The escalation target itself; there is nothing measured above it to escalate to.

@@ -73,13 +73,13 @@ Settings offers four tested configurations plus an escape hatch. Every figure be
 
 | Setting | Model | Calorie error | Answers without asking | Typical / worst wait | Cost per 1000 |
 |---|---|---|---|---|---|
-| **Fastest** (default) | `google/gemini-3.1-flash-lite` | 22.6% | 17/44 | **2.0s** / 3.9s | $0.84 |
+| **Fastest** (default) | `google/gemini-3.1-flash-lite` | 22.6% | 17/44 | **2.0s** / 3.9s | **$0.84** |
 | **Balanced** | `google/gemini-3.7-flash` | 21.9% | **24/44** | 8.1s / 14.8s | $3.79 |
-| **Open-weight** | `qwen/qwen3-vl-32b-instruct` (Apache-2.0) | 25.9% | 14/44 | 7.5s / 16.2s | **$0.24** |
+| **Open-weight** | `deepseek/deepseek-v4.1-flash` (MIT) | 21.3% | 13/44 | 9.3s / 32.3s | $1.94 |
 | **Most accurate** | `google/gemini-3.1-pro-preview` | **17.3%** | 17/44 | 4.8s / 16.8s | $9.37 |
 | *Advanced* | any OpenRouter model id | not tested | — | unknown | — |
 
-44 cases, one run each, 2026-08-29. Cost assumes the user's own OpenRouter key and their own rates.
+44 cases, one run each, 2026-08-29; the open-weight row 2026-10-12, after OpenRouter retired its previous model, `qwen/qwen3-vl-32b-instruct`, on 2026-10-09. Cost assumes the user's own OpenRouter key and their own rates.
 
 ### Why the settings look like this
 
@@ -87,7 +87,7 @@ Settings offers four tested configurations plus an escape hatch. Every figure be
 
 **Curation is also a safety filter, not just a labelling one.** Screening rejected models that would have looked good in a table. One fast, permissively licensed candidate confidently identified an unreadable dessert photo as "fruit salad with cottage cheese" with no uncertainty flags at all; another returned top-level JSON arrays on 8 of 44 cases, which the app cannot parse.
 
-**The retry model belongs to the row, not to the app.** "Retry with a stronger model" escalates to `gemini-3.1-pro-preview`, which measurably helps — it nearly halves the error on multi-component plates. But it is not stronger than itself, and no Apache-2.0 model we measured beats the open-weight row, so **both of those rows hide the retry button** rather than offer a sideways move or quietly swap a user out of the licence they chose.
+**The retry model belongs to the row, not to the app.** "Retry with a stronger model" escalates to `gemini-3.1-pro-preview`, which measurably helps — it nearly halves the error on multi-component plates. But it is not stronger than itself, and no open-weight model we measured beats the open-weight row, so **both of those rows hide the retry button** rather than offer a sideways move or quietly swap a user out of the licence they chose.
 
 **Labels lead with waiting time and how often you get asked a follow-up question**, with calorie error second. Two findings drove that ordering: the accuracy figure is noisier than it looks, and **69% of the models that completed a clean screen would not accept a single one of five test photos outright** — under this app's uncertainty policy, a "more accurate" model can easily mean an app that asks a question about every meal. That is the difference a user actually feels.
 
