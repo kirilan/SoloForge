@@ -251,7 +251,8 @@
     <string name="settings_show_weight_tab">Gewicht-Tab anzeigen</string>
     <string name="settings_show_workout_tab">Training-Tab anzeigen</string>
     <string name="settings_section_health">Health Connect</string>
-    <string name="settings_health_desc">Gewicht und Trainings mit anderen Gesundheits-Apps auf diesem Gerät synchronisieren. Nichts verlässt dein Telefon.</string>
+    <string name="settings_health_desc">Gewicht, Trainings und Mahlzeiten mit anderen Gesundheits-Apps auf diesem Gerät synchronisieren. Nichts verlässt dein Telefon.</string>
+    <string name="food_imported_name">Importierte Mahlzeit</string>
     <string name="settings_health_import">Aus Health Connect importieren</string>
     <string name="settings_health_export">Nach Health Connect exportieren</string>
     <string name="settings_health_manage">Berechtigungen verwalten</string>

@@ -49,6 +49,7 @@ class BackupMergeTest {
                 settings = settings,
                 weightDao = db.weightEntryDao(),
                 workoutDao = db.workoutSessionDao(),
+                foodDao = db.foodEntryDao(),
             ),
         )
     }

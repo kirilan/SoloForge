@@ -255,7 +255,8 @@
     <string name="settings_show_weight_tab">Показывать вкладку «Вес»</string>
     <string name="settings_show_workout_tab">Показывать вкладку «Тренировка»</string>
     <string name="settings_section_health">Health Connect</string>
-    <string name="settings_health_desc">Синхронизируйте вес и тренировки с другими приложениями для здоровья на этом устройстве. Ничего не покидает ваш телефон.</string>
+    <string name="settings_health_desc">Синхронизируйте вес, тренировки и приёмы пищи с другими приложениями для здоровья на этом устройстве. Ничего не покидает ваш телефон.</string>
+    <string name="food_imported_name">Импортированный приём пищи</string>
     <string name="settings_health_import">Импорт из Health Connect</string>
     <string name="settings_health_export">Экспорт в Health Connect</string>
     <string name="settings_health_manage">Управление разрешениями</string>

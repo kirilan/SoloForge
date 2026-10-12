@@ -8,6 +8,7 @@ import com.kbul.spicycrab.data.db.entities.FoodEntry
 import com.kbul.spicycrab.data.db.entities.MealPreset
 import com.kbul.spicycrab.data.prefs.SecureKeyStore
 import com.kbul.spicycrab.data.prefs.SettingsRepo
+import com.kbul.spicycrab.domain.health.HealthConnectRepository
 import com.kbul.spicycrab.network.OpenRouterClient
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -145,6 +146,7 @@ class FoodRepository @Inject constructor(
     private val client: OpenRouterClient,
     private val keyStore: SecureKeyStore,
     private val settings: SettingsRepo,
+    private val healthConnect: HealthConnectRepository,
     @param:ApplicationContext private val context: Context,
 ) {
 
@@ -284,6 +286,7 @@ class FoodRepository @Inject constructor(
     suspend fun delete(entry: FoodEntry) {
         dao.delete(entry)
         FoodPhotoFiles.deleteOwned(context, entry.imagePath)
+        healthConnect.onLocalFoodDeleted(entry)
     }
 
     fun todayTotals(entries: List<FoodEntry>): NutritionEstimate = NutritionEstimate(

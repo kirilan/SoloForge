@@ -7,15 +7,20 @@ import androidx.health.connect.client.changes.DeletionChange
 import androidx.health.connect.client.changes.UpsertionChange
 import androidx.health.connect.client.permission.HealthPermission
 import androidx.health.connect.client.records.ExerciseSessionRecord
+import androidx.health.connect.client.records.NutritionRecord
 import androidx.health.connect.client.records.Record
 import androidx.health.connect.client.records.WeightRecord
 import androidx.health.connect.client.records.metadata.Metadata
 import androidx.health.connect.client.request.ChangesTokenRequest
 import androidx.health.connect.client.request.ReadRecordsRequest
 import androidx.health.connect.client.time.TimeRangeFilter
+import androidx.health.connect.client.units.Energy
 import androidx.health.connect.client.units.Mass
+import com.kbul.spicycrab.R
+import com.kbul.spicycrab.data.db.dao.FoodEntryDao
 import com.kbul.spicycrab.data.db.dao.WeightEntryDao
 import com.kbul.spicycrab.data.db.dao.WorkoutSessionDao
+import com.kbul.spicycrab.data.db.entities.FoodEntry
 import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
 import com.kbul.spicycrab.data.prefs.AppSettings
@@ -38,14 +43,17 @@ class HealthConnectRepository @Inject constructor(
     private val settings: SettingsRepo,
     private val weightDao: WeightEntryDao,
     private val workoutDao: WorkoutSessionDao,
+    private val foodDao: FoodEntryDao,
 ) {
     val importPermissions = setOf(
         HealthPermission.getReadPermission(WeightRecord::class),
         HealthPermission.getReadPermission(ExerciseSessionRecord::class),
+        HealthPermission.getReadPermission(NutritionRecord::class),
     )
     val exportPermissions = setOf(
         HealthPermission.getWritePermission(WeightRecord::class),
         HealthPermission.getWritePermission(ExerciseSessionRecord::class),
+        HealthPermission.getWritePermission(NutritionRecord::class),
     )
 
     /** Contract for `rememberLauncherForActivityResult`; input/returns a Set of HC permission strings. */
@@ -110,6 +118,10 @@ class HealthConnectRepository @Inject constructor(
         if (session.healthConnectId == null) deleteExported(ExerciseSessionRecord::class, "sf-workout-${session.id}")
     }
 
+    suspend fun onLocalFoodDeleted(entry: FoodEntry) {
+        if (entry.healthConnectId == null) deleteExported(NutritionRecord::class, "sf-food-${entry.id}")
+    }
+
     private suspend fun deleteExported(type: KClass<out Record>, clientRecordId: String) {
         if (!isAvailable() || !settings.settings.first().healthExportEnabled) return
         runCatching {
@@ -121,6 +133,7 @@ class HealthConnectRepository @Inject constructor(
         val types = buildSet {
             if (HealthPermission.getReadPermission(WeightRecord::class) in granted) add(WeightRecord::class)
             if (HealthPermission.getReadPermission(ExerciseSessionRecord::class) in granted) add(ExerciseSessionRecord::class)
+            if (HealthPermission.getReadPermission(NutritionRecord::class) in granted) add(NutritionRecord::class)
         }
         if (types.isEmpty()) return
         val typeKey = changeTypeKey(types)
@@ -144,6 +157,10 @@ class HealthConnectRepository @Inject constructor(
             client.readRecords(ReadRecordsRequest(ExerciseSessionRecord::class, TimeRangeFilter.after(since)))
                 .records.forEach { upsertWorkout(it) }
         }
+        if (NutritionRecord::class in types) {
+            client.readRecords(ReadRecordsRequest(NutritionRecord::class, TimeRangeFilter.after(since)))
+                .records.forEach { upsertFood(it) }
+        }
         check(consumeChanges(startToken, typeKey)) {
             "Health Connect change token expired during initial import"
         }
@@ -161,11 +178,13 @@ class HealthConnectRepository @Inject constructor(
                     is UpsertionChange -> when (val record = change.record) {
                         is WeightRecord -> upsertWeight(record)
                         is ExerciseSessionRecord -> upsertWorkout(record)
+                        is NutritionRecord -> upsertFood(record)
                         else -> Unit
                     }
                     is DeletionChange -> {
                         weightDao.deleteByHealthConnectId(change.recordId)
                         workoutDao.deleteByHealthConnectId(change.recordId)
+                        foodDao.deleteByHealthConnectId(change.recordId)
                     }
                 }
             }
@@ -180,6 +199,7 @@ class HealthConnectRepository @Inject constructor(
     private fun changeTypeKey(types: Set<KClass<out Record>>): String = buildList {
         if (WeightRecord::class in types) add("weight")
         if (ExerciseSessionRecord::class in types) add("exercise")
+        if (NutritionRecord::class in types) add("nutrition")
     }.sorted().joinToString(",")
 
     private suspend fun upsertWeight(record: WeightRecord) {
@@ -217,6 +237,31 @@ class HealthConnectRepository @Inject constructor(
         if (existing == null) workoutDao.insert(session) else workoutDao.update(session)
     }
 
+    private suspend fun upsertFood(record: NutritionRecord) {
+        if (record.metadata.dataOrigin.packageName == context.packageName) return
+        val kcal = record.energy?.inKilocalories ?: return
+        if (kcal <= 0.0) return
+        val existing = foodDao.getByHealthConnectId(record.metadata.id)
+        val entry = FoodEntry(
+            id = existing?.id ?: 0,
+            timestampEpoch = record.startTime.toEpochMilli(),
+            lastModifiedEpoch = System.currentTimeMillis(),
+            itemName = record.name?.takeIf { it.isNotBlank() } ?: existing?.itemName ?: context.getString(R.string.food_imported_name),
+            grams = existing?.grams ?: 0.0,
+            kcal = kcal,
+            proteinG = record.protein?.inGrams ?: 0.0,
+            carbsG = record.totalCarbohydrate?.inGrams ?: 0.0,
+            fatG = record.totalFat?.inGrams ?: 0.0,
+            fiberG = record.dietaryFiber?.inGrams ?: 0.0,
+            comment = existing?.comment ?: "",
+            modelUsed = "health_connect",
+            confidence = "imported",
+            imagePath = null,
+            healthConnectId = record.metadata.id,
+        )
+        if (existing == null) foodDao.insert(entry) else foodDao.update(entry)
+    }
+
     // ponytail: bulk re-export of every local row each sync — idempotent via clientRecordId +
     // clientRecordVersion=lastModifiedEpoch, and it catches workouts finalized by the notification
     // service. Switch to per-event hooks if table sizes ever make this noticeable.
@@ -249,7 +294,29 @@ class HealthConnectRepository @Inject constructor(
                     )
                 }
         }
-        if (records.isNotEmpty()) client().insertRecords(records)
+        if (HealthPermission.getWritePermission(NutritionRecord::class) in granted) {
+            foodDao.observeAll().first()
+                .filter { it.healthConnectId == null }
+                .mapTo(records) { entry ->
+                    val start = Instant.ofEpochMilli(entry.timestampEpoch)
+                    NutritionRecord(
+                        startTime = start,
+                        startZoneOffset = null,
+                        // HC rejects zero-length intervals; a logged meal is a point in time.
+                        endTime = start.plusSeconds(60),
+                        endZoneOffset = null,
+                        name = entry.itemName,
+                        energy = Energy.kilocalories(entry.kcal),
+                        protein = Mass.grams(entry.proteinG),
+                        totalCarbohydrate = Mass.grams(entry.carbsG),
+                        totalFat = Mass.grams(entry.fatG),
+                        dietaryFiber = Mass.grams(entry.fiberG),
+                        metadata = exportMetadata("sf-food-${entry.id}", entry.lastModifiedEpoch),
+                    )
+                }
+        }
+        // HC caps a single insert; years of food logs can exceed it.
+        records.chunked(1000).forEach { client().insertRecords(it) }
     }
 
     private fun exportMetadata(clientRecordId: String, version: Long): Metadata =

@@ -253,7 +253,8 @@
     <string name="settings_show_weight_tab">Mostrar aba Peso</string>
     <string name="settings_show_workout_tab">Mostrar aba Treino</string>
     <string name="settings_section_health">Health Connect</string>
-    <string name="settings_health_desc">Sincronize peso e treinos com outros apps de saúde deste dispositivo. Nada sai do seu telefone.</string>
+    <string name="settings_health_desc">Sincronize peso, treinos e refeições com outros apps de saúde deste dispositivo. Nada sai do seu telefone.</string>
+    <string name="food_imported_name">Refeição importada</string>
     <string name="settings_health_import">Importar do Health Connect</string>
     <string name="settings_health_export">Exportar para o Health Connect</string>
     <string name="settings_health_manage">Gerenciar permissões</string>

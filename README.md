@@ -42,7 +42,7 @@ The only intentional outbound network request is a user-initiated OpenRouter cal
   - interval timer with periodic audio cues
   - exercise/rest toggle timer
 - Home dashboard with daily fasting, nutrition, workout, weight, and calendar progress, plus a per-day journal note.
-- Optional Health Connect sync for weight and exercise (import and export toggled separately, both off by default).
+- Optional Health Connect sync for weight, exercise and nutrition (import and export toggled separately, both off by default).
 - Configurable bottom tabs.
 - Localized in English, German, Spanish, French, Brazilian Portuguese, Russian, and Turkish.
 - Local Room migrations with exported schemas and migration tests.
@@ -63,7 +63,7 @@ Solo Forge is designed around local ownership of fitness data.
 
 The app declares `INTERNET` only for food analysis through OpenRouter. That call happens only when the user starts an analysis; with AI features off, the app makes zero network calls.
 
-Health Connect is opt-in and off by default. It is an on-device integration: weight and exercise records are read from and written to the local Health Connect store, never uploaded anywhere by Solo Forge.
+Health Connect is opt-in and off by default. It is an on-device integration: weight, exercise and nutrition records are read from and written to the local Health Connect store, never uploaded anywhere by Solo Forge.
 
 Every food analysis is a single request to whichever model the user selected (default `google/gemini-3.1-flash-lite`). There is no automatic escalation: a second, stronger model is reached only when the user explicitly taps "Retry with a stronger model", and that button is hidden entirely for rows that have nothing stronger above them. Uncertain results are surfaced to the user by `AnalysisPolicy` instead of being silently re-sent to a bigger model. See [Food Analysis Models](#food-analysis-models) for the options and how they were chosen.
 

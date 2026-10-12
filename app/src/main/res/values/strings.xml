@@ -253,7 +253,8 @@
     <string name="settings_show_weight_tab">Show Weight tab</string>
     <string name="settings_show_workout_tab">Show Workout tab</string>
     <string name="settings_section_health">Health Connect</string>
-    <string name="settings_health_desc">Sync weight and workouts with other health apps on this device. Nothing leaves your phone.</string>
+    <string name="settings_health_desc">Sync weight, workouts and meals with other health apps on this device. Nothing leaves your phone.</string>
+    <string name="food_imported_name">Imported meal</string>
     <string name="settings_health_import">Import from Health Connect</string>
     <string name="settings_health_export">Export to Health Connect</string>
     <string name="settings_health_manage">Manage permissions</string>

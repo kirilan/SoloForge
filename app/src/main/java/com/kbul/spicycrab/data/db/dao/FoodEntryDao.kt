@@ -24,6 +24,12 @@ interface FoodEntryDao {
     @Query("SELECT * FROM food_entries ORDER BY timestampEpoch DESC")
     fun observeAll(): Flow<List<FoodEntry>>
 
+    @Query("SELECT * FROM food_entries WHERE healthConnectId = :healthConnectId LIMIT 1")
+    suspend fun getByHealthConnectId(healthConnectId: String): FoodEntry?
+
+    @Query("DELETE FROM food_entries WHERE healthConnectId = :healthConnectId")
+    suspend fun deleteByHealthConnectId(healthConnectId: String)
+
     @Query("DELETE FROM food_entries")
     suspend fun deleteAll()
 }

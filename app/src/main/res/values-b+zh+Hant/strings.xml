@@ -249,7 +249,8 @@
     <string name="settings_show_weight_tab">顯示體重分頁</string>
     <string name="settings_show_workout_tab">顯示訓練分頁</string>
     <string name="settings_section_health">Health Connect</string>
-    <string name="settings_health_desc">與這部裝置上的其他健康應用程式同步體重和訓練資料。資料不會離開你的手機。</string>
+    <string name="settings_health_desc">與這部裝置上的其他健康應用程式同步體重、訓練和飲食資料。資料不會離開你的手機。</string>
+    <string name="food_imported_name">匯入的餐點</string>
     <string name="settings_health_import">從 Health Connect 匯入</string>
     <string name="settings_health_export">匯出到 Health Connect</string>
     <string name="settings_health_manage">管理權限</string>

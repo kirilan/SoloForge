@@ -21,4 +21,5 @@ data class FoodEntry(
     val modelUsed: String,
     val confidence: String,
     val imagePath: String?,
+    val healthConnectId: String? = null,
 )

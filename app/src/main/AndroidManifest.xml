@@ -13,11 +13,13 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <!-- Health Connect: declared here, granted at runtime via the HC permission sheet when
-         the user enables an import/export toggle. Both directions, weight + exercise. -->
+         the user enables an import/export toggle. Both directions, weight + exercise + nutrition. -->
     <uses-permission android:name="android.permission.health.READ_WEIGHT" />
     <uses-permission android:name="android.permission.health.WRITE_WEIGHT" />
     <uses-permission android:name="android.permission.health.READ_EXERCISE" />
     <uses-permission android:name="android.permission.health.WRITE_EXERCISE" />
+    <uses-permission android:name="android.permission.health.READ_NUTRITION" />
+    <uses-permission android:name="android.permission.health.WRITE_NUTRITION" />
 
     <uses-feature
         android:name="android.hardware.camera.any"
