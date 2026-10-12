@@ -6,6 +6,7 @@ access); point GOOGLE_PLAY_SERVICE_ACCOUNT at it.
 
     python tools/play_release.py --dry-run     # everything except going live
     python tools/play_release.py
+    python tools/play_release.py --reuse       # promote a build already on another track
     python tools/play_release.py --status      # what each track is serving
     python tools/play_release.py --listings    # store text for every fastlane locale
 
@@ -79,6 +80,8 @@ def main():
     parser.add_argument("--aab", type=Path, default=AAB)
     parser.add_argument("--dry-run", action="store_true",
                         help="do everything but commit; the edit is discarded")
+    parser.add_argument("--reuse", action="store_true",
+                        help="promote a versionCode already uploaded to another track; skips the upload")
     parser.add_argument("--status", action="store_true",
                         help="list every track's active releases and exit")
     parser.add_argument("--listings", action="store_true",
@@ -134,18 +137,22 @@ def main():
     edit = check(session.post(f"{base}/edits"), "Creating edit")["id"]
     print(f"Edit {edit}")
 
-    uploaded = check(
-        session.post(
-            f"{UPLOAD_API}/applications/{PACKAGE}/edits/{edit}/bundles?uploadType=media",
-            data=args.aab.read_bytes(),
-            headers={"Content-Type": "application/octet-stream"},
-        ),
-        "Uploading bundle",
-    )
-    got = uploaded["versionCode"]
-    if got != expected:
-        sys.exit(f"AAB is versionCode {got}, but build.gradle.kts says {expected}")
-    print(f"Uploaded versionCode {got} ({args.aab.stat().st_size / 1e6:.2f} MB)")
+    if args.reuse:
+        got = expected
+        print(f"Reusing already-uploaded versionCode {got}")
+    else:
+        uploaded = check(
+            session.post(
+                f"{UPLOAD_API}/applications/{PACKAGE}/edits/{edit}/bundles?uploadType=media",
+                data=args.aab.read_bytes(),
+                headers={"Content-Type": "application/octet-stream"},
+            ),
+            "Uploading bundle",
+        )
+        got = uploaded["versionCode"]
+        if got != expected:
+            sys.exit(f"AAB is versionCode {got}, but build.gradle.kts says {expected}")
+        print(f"Uploaded versionCode {got} ({args.aab.stat().st_size / 1e6:.2f} MB)")
 
     check(
         session.put(
