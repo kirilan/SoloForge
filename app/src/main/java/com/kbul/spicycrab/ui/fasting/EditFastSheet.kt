@@ -2,20 +2,15 @@ package com.kbul.spicycrab.ui.fasting
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Button
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilterChip
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
@@ -25,12 +20,12 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.FastSession
@@ -52,6 +47,12 @@ fun EditFastSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var modeName by remember(session.id) { mutableStateOf(session.modeName) }
+    var customHours by remember(session.id) {
+        mutableIntStateOf(
+            if (session.modeName == FastingMode.CUSTOM.name) (session.targetSeconds / 3600L).toInt()
+            else FastingMode.DEFAULT_CUSTOM_HOURS,
+        )
+    }
     var startText by remember(session.id) {
         mutableStateOf(formatEpoch(session.startEpoch))
     }
@@ -68,23 +69,9 @@ fun EditFastSheet(
             Text(stringResource(R.string.fast_edit_title), style = MaterialTheme.typography.headlineMedium)
 
             Text(stringResource(R.string.common_mode), style = MaterialTheme.typography.bodyMedium)
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                maxItemsInEachRow = 3,
-            ) {
-                FastingMode.entries.forEach { mode ->
-                    FilterChip(
-                        selected = modeName == mode.name,
-                        onClick = { modeName = mode.name },
-                        label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                        leadingIcon = if (modeName == mode.name) {
-                            { Icon(Icons.Default.Check, contentDescription = null) }
-                        } else null,
-                        modifier = Modifier.weight(1f),
-                    )
-                }
+            FastingModeChips(FastingMode.fromName(modeName), customHours) { modeName = it.name }
+            if (modeName == FastingMode.CUSTOM.name) {
+                CustomHoursPicker(customHours) { customHours = it.coerceIn(1, FastingMode.MAX_CUSTOM_HOURS) }
             }
 
             OutlinedTextField(
@@ -133,6 +120,7 @@ fun EditFastSheet(
                             else -> onSave(
                                 session.copy(
                                     modeName = modeName,
+                                    targetSeconds = customHours * 3600L,
                                     startEpoch = startEpoch,
                                     endEpoch = endEpoch,
                                 )

@@ -31,13 +31,12 @@ class FastingRepository @Inject constructor(
 
     suspend fun resumeActiveNotification() {
         val active = dao.getActive() ?: return
-        val mode = FastingMode.fromName(active.modeName)
         context.tryStartForegroundService(
             FastingNotificationService.startIntent(
                 context,
                 active.startEpoch,
                 active.targetSeconds,
-                mode.displayName,
+                FastingMode.label(active.modeName, active.targetSeconds),
             ),
         )
     }
@@ -45,10 +44,11 @@ class FastingRepository @Inject constructor(
     suspend fun startFast(mode: FastingMode): FastSession = startMutex.withLock {
         dao.getActive()?.let { return@withLock it }
         val now = System.currentTimeMillis()
+        val customHours = settings.current().customFastHours
         val session = FastSession(
             modeName = mode.name,
-            targetSeconds = mode.fastSeconds,
-            eatingWindowSeconds = mode.eatingWindowSeconds,
+            targetSeconds = mode.targetSeconds(customHours),
+            eatingWindowSeconds = mode.eatingWindowSeconds(customHours),
             startEpoch = now,
             endEpoch = null,
             completed = false,
@@ -57,7 +57,9 @@ class FastingRepository @Inject constructor(
         val saved = session.copy(id = id)
 
         context.tryStartForegroundService(
-            FastingNotificationService.startIntent(context, now, mode.fastSeconds, mode.displayName),
+            FastingNotificationService.startIntent(
+                context, now, session.targetSeconds, FastingMode.label(mode.name, session.targetSeconds),
+            ),
         )
         syncReminders()
         saved
@@ -87,13 +89,16 @@ class FastingRepository @Inject constructor(
         }
         val wasActive = existing.endEpoch == null
         val mode = FastingMode.fromName(updated.modeName)
+        // A custom fast's hours live only on the row; presets re-derive theirs from the mode.
+        val customHours = (updated.targetSeconds / 3600L).toInt()
+        val targetSeconds = mode.targetSeconds(customHours)
         val end = updated.endEpoch
         val durationSec = if (end != null) (end - updated.startEpoch) / 1000L else 0L
-        val completed = end != null && durationSec >= mode.fastSeconds
+        val completed = end != null && durationSec >= targetSeconds
         dao.update(
             updated.copy(
-                targetSeconds = mode.fastSeconds,
-                eatingWindowSeconds = mode.eatingWindowSeconds,
+                targetSeconds = targetSeconds,
+                eatingWindowSeconds = mode.eatingWindowSeconds(customHours),
                 completed = completed,
             )
         )
@@ -101,7 +106,7 @@ class FastingRepository @Inject constructor(
         if (end == null) {
             context.tryStartForegroundService(
                 FastingNotificationService.startIntent(
-                    context, updated.startEpoch, mode.fastSeconds, mode.displayName,
+                    context, updated.startEpoch, targetSeconds, FastingMode.label(mode.name, targetSeconds),
                 ),
             )
         } else {
@@ -129,16 +134,13 @@ class FastingRepository @Inject constructor(
         val active = dao.getActive()
         if (active != null) {
             if (currentSettings.almostThereEnabled) {
-                reminderScheduler.scheduleAlmostThere(
-                    active.startEpoch,
-                    FastingMode.fromName(active.modeName),
-                )
+                reminderScheduler.scheduleAlmostThere(active.startEpoch, active.targetSeconds)
             }
             return
         }
         if (!currentSettings.eatingWindowClosingEnabled) return
         val mostRecent = dao.getMostRecentlyCompleted() ?: return
         val end = mostRecent.endEpoch ?: return
-        reminderScheduler.scheduleEatingWindowClosing(end, FastingMode.fromName(mostRecent.modeName))
+        reminderScheduler.scheduleEatingWindowClosing(end, mostRecent.eatingWindowSeconds)
     }
 }

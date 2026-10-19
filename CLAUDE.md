@@ -4,15 +4,16 @@ A **local-first Android fitness app**. No backend, no auth, no analytics, no clo
 
 ## Features
 
-1. **Intermittent fasting timer** — modes: 12:12, 14:10, 16:8, 18:6, 20:4, 36h. Smart context-aware reminders (no time-of-day spam):
+1. **Intermittent fasting timer** — modes: 12:12, 14:10, 16:8, 18:6, 20:4, 36h, plus a custom target of 1 h–7 days (stored on the session row as `targetSeconds`; a custom fast of 24 h or more has no eating window). The timer keeps running past the target until the user ends it. A Mon–Sun strip shows hours fasted per day, and the streak counts every calendar day a completed or running fast reached into. Smart context-aware reminders (no time-of-day spam):
    - "Almost there" encouragement 1h before fast ends
    - "Eating window closing" 1h before window ends, scheduled when a completed fast ends
    - Cancellation is automatic when the user takes the opposite action
 2. **AI calorie counter** — user supplies their OpenRouter key, then either snaps a photo (with optional comment) or types a description ("100 g watermelon"); gets structured macros back, edits if needed, saves locally. Settings offers four tested model configurations plus a custom model id, each labelled with figures from this project's own eval; the default needs no decision from the user. Non-AI paths: manual entry and one-tap meal presets ("Quick add"). The `ai_features_enabled` setting (default on) hides every AI entry point.
-3. **Weight tracking** — manual entries, line chart, edit/delete, weekly weigh-in reminder. Food and weight entries have editable date/time (backdating allowed, future dates blocked).
+3. **Weight tracking** — manual entries, line chart with goal-weight line, BMI with healthy range (only once a height is set), edit/delete, weekly weigh-in reminder. Food and weight entries have editable date/time (backdating allowed, future dates blocked).
 4. **Workout timer** — simple, interval, and exercise/rest timers with local workout logging and dashboard calorie bonus. Active phase, pause state, and accumulated exercise/rest time persist in Room across process or service death.
-5. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
-6. **FOSS/privacy branding** — first-run intro and Settings/About emphasize GPL-3.0, no backend, no accounts, no analytics, and local-first data ownership without adding persistent dashboard clutter.
+5. **Body profile + goal calculator** — optional onboarding page after the trust intro, also in Settings → Body profile: height, sex (incl. "prefer not to say" = formula midpoint), birth year, activity, goal weight, pace. Every field is optional and the UI must say so; skipped fields fall back to defaults in `GoalCalculator` (Mifflin–St Jeor, calorie floor, no deficit under 18). Stored in DataStore (`BodyProfile`), backed up with settings.
+6. **Home dashboard** — at-a-glance tiles for fasting, today's nutrition vs. goals, weight, workout time, and streak.
+7. **FOSS/privacy branding** — first-run intro and Settings/About emphasize GPL-3.0, no backend, no accounts, no analytics, and local-first data ownership without adding persistent dashboard clutter.
 
 ## Tech stack
 

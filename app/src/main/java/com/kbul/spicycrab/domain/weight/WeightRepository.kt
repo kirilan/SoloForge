@@ -7,6 +7,8 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+const val LB_PER_KG = 2.20462262
+
 @Singleton
 class WeightRepository @Inject constructor(
     private val dao: WeightEntryDao,
@@ -37,8 +39,8 @@ class WeightRepository @Inject constructor(
     suspend fun mostRecent(): WeightEntry? = dao.mostRecent()
 
     fun toDisplayUnit(weightKg: Double, useKg: Boolean): Double =
-        if (useKg) weightKg else weightKg * 2.20462262
+        if (useKg) weightKg else weightKg * LB_PER_KG
 
     fun fromDisplayUnit(value: Double, useKg: Boolean): Double =
-        if (useKg) value else value / 2.20462262
+        if (useKg) value else value / LB_PER_KG
 }

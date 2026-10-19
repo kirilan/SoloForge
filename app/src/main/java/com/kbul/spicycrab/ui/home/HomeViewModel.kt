@@ -8,6 +8,7 @@ import com.kbul.spicycrab.data.db.entities.FoodEntry
 import com.kbul.spicycrab.data.db.entities.JournalEntry
 import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.data.db.entities.WorkoutSession
+import com.kbul.spicycrab.data.prefs.BodyProfile
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.fasting.FastingMode
@@ -59,6 +60,8 @@ data class HomeUiState(
     val mostRecentFast: FastSession? = null,
     val streak: Int = 0,
     val selectedMode: FastingMode = FastingMode.SIXTEEN_EIGHT,
+    val customFastHours: Int = FastingMode.DEFAULT_CUSTOM_HOURS,
+    val profile: BodyProfile = BodyProfile(),
     val todayEntries: List<FoodEntry> = emptyList(),
     val goals: NutritionGoals = NutritionGoals(2000, 150, 220, 65, 30),
     val weightEntries: List<WeightEntry> = emptyList(),
@@ -156,7 +159,9 @@ class HomeViewModel @Inject constructor(
             nowMs = now,
             activeFast = fasts.firstOrNull { it.endEpoch == null },
             mostRecentFast = fasts.firstOrNull { it.endEpoch != null && it.completed },
-            streak = StreakCalculator.currentStreak(fasts.filter { it.completed }),
+            streak = StreakCalculator.currentStreak(fasts, now, zone),
+            customFastHours = s.customFastHours,
+            profile = s.profile,
             selectedMode = mode,
             todayEntries = today,
             goals = s.goals,

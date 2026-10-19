@@ -9,7 +9,6 @@ import java.time.DayOfWeek
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZonedDateTime
-import com.kbul.spicycrab.domain.fasting.FastingMode
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
@@ -21,8 +20,8 @@ class ReminderScheduler @Inject constructor(
 ) {
     private val wm get() = WorkManager.getInstance(context)
 
-    fun scheduleAlmostThere(fastStartEpoch: Long, mode: FastingMode) {
-        val targetEnd = fastStartEpoch + mode.fastSeconds * 1000L
+    fun scheduleAlmostThere(fastStartEpoch: Long, targetSeconds: Long) {
+        val targetEnd = fastStartEpoch + targetSeconds * 1000L
         val fireAt = targetEnd - TimeUnit.HOURS.toMillis(1)
         val delay = fireAt - System.currentTimeMillis()
         if (delay <= 0) return
@@ -45,8 +44,9 @@ class ReminderScheduler @Inject constructor(
         wm.cancelUniqueWork(WORK_NAME_ALMOST_THERE)
     }
 
-    fun scheduleEatingWindowClosing(fastEndEpoch: Long, mode: FastingMode) {
-        val windowClose = fastEndEpoch + mode.eatingWindowSeconds * 1000L
+    fun scheduleEatingWindowClosing(fastEndEpoch: Long, eatingWindowSeconds: Long) {
+        if (eatingWindowSeconds <= 0) return
+        val windowClose = fastEndEpoch + eatingWindowSeconds * 1000L
         val fireAt = windowClose - TimeUnit.HOURS.toMillis(1)
         val delay = fireAt - System.currentTimeMillis()
         if (delay <= 0) return

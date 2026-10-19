@@ -321,19 +321,20 @@ class BackupManager @Inject constructor(
                 val mostRecent = fastDao.getMostRecentlyCompleted()
                 val end = mostRecent?.endEpoch
                 if (mostRecent != null && end != null) {
-                    reminderScheduler.scheduleEatingWindowClosing(
-                        end,
-                        FastingMode.fromName(mostRecent.modeName),
-                    )
+                    reminderScheduler.scheduleEatingWindowClosing(end, mostRecent.eatingWindowSeconds)
                 }
             }
         } else {
-            val mode = FastingMode.fromName(active.modeName)
             context.tryStartForegroundService(
-                FastingNotificationService.startIntent(context, active.startEpoch, active.targetSeconds, mode.displayName),
+                FastingNotificationService.startIntent(
+                    context,
+                    active.startEpoch,
+                    active.targetSeconds,
+                    FastingMode.label(active.modeName, active.targetSeconds),
+                ),
             )
             if (settingsRepo.current().almostThereEnabled) {
-                reminderScheduler.scheduleAlmostThere(active.startEpoch, mode)
+                reminderScheduler.scheduleAlmostThere(active.startEpoch, active.targetSeconds)
             }
         }
     }

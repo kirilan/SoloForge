@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.stringResource
@@ -26,8 +27,10 @@ fun WeightChart(
     points: List<ChartPoint>,
     unitLabel: String,
     modifier: Modifier = Modifier,
+    goalValue: Double? = null,
     lineColor: Color = MaterialTheme.colorScheme.primary,
     fillColor: Color = MaterialTheme.colorScheme.primary.copy(alpha = 0.18f),
+    goalColor: Color = MaterialTheme.colorScheme.tertiary,
 ) {
     if (points.size < 2) {
         Box(modifier.fillMaxWidth().height(180.dp), contentAlignment = Alignment.Center) {
@@ -44,8 +47,8 @@ fun WeightChart(
     val minT = sorted.first().timeMs.toDouble()
     val maxT = sorted.last().timeMs.toDouble()
     val tSpan = (maxT - minT).coerceAtLeast(1.0)
-    val minV = sorted.minOf { it.value }
-    val maxV = sorted.maxOf { it.value }
+    val minV = minOf(sorted.minOf { it.value }, goalValue ?: Double.MAX_VALUE)
+    val maxV = maxOf(sorted.maxOf { it.value }, goalValue ?: -Double.MAX_VALUE)
     val pad = (maxV - minV) * 0.1
     val yMin = (minV - pad).coerceAtLeast(0.0)
     val yMax = maxV + pad
@@ -80,6 +83,17 @@ fun WeightChart(
             )
 
             coords.forEach { drawCircle(lineColor, radius = 6f, center = it) }
+
+            goalValue?.let { goal ->
+                val y = (h - (goal - yMin) / ySpan * h).toFloat()
+                drawLine(
+                    goalColor,
+                    start = Offset(0f, y),
+                    end = Offset(w, y),
+                    strokeWidth = 3f,
+                    pathEffect = PathEffect.dashPathEffect(floatArrayOf(16f, 12f)),
+                )
+            }
         }
         Text(
             "${"%.1f".format(yMax)} $unitLabel",
@@ -91,5 +105,13 @@ fun WeightChart(
             style = MaterialTheme.typography.bodySmall,
             modifier = Modifier.align(Alignment.BottomStart),
         )
+        if (goalValue != null) {
+            Text(
+                stringResource(R.string.weight_goal_line, "%.1f".format(goalValue), unitLabel),
+                style = MaterialTheme.typography.bodySmall,
+                color = goalColor,
+                modifier = Modifier.align(Alignment.TopEnd),
+            )
+        }
     }
 }

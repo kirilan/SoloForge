@@ -1,27 +1,31 @@
 package com.kbul.spicycrab.domain.fasting
 
 import com.kbul.spicycrab.data.db.entities.FastSession
-import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
 
 object StreakCalculator {
 
+    /**
+     * Consecutive days, ending today or yesterday, that a completed or still-running fast reached
+     * into. Every day of a multi-day fast counts; an abandoned (incomplete) fast counts for none.
+     */
     fun currentStreak(
-        completedSessions: List<FastSession>,
+        sessions: List<FastSession>,
+        now: Long = System.currentTimeMillis(),
         zone: ZoneId = ZoneId.systemDefault(),
         today: LocalDate = LocalDate.now(zone),
     ): Int {
-        if (completedSessions.isEmpty()) return 0
-        val daysWithCompletion = completedSessions
-            .mapNotNull { it.endEpoch }
-            .map { Instant.ofEpochMilli(it).atZone(zone).toLocalDate() }
+        val fastedDays = sessions
+            .filter { it.completed || it.endEpoch == null }
+            .flatMap { it.daysSpanned(now, zone) }
             .toSet()
+        if (fastedDays.isEmpty()) return 0
 
         var streak = 0
         var cursor = today
-        if (cursor !in daysWithCompletion) cursor = cursor.minusDays(1)
-        while (cursor in daysWithCompletion) {
+        if (cursor !in fastedDays) cursor = cursor.minusDays(1)
+        while (cursor in fastedDays) {
             streak++
             cursor = cursor.minusDays(1)
         }

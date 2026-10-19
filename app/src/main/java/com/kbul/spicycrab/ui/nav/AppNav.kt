@@ -23,6 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.annotation.StringRes
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +43,7 @@ import com.kbul.spicycrab.ui.fasting.FastingScreen
 import com.kbul.spicycrab.ui.food.FoodScreen
 import com.kbul.spicycrab.ui.home.HomeScreen
 import com.kbul.spicycrab.ui.onboarding.OpenSourceIntroScreen
+import com.kbul.spicycrab.ui.profile.ProfileSetupScreen
 import com.kbul.spicycrab.ui.settings.SettingsScreen
 import com.kbul.spicycrab.ui.weight.WeightScreen
 import com.kbul.spicycrab.ui.workout.WorkoutScreen
@@ -78,11 +82,16 @@ fun AppNav(viewModel: AppNavViewModel = hiltViewModel()) {
     }
 
     if (onboardingComplete != true) {
+        var showProfile by rememberSaveable { mutableStateOf(false) }
         Surface {
-            OpenSourceIntroScreen(
-                loading = onboardingComplete == null,
-                onContinue = viewModel::completeOnboarding,
-            )
+            if (showProfile) {
+                ProfileSetupScreen(onDone = viewModel::completeOnboarding)
+            } else {
+                OpenSourceIntroScreen(
+                    loading = onboardingComplete == null,
+                    onContinue = { showProfile = true },
+                )
+            }
         }
         return
     }

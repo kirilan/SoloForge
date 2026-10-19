@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.db.entities.WeightEntry
+import com.kbul.spicycrab.data.prefs.BodyProfile
 import com.kbul.spicycrab.data.prefs.SettingsRepo
 import com.kbul.spicycrab.domain.weight.WeightRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +14,6 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,6 +28,7 @@ data class WeightUiState(
     val range: WeightRange = WeightRange.THIRTY,
     val showLogSheet: Boolean = false,
     val editingId: Long? = null,
+    val profile: BodyProfile = BodyProfile(),
 )
 
 @HiltViewModel
@@ -42,14 +43,15 @@ class WeightViewModel @Inject constructor(
 
     val state: StateFlow<WeightUiState> = combine(
         repository.observeAll(),
-        settings.settings.map { it.weightUnitKg },
+        settings.settings,
         rangeFlow,
         showSheet,
         sheetFlow,
-    ) { entries, kg, range, show, editing ->
+    ) { entries, s, range, show, editing ->
         WeightUiState(
             entries = entries,
-            useKg = kg,
+            useKg = s.weightUnitKg,
+            profile = s.profile,
             range = range,
             showLogSheet = show,
             editingId = editing,

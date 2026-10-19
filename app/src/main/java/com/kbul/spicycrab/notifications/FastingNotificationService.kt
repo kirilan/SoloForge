@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import android.text.format.DateFormat
+import android.text.format.DateUtils
 import androidx.core.app.NotificationCompat
 import com.kbul.spicycrab.MainActivity
 import com.kbul.spicycrab.R
@@ -58,7 +59,7 @@ class FastingNotificationService : Service() {
             startFast(
                 startEpoch = active.startEpoch,
                 targetSeconds = active.targetSeconds,
-                modeDisplay = FastingMode.fromName(active.modeName).displayName,
+                modeDisplay = FastingMode.label(active.modeName, active.targetSeconds),
             )
         }
     }
@@ -83,7 +84,16 @@ class FastingNotificationService : Service() {
     // the only thing that keeps counting while the device is in deep sleep.
     private fun buildNotification(): Notification {
         val targetEnd = startEpoch + targetSeconds * 1000L
-        val targetTime = DateFormat.getTimeFormat(this).format(Date(targetEnd))
+        // Past a day the goal time alone is ambiguous, so it gains a date.
+        val targetTime = if (targetSeconds >= 24 * 3600L) {
+            DateUtils.formatDateTime(
+                this, targetEnd,
+                DateUtils.FORMAT_SHOW_DATE or DateUtils.FORMAT_SHOW_TIME or
+                    DateUtils.FORMAT_ABBREV_MONTH or DateUtils.FORMAT_NO_YEAR,
+            )
+        } else {
+            DateFormat.getTimeFormat(this).format(Date(targetEnd))
+        }
 
         val openIntent = Intent(this, MainActivity::class.java).apply {
             flags = Intent.FLAG_ACTIVITY_SINGLE_TOP

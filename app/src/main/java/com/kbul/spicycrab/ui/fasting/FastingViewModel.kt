@@ -18,6 +18,11 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import com.kbul.spicycrab.domain.fasting.fastedSecondsByDay
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import javax.inject.Inject
 
 data class FastingUiState(
@@ -25,12 +30,15 @@ data class FastingUiState(
     val selectedMode: FastingMode,
     val nowMillis: Long,
     val history: List<FastSession> = emptyList(),
+    val customFastHours: Int = FastingMode.DEFAULT_CUSTOM_HOURS,
+    val weekStart: LocalDate = LocalDate.now().with(DayOfWeek.MONDAY),
+    val weekFastedSeconds: List<Long> = List(7) { 0L },
 )
 
 @HiltViewModel
 class FastingViewModel @Inject constructor(
     private val repository: FastingRepository,
-    settings: SettingsRepo,
+    private val settings: SettingsRepo,
 ) : ViewModel() {
 
     private val selectedMode = MutableStateFlow(FastingMode.SIXTEEN_EIGHT)
@@ -57,12 +65,18 @@ class FastingViewModel @Inject constructor(
         repository.observeAll(),
         selectedMode,
         ticker,
-    ) { active, all, mode, now ->
+        settings.settings.map { it.customFastHours }.distinctUntilChanged(),
+    ) { active, all, mode, now, customHours ->
+        val zone = ZoneId.systemDefault()
+        val weekStart = Instant.ofEpochMilli(now).atZone(zone).toLocalDate().with(DayOfWeek.MONDAY)
         FastingUiState(
             active = active,
             selectedMode = mode,
             nowMillis = now,
             history = all.filter { it.endEpoch != null },
+            customFastHours = customHours,
+            weekStart = weekStart,
+            weekFastedSeconds = fastedSecondsByDay(all, (0L..6L).map(weekStart::plusDays), now, zone),
         )
     }.stateIn(
         viewModelScope,
@@ -100,6 +114,10 @@ class FastingViewModel @Inject constructor(
     fun onModeSelected(mode: FastingMode) {
         userPickedMode = true
         selectedMode.value = mode
+    }
+
+    fun setCustomFastHours(hours: Int) {
+        viewModelScope.launch { settings.setCustomFastHours(hours.coerceIn(1, FastingMode.MAX_CUSTOM_HOURS)) }
     }
 
     fun startFast() {

@@ -56,6 +56,10 @@ import com.kbul.spicycrab.data.db.entities.WeightEntry
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.domain.fasting.FastingMode
 import com.kbul.spicycrab.domain.workout.WorkoutMode
+import com.kbul.spicycrab.data.prefs.BodyProfile
+import com.kbul.spicycrab.ui.common.formatHms
+import com.kbul.spicycrab.ui.weight.WeightGoalProgress
+import com.kbul.spicycrab.ui.fasting.FastingModeChips
 import com.kbul.spicycrab.ui.fasting.ProgressRing
 import com.kbul.spicycrab.ui.nav.TopLevelDest
 import com.kbul.spicycrab.ui.theme.GoalNear
@@ -121,6 +125,7 @@ fun HomeScreen(
             WeightTile(
                 entries = state.weightEntries,
                 useKg = state.useKg,
+                profile = state.profile,
                 toDisplay = viewModel::toDisplayWeight,
                 onClick = { onNavigate(TopLevelDest.Weight) },
             )
@@ -381,11 +386,10 @@ private fun SelectedDayDetails(
         }
 
         day.fasts.forEach { fast ->
-            val mode = FastingMode.fromName(fast.modeName)
             val duration = ((fast.endEpoch ?: System.currentTimeMillis()) - fast.startEpoch).coerceAtLeast(0L) / 1000L
             EventLine(
                 label = stringResource(R.string.nav_fast),
-                value = "${mode.displayName} - ${formatDuration(duration)} " +
+                value = "${FastingMode.label(fast.modeName, fast.targetSeconds)} - ${formatDuration(duration)} " +
                     stringResource(if (fast.completed) R.string.home_status_completed else R.string.home_status_active),
                 color = MaterialTheme.colorScheme.tertiary,
             )
@@ -498,8 +502,8 @@ private fun FastingTile(
 
             when {
                 active != null -> ActiveFastContent(active, now, onStop)
-                recent != null && isInEatingWindow(recent, now) -> EatingWindowContent(recent, now, state.selectedMode, onModeSelected, onStart)
-                else -> IdleContent(state.selectedMode, onModeSelected, onStart)
+                recent != null && isInEatingWindow(recent, now) -> EatingWindowContent(recent, now, state.selectedMode, state.customFastHours, onModeSelected, onStart)
+                else -> IdleContent(state.selectedMode, state.customFastHours, onModeSelected, onStart)
             }
         }
     }
@@ -510,8 +514,6 @@ private fun ActiveFastContent(active: com.kbul.spicycrab.data.db.entities.FastSe
     val elapsedSec = ((now - active.startEpoch) / 1000L).coerceAtLeast(0L)
     val progress = (elapsedSec.toFloat() / active.targetSeconds.toFloat()).coerceIn(0f, 1f)
     val remaining = (active.targetSeconds - elapsedSec).coerceAtLeast(0L)
-    val mode = FastingMode.fromName(active.modeName)
-
     Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
         ProgressRing(
             progress = progress,
@@ -519,7 +521,7 @@ private fun ActiveFastContent(active: com.kbul.spicycrab.data.db.entities.FastSe
             centerValue = formatHms(if (remaining > 0) remaining else elapsedSec),
         )
     }
-    Text(stringResource(R.string.fasting_mode_elapsed, mode.displayName, formatHms(elapsedSec)), style = MaterialTheme.typography.bodyLarge)
+    Text(stringResource(R.string.fasting_mode_elapsed, FastingMode.label(active.modeName, active.targetSeconds), formatHms(elapsedSec)), style = MaterialTheme.typography.bodyLarge)
     Button(
         onClick = onStop,
         modifier = Modifier.fillMaxWidth().height(56.dp),
@@ -535,6 +537,7 @@ private fun EatingWindowContent(
     recent: com.kbul.spicycrab.data.db.entities.FastSession,
     now: Long,
     selected: FastingMode,
+    customHours: Int,
     onModeSelected: (FastingMode) -> Unit,
     onStart: () -> Unit,
 ) {
@@ -554,47 +557,26 @@ private fun EatingWindowContent(
         stringResource(R.string.home_until_window_closes, formatHms(remainSec)),
         style = MaterialTheme.typography.bodyLarge,
     )
-    ModeChips(selected, onModeSelected)
+    FastingModeChips(selected, customHours, onModeSelected)
     Button(
         onClick = onStart,
         modifier = Modifier.fillMaxWidth().height(56.dp),
-    ) { Text(stringResource(R.string.fasting_start_mode, selected.displayName)) }
+    ) { Text(stringResource(R.string.fasting_start_mode, FastingMode.label(selected.name, selected.targetSeconds(customHours)))) }
 }
 
 @Composable
 private fun IdleContent(
     selected: FastingMode,
+    customHours: Int,
     onModeSelected: (FastingMode) -> Unit,
     onStart: () -> Unit,
 ) {
     Text(stringResource(R.string.fasting_ready), style = MaterialTheme.typography.bodyLarge)
-    ModeChips(selected, onModeSelected)
+    FastingModeChips(selected, customHours, onModeSelected)
     Button(
         onClick = onStart,
         modifier = Modifier.fillMaxWidth().height(56.dp),
-    ) { Text(stringResource(R.string.fasting_start_mode, selected.displayName)) }
-}
-
-@Composable
-private fun ModeChips(selected: FastingMode, onModeSelected: (FastingMode) -> Unit) {
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-        maxItemsInEachRow = 3,
-    ) {
-        FastingMode.entries.forEach { mode ->
-            FilterChip(
-                selected = selected == mode,
-                onClick = { onModeSelected(mode) },
-                label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                leadingIcon = if (selected == mode) {
-                    { Icon(Icons.Default.Check, contentDescription = null) }
-                } else null,
-                modifier = Modifier.weight(1f),
-            )
-        }
-    }
+    ) { Text(stringResource(R.string.fasting_start_mode, FastingMode.label(selected.name, selected.targetSeconds(customHours)))) }
 }
 
 @Composable
@@ -678,6 +660,7 @@ private fun MacroLine(label: String, current: Double, goal: Double) {
 private fun WeightTile(
     entries: List<WeightEntry>,
     useKg: Boolean,
+    profile: BodyProfile,
     toDisplay: (Double) -> Double,
     onClick: () -> Unit,
 ) {
@@ -710,8 +693,9 @@ private fun WeightTile(
                     }
                     Text(stringResource(R.string.home_since_last, "$sign${"%.1f".format(delta)}", unit), color = color)
                 }
+                WeightGoalProgress(latest.weightKg, profile, useKg)
                 if (recentPoints.size >= 2) {
-                    WeightChart(points = recentPoints, unitLabel = unit)
+                    WeightChart(points = recentPoints, unitLabel = unit, goalValue = profile.goalWeightKg?.let(toDisplay))
                 }
             }
         }
@@ -753,13 +737,6 @@ private fun goalColor(current: Double, goal: Double): Color {
 private fun isInEatingWindow(session: com.kbul.spicycrab.data.db.entities.FastSession, now: Long): Boolean {
     val end = session.endEpoch ?: return false
     return now in end..(end + session.eatingWindowSeconds * 1000L)
-}
-
-private fun formatHms(seconds: Long): String {
-    val h = seconds / 3600
-    val m = (seconds % 3600) / 60
-    val s = seconds % 60
-    return "%02d:%02d:%02d".format(h, m, s)
 }
 
 private fun formatDuration(seconds: Long): String {

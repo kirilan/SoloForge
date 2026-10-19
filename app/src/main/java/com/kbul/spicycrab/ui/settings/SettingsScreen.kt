@@ -31,6 +31,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -54,6 +55,8 @@ import com.kbul.spicycrab.R
 import com.kbul.spicycrab.data.backup.AutoBackupStatus
 import com.kbul.spicycrab.data.prefs.NutritionGoals
 import com.kbul.spicycrab.domain.fasting.FastingMode
+import com.kbul.spicycrab.ui.fasting.FastingModeChips
+import com.kbul.spicycrab.ui.profile.ProfileSheet
 import com.kbul.spicycrab.domain.nutrition.AnalysisConfig
 import com.kbul.spicycrab.domain.nutrition.FoodAnalysisModels
 
@@ -64,6 +67,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
     val exportMessage by viewModel.exportMessage.collectAsStateWithLifecycle()
     val autoBackupStatus by viewModel.autoBackupStatus.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showProfile by rememberSaveable { mutableStateOf(false) }
     val s = settings ?: return
 
     LaunchedEffect(exportMessage) {
@@ -81,7 +85,7 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
         Text(stringResource(R.string.settings_title), style = MaterialTheme.typography.headlineMedium)
 
         SectionCard(stringResource(R.string.fasting_title)) {
-            DefaultModeDropdown(s.defaultFastingModeName, viewModel::setDefaultFastingMode)
+            DefaultModeDropdown(s.defaultFastingModeName, s.customFastHours, viewModel::setDefaultFastingMode)
             SwitchRow(
                 stringResource(R.string.settings_almost_there),
                 s.almostThereEnabled,
@@ -115,6 +119,17 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+        }
+
+        SectionCard(stringResource(R.string.settings_section_profile)) {
+            Text(
+                stringResource(R.string.settings_profile_desc),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            OutlinedButton(onClick = { showProfile = true }) {
+                Text(stringResource(R.string.settings_profile_edit))
             }
         }
 
@@ -188,6 +203,9 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
             modifier = Modifier.align(Alignment.CenterHorizontally),
         )
     }
+        if (showProfile) {
+            ProfileSheet(onDismiss = { showProfile = false })
+        }
         SnackbarHost(
             hostState = snackbarHostState,
             modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp),
@@ -196,28 +214,10 @@ fun SettingsScreen(viewModel: SettingsViewModel = hiltViewModel()) {
 }
 
 @Composable
-private fun DefaultModeDropdown(currentName: String, onSelected: (String) -> Unit) {
-    val current = FastingMode.fromName(currentName)
+private fun DefaultModeDropdown(currentName: String, customHours: Int, onSelected: (String) -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
         Text(stringResource(R.string.settings_default_mode), style = MaterialTheme.typography.bodyMedium)
-        FlowRow(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
-            maxItemsInEachRow = 3,
-        ) {
-            FastingMode.entries.forEach { mode ->
-                FilterChip(
-                    selected = current == mode,
-                    onClick = { onSelected(mode.name) },
-                    label = { Text(mode.displayName, Modifier.fillMaxWidth(), textAlign = TextAlign.Center) },
-                    leadingIcon = if (current == mode) {
-                        { Icon(Icons.Default.Check, contentDescription = null) }
-                    } else null,
-                    modifier = Modifier.weight(1f),
-                )
-            }
-        }
+        FastingModeChips(FastingMode.fromName(currentName), customHours) { onSelected(it.name) }
     }
 }
 

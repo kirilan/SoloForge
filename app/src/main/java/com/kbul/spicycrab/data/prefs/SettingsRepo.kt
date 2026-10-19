@@ -3,6 +3,7 @@ package com.kbul.spicycrab.data.prefs
 import android.content.Context
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.longPreferencesKey
@@ -28,6 +29,21 @@ data class NutritionGoals(
     val carbsG: Int,
     val fatG: Int,
     val fiberG: Int,
+)
+
+/**
+ * Every field is optional: a missing one falls back to a default in the goal calculator, and
+ * BMI is shown only once a height is set. Sex and activity are enum names, kept as strings so
+ * this layer stays free of domain imports.
+ */
+@Serializable
+data class BodyProfile(
+    val heightCm: Int? = null,
+    val sex: String = "UNSPECIFIED",
+    val birthYear: Int? = null,
+    val activity: String = "LIGHT",
+    val goalWeightKg: Double? = null,
+    val paceKgPerWeek: Double = 0.5,
 )
 
 @Serializable
@@ -58,6 +74,8 @@ data class AppSettings(
     // domain import; FoodAnalysisModels.resolve treats anything it doesn't know as the default.
     val foodAnalysisModel: String = DEFAULT_ANALYSIS_MODEL_TOKEN,
     val foodAnalysisModelCustomId: String = "",
+    val customFastHours: Int = 48,
+    val profile: BodyProfile = BodyProfile(),
 )
 
 @Singleton
@@ -86,6 +104,10 @@ class SettingsRepo @Inject constructor(
     suspend fun setHealthImportEnabled(value: Boolean) = update { it[KEY_HEALTH_IMPORT] = value }
     suspend fun setHealthExportEnabled(value: Boolean) = update { it[KEY_HEALTH_EXPORT] = value }
     suspend fun setHealthLastSync(epoch: Long) = update { it[KEY_HEALTH_LAST_SYNC] = epoch }
+
+    suspend fun setCustomFastHours(hours: Int) = update { it[KEY_CUSTOM_FAST_HOURS] = hours }
+
+    suspend fun setProfile(profile: BodyProfile) = update { it.putProfile(profile) }
 
     suspend fun setFoodAnalysisModel(token: String) = update { it[KEY_FOOD_MODEL] = token }
 
@@ -150,6 +172,17 @@ class SettingsRepo @Inject constructor(
         // A model preference, not a secret — it restores with the rest of the settings.
         it[KEY_FOOD_MODEL] = s.foodAnalysisModel
         it[KEY_FOOD_MODEL_CUSTOM] = s.foodAnalysisModelCustomId
+        it[KEY_CUSTOM_FAST_HOURS] = s.customFastHours
+        it.putProfile(s.profile)
+    }
+
+    private fun androidx.datastore.preferences.core.MutablePreferences.putProfile(p: BodyProfile) {
+        if (p.heightCm == null) remove(KEY_HEIGHT_CM) else this[KEY_HEIGHT_CM] = p.heightCm
+        this[KEY_SEX] = p.sex
+        if (p.birthYear == null) remove(KEY_BIRTH_YEAR) else this[KEY_BIRTH_YEAR] = p.birthYear
+        this[KEY_ACTIVITY] = p.activity
+        if (p.goalWeightKg == null) remove(KEY_GOAL_WEIGHT) else this[KEY_GOAL_WEIGHT] = p.goalWeightKg
+        this[KEY_PACE] = p.paceKgPerWeek
     }
 
     private suspend fun update(block: (androidx.datastore.preferences.core.MutablePreferences) -> Unit) {
@@ -185,6 +218,15 @@ class SettingsRepo @Inject constructor(
         healthLastSyncEpoch = this[KEY_HEALTH_LAST_SYNC] ?: 0L,
         foodAnalysisModel = this[KEY_FOOD_MODEL] ?: DEFAULT_ANALYSIS_MODEL_TOKEN,
         foodAnalysisModelCustomId = this[KEY_FOOD_MODEL_CUSTOM] ?: "",
+        customFastHours = this[KEY_CUSTOM_FAST_HOURS] ?: 48,
+        profile = BodyProfile(
+            heightCm = this[KEY_HEIGHT_CM],
+            sex = this[KEY_SEX] ?: "UNSPECIFIED",
+            birthYear = this[KEY_BIRTH_YEAR],
+            activity = this[KEY_ACTIVITY] ?: "LIGHT",
+            goalWeightKg = this[KEY_GOAL_WEIGHT],
+            paceKgPerWeek = this[KEY_PACE] ?: 0.5,
+        ),
     )
 
     private companion object {
@@ -216,6 +258,13 @@ class SettingsRepo @Inject constructor(
         val KEY_HEALTH_TOKEN_TYPES = stringPreferencesKey("health_change_token_types")
         val KEY_FOOD_MODEL = stringPreferencesKey("food_analysis_model")
         val KEY_FOOD_MODEL_CUSTOM = stringPreferencesKey("food_analysis_model_custom")
+        val KEY_CUSTOM_FAST_HOURS = intPreferencesKey("custom_fast_hours")
+        val KEY_HEIGHT_CM = intPreferencesKey("profile_height_cm")
+        val KEY_SEX = stringPreferencesKey("profile_sex")
+        val KEY_BIRTH_YEAR = intPreferencesKey("profile_birth_year")
+        val KEY_ACTIVITY = stringPreferencesKey("profile_activity")
+        val KEY_GOAL_WEIGHT = doublePreferencesKey("profile_goal_weight_kg")
+        val KEY_PACE = doublePreferencesKey("profile_pace_kg_week")
         const val MAX_MODEL_ID_LENGTH = 120
     }
 }

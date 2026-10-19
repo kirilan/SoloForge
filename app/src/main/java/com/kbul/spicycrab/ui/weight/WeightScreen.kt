@@ -1,5 +1,12 @@
 package com.kbul.spicycrab.ui.weight
 
+import com.kbul.spicycrab.data.prefs.BodyProfile
+import com.kbul.spicycrab.domain.profile.BmiCategory
+import com.kbul.spicycrab.domain.profile.GoalCalculator
+import com.kbul.spicycrab.ui.profile.formatEta
+import com.kbul.spicycrab.ui.profile.formatWeight
+import kotlin.math.abs
+import kotlin.math.ceil
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -79,6 +86,7 @@ fun WeightScreen(viewModel: WeightViewModel = hiltViewModel()) {
             WeightChart(
                 points = visible.map { ChartPoint(it.timestampEpoch, viewModel.toDisplay(it.weightKg)) },
                 unitLabel = unit,
+                goalValue = state.profile.goalWeightKg?.let(viewModel::toDisplay),
             )
 
             Text(stringResource(R.string.common_history), style = MaterialTheme.typography.titleMedium)
@@ -147,9 +155,63 @@ private fun CurrentSummary(state: WeightUiState, toDisplay: (Double) -> Double) 
                         color = color,
                     )
                 }
+                WeightGoalProgress(latest.weightKg, state.profile, state.useKg)
+                BmiLine(latest.weightKg, state.profile.heightCm, state.useKg)
             }
         }
     }
+}
+
+/** "4.2 kg to go · around 14 Mar 2027", or nothing when no goal weight is set. */
+@Composable
+internal fun WeightGoalProgress(latestKg: Double, profile: BodyProfile, useKg: Boolean) {
+    val goal = profile.goalWeightKg ?: return
+    val remainingKg = abs(latestKg - goal)
+    val text = if (remainingKg < 0.5) {
+        stringResource(R.string.weight_goal_reached)
+    } else {
+        stringResource(
+            R.string.weight_to_go,
+            formatWeight(remainingKg, useKg),
+            if (useKg) "kg" else "lb",
+            formatEta(ceil(remainingKg / profile.paceKgPerWeek).toInt()),
+        )
+    }
+    Text(text, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.tertiary)
+}
+
+@Composable
+private fun BmiLine(latestKg: Double, heightCm: Int?, useKg: Boolean) {
+    if (heightCm == null) {
+        Text(
+            stringResource(R.string.weight_bmi_need_height),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        return
+    }
+    val bmi = GoalCalculator.bmi(latestKg, heightCm)
+    val category = when (GoalCalculator.bmiCategory(bmi)) {
+        BmiCategory.UNDERWEIGHT -> R.string.bmi_underweight
+        BmiCategory.HEALTHY -> R.string.bmi_healthy
+        BmiCategory.OVERWEIGHT -> R.string.bmi_overweight
+        BmiCategory.OBESE -> R.string.bmi_obese
+    }
+    val range = GoalCalculator.healthyWeightRangeKg(heightCm)
+    Text(
+        stringResource(R.string.weight_bmi, "%.1f".format(bmi), stringResource(category)),
+        style = MaterialTheme.typography.bodyLarge,
+    )
+    Text(
+        stringResource(
+            R.string.weight_healthy_range,
+            formatWeight(range.start, useKg),
+            formatWeight(range.endInclusive, useKg),
+            if (useKg) "kg" else "lb",
+        ),
+        style = MaterialTheme.typography.bodySmall,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
 }
 
 @Composable
