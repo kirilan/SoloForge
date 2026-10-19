@@ -11,12 +11,13 @@ Ele é construído em torno da posse local dos seus dados:
 
 Recursos:
 
-* Cronômetro de jejum intermitente com modos 12:12, 14:10, 16:8, 18:6, 20:4 e 36 horas
+* Cronômetro de jejum intermitente com modos 12:12, 14:10, 16:8, 18:6, 20:4 e 36 horas, ou um jejum personalizado de até 7 dias
+* Faixa semanal (seg–dom) com as horas de jejum e sequências que contam cada dia que um jejum abrange
 * Lembretes de jejum baseados no seu estado, sem spam diário de notificações
 * Análise de fotos de comida com a sua própria chave de API do OpenRouter
 * Registro manual de refeições e estimativas de macros editáveis
-* Metas locais de calorias e macros
-* Histórico de peso com gráfico
+* Metas locais de calorias e macros, com uma calculadora opcional que as sugere a partir da sua altura, idade, atividade e ritmo
+* Histórico de peso com gráfico, linha de peso-meta e IMC com faixa saudável
 * Cronômetros de treino simples, por intervalos e exercício/descanso
 * Painel de jejum, nutrição, peso, tempo de treino e sequências
 * Notas de diário no calendário de progresso

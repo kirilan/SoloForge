@@ -11,12 +11,13 @@ It is built around local data ownership:
 
 Features:
 
-* Intermittent fasting timer with 12:12, 14:10, 16:8, 18:6, 20:4, and 36 hour modes
+* Intermittent fasting timer with 12:12, 14:10, 16:8, 18:6, 20:4, and 36 hour modes, or a custom fast of up to 7 days
+* Mon–Sun strip of hours fasted, with streaks that count every day a fast spans
 * State-driven fasting reminders instead of daily notification spam
 * Food photo analysis using your own OpenRouter API key
 * Manual meal entry and editable macro estimates
-* Local calorie and macro goals
-* Weight history with charting
+* Local calorie and macro goals, with an optional calculator that suggests them from your height, age, activity, and pace
+* Weight history with charting, a goal-weight line, and BMI with a healthy range
 * Simple, interval, and exercise/rest workout timers
 * Dashboard for fasting, nutrition, weight, workout time, and streaks
 * Daily journal notes on the progress calendar

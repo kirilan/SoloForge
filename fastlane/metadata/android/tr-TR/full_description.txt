@@ -11,12 +11,13 @@ Verilerin yerel sahipliği etrafında tasarlanmıştır:
 
 Özellikler:
 
-* 12:12, 14:10, 16:8, 18:6, 20:4 ve 36 saat modlu aralıklı oruç sayacı
+* 12:12, 14:10, 16:8, 18:6, 20:4 ve 36 saat modlu ya da 7 güne kadar özel süreli aralıklı oruç sayacı
+* Oruçla geçen saatleri gösteren haftalık (Pzt–Paz) şerit ve bir orucun kapsadığı her günü sayan seriler
 * Günlük bildirim yağmuru yerine duruma bağlı oruç hatırlatıcıları
 * Kendi OpenRouter API anahtarınızla yemek fotoğrafı analizi
 * Elle öğün girişi ve düzenlenebilir makro tahminleri
-* Yerel kalori ve makro hedefleri
-* Grafikli kilo geçmişi
+* Yerel kalori ve makro hedefleri; boy, yaş, aktivite ve hıza göre bunları öneren isteğe bağlı hesaplayıcı
+* Grafikli kilo geçmişi, hedef kilo çizgisi ve sağlıklı aralığıyla VKİ
 * Basit, aralıklı ve egzersiz/dinlenme antrenman sayaçları
 * Oruç, beslenme, kilo, antrenman süresi ve seriler için gösterge paneli
 * İlerleme takviminde günlük notlar

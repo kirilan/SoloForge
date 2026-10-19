@@ -11,12 +11,13 @@ Elle est conçue autour de la propriété locale des données :
 
 Fonctionnalités :
 
-* Minuteur de jeûne intermittent avec les modes 12:12, 14:10, 16:8, 18:6, 20:4 et 36 heures
+* Minuteur de jeûne intermittent avec les modes 12:12, 14:10, 16:8, 18:6, 20:4 et 36 heures, ou un jeûne personnalisé jusqu'à 7 jours
+* Bandeau hebdomadaire (lun–dim) des heures de jeûne, avec des séries qui comptent chaque jour couvert par un jeûne
 * Rappels de jeûne liés à votre progression plutôt que du spam quotidien de notifications
 * Analyse de photos de repas avec votre propre clé d'API OpenRouter
 * Saisie manuelle des repas et estimations de macros modifiables
-* Objectifs locaux de calories et de macros
-* Historique du poids avec graphique
+* Objectifs locaux de calories et de macros, avec un calculateur facultatif qui les suggère selon votre taille, votre âge, votre activité et votre rythme
+* Historique du poids avec graphique, ligne de poids cible et IMC avec sa plage saine
 * Minuteurs d'entraînement simple, par intervalles et exercice/repos
 * Tableau de bord pour le jeûne, la nutrition, le poids, le temps d'entraînement et les séries
 * Notes de journal quotidiennes dans le calendrier de progression

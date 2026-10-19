@@ -11,12 +11,13 @@ Está construida en torno a la propiedad local de tus datos:
 
 Funciones:
 
-* Temporizador de ayuno intermitente con modos 12:12, 14:10, 16:8, 18:6, 20:4 y 36 horas
+* Temporizador de ayuno intermitente con modos 12:12, 14:10, 16:8, 18:6, 20:4 y 36 horas, o un ayuno personalizado de hasta 7 días
+* Franja semanal (lun–dom) con las horas de ayuno y rachas que cuentan cada día que abarca un ayuno
 * Recordatorios de ayuno según tu estado, sin spam diario de notificaciones
 * Análisis de fotos de comida con tu propia clave de API de OpenRouter
 * Registro manual de comidas y estimaciones de macros editables
-* Objetivos locales de calorías y macros
-* Historial de peso con gráfica
+* Objetivos locales de calorías y macros, con una calculadora opcional que los sugiere a partir de tu altura, edad, actividad y ritmo
+* Historial de peso con gráfica, línea de peso objetivo e IMC con rango saludable
 * Temporizadores de ejercicio simple, por intervalos y de ejercicio/descanso
 * Panel de ayuno, nutrición, peso, tiempo de ejercicio y rachas
 * Notas de diario en el calendario de progreso
